@@ -42,8 +42,17 @@ const SelectPoke = (props) => {
       <h4>{PokeType}</h4>
       <h4>HP: {pokemonHP}</h4>
       <h4>Moves: {PokeMoves}</h4>
-      <button>Confirm</button>
-      <button>Back to Main Pokedex</button>
+      <button onClick={(e) => props.onReselectPokemon(e)}>
+        Back to Main Pokedex
+      </button>
+      <button
+        onClick={(e) => {
+          props.setPlayerArray(playerAttackArray);
+          props.onConfirmPokemon(e);
+        }}
+      >
+        Confirm
+      </button>
     </div>
   );
 };

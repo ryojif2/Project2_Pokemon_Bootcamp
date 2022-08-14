@@ -42,15 +42,12 @@ const MainPage = (props) => {
     });
   }, []);
 
-  // const handleSubmit = (e, pokemonData) => {
-  //   e.preventDefault();
-  //   setChosenPokemon((pokemonData) => {
-  //   }).then(
-  //     set(userRef, {
-  //       chosenPokemon: pokemonData,
-  //     })
-  //   );
-  // };
+  const handleConfirmPokemon = (e) => {
+    console.log(e);
+  };
+
+  const [playerArray, setPlayerArray] = useState([]);
+  console.log(playerArray);
 
   //Pokedex portion
   const [pokemonSelection, setPokemonSelection] = useState([]);
@@ -196,6 +193,13 @@ const MainPage = (props) => {
     });
   };
 
+  const handleReselectPokemon = (e) => {
+    setCurrPokemon();
+    navigate("/").catch((error) => {
+      console.log(error);
+    });
+  };
+
   return (
     <div>
       {/* Mainpage will need to get currUser as props from App.js. App.js need to
@@ -229,7 +233,14 @@ const MainPage = (props) => {
         <Route
           path="/selectpokemon"
           element={
-            <SelectPoke selectedPokemon={pokemonSelection[currPokemon]} />
+            <SelectPoke
+              selectedPokemon={pokemonSelection[currPokemon]}
+              onConfirmPokemon={(e) => handleConfirmPokemon(e)}
+              onReselectPokemon={(e) => handleReselectPokemon(e)}
+              setPlayerArray={(playerAttackArray) =>
+                setPlayerArray(playerAttackArray)
+              }
+            />
           }
         />
       </Routes>
