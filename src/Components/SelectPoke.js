@@ -1,8 +1,10 @@
 import React from "react";
 import axios from "axios";
+import {useEffect} from "react";
 
 const SelectPoke = (props) => {
-  const chosenPokemon = props.selectedPokemon;
+//  useEffect(()=>{ 
+   const chosenPokemon = props.selectedPokemon;
   const {
     pokemonHP,
     pokemonImageFront,
@@ -14,13 +16,14 @@ const SelectPoke = (props) => {
   const PokeName = pokemonName.toUpperCase();
   const PokeType = pokemonType.map((type) => <h5>{type}</h5>);
   const PokeMoves = pokemonMoves.map((move) => <h5>{move}</h5>);
+  // console.log(chosenPokemon);
   console.log(pokemonMovesURL);
 
   const playerAttackArray = [];
+
   pokemonMovesURL.map((url) => {
     axios.get(url).then((response) => {
       const { name, power } = response.data;
-
       console.log(name);
       console.log(power);
       playerAttackArray.push(power);
@@ -30,7 +33,9 @@ const SelectPoke = (props) => {
 
   console.log(playerAttackArray);
 
+
   return (
+    //repeating pokedex ?
     <div key={chosenPokemon} name={pokemonName}>
       <img
         style={{ height: "30vh" }}
@@ -48,7 +53,7 @@ const SelectPoke = (props) => {
       <button
         onClick={(e) => {
           props.setPlayerArray(playerAttackArray);
-          props.onConfirmPokemon(e);
+          props.onConfirmPokemon(chosenPokemon);
         }}
       >
         Confirm

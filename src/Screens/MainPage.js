@@ -3,7 +3,8 @@ import axios from "axios";
 import { database, storage } from "../DB/firebase";
 import Pokedex from "../Components/Pokedex.js";
 import SelectPoke from "../Components/SelectPoke";
-import UserProfile from "../Components/UserProfile.js";
+import BattlePage from "../Components/BattlePage";
+import UserProfile from "../Components/UserProfile";
 import {
   onChildAdded,
   push,
@@ -14,44 +15,41 @@ import {
 } from "firebase/database";
 import { Routes, Route, Link, useNavigate, Outlet } from "react-router-dom";
 
-const USERSTATS_FOLDER_NAME = "users";
+// const USERSTATS_FOLDER_NAME = "users";
 
 const MainPage = (props) => {
-  const currUser = props.currUser;
-  const userRef = dbRef(database, `${USERSTATS_FOLDER_NAME}/${currUser}`);
-  const [userStats, setUserStats] = useState({
-    username: "",
-    gamesPlayed: 0,
-    gamesWon: 0,
-    winRate: 0,
-    mostUsed: "",
-  });
+  // const currUser = props.currUser;
+  // const userRef = dbRef(database, `${USERSTATS_FOLDER_NAME}/${currUser}`);
+  // const [userStats, setUserStats] = useState({
+  //   username: "",
+  //   gamesPlayed: 0,
+  //   gamesWon: 0,
+  //   winRate: 0,
+  //   mostUsed: "",
+  // });
 
   // During first sign up and log in, we need to upload user data and initialise the above stats into firebase database using set.
 
   // same as ComponentdidMount. Obtain user profile/stats from firebase database and set state for userStats. Pass the info to Userprofile.js to render. Only set once whenever the stats in firebase database are changed.
-  useEffect(() => {
-    onChildChanged(userRef, (data) => {
-      if (data !== null) {
-        setUserStats(() => {
-          console.log(data.val);
-          // gamesPlayed: data.val.
-          // { key: data.key, val: data.val() }
-        });
-      }
-    });
-  }, []);
+  // useEffect(() => {
+  //   onChildChanged(userRef, (data) => {
+  //     if (data !== null) {
+  //       // setUserStats(() => {
+  //       //   console.log(data.val);
+  //       //   // gamesPlayed: data.val.
+  //       //   // { key: data.key, val: data.val() }
+  //       // });
+  //     }
+  //   });
+  // }, []);
 
-  const handleConfirmPokemon = (e) => {
-    console.log(e);
-  };
+ 
 
   const [playerArray, setPlayerArray] = useState([]);
-  console.log(playerArray);
-
-  //Pokedex portion
+ const [playerConfirmedPokemon, setPlayerConfirmedPokemon]=useState({});
+const [computerConfirmedPokemon, setComputerConfirmedPokemon]=useState({});
+  //Pokedex portion, generate 9 chosen pokemon from their URL
   const [pokemonSelection, setPokemonSelection] = useState([]);
-
   useEffect(() => {
     const promises = [];
     promises.push(axios.get("https://pokeapi.co/api/v2/pokemon/1"));
@@ -65,23 +63,21 @@ const MainPage = (props) => {
     promises.push(axios.get("https://pokeapi.co/api/v2/pokemon/92"));
 
     Promise.all(promises).then((results) =>
+    //map each pokemon result into a stats object
       results.map((pokemonData) => {
+      //destructure from data
         const { name, stats, types, sprites, moves } = pokemonData.data;
+        //HP based on level 60 bc level 1 is too low
         const pokemonHP = Math.floor(
           ((stats[0].base_stat + 50) * 60) / 50 + 10
         );
+        //extracting the data out according to structure
         const pokemonType = types.map((element) => element.type.name);
         const pokemonImageBack = sprites.back_default;
         const pokemonImageFront = sprites.front_default;
+        //extracting first 4 moves
         const pokemonMoves = moves.map((move) => move.move.name).slice(0, 4);
         const pokemonMovesURL = moves.map((move) => move.move.url).slice(0, 4);
-
-        //IGNORE THESE. JUST HERE FOR REFERENCE IF WE WANT TO DO THIS METHOD.
-        // moves
-        //   .filter((_, index) => index < 4)
-        //   .forEach((move) => {
-        //     fetchPokemonMove(move.move.url);
-        //   });
 
         const newStats = {
           pokemonName: name,
@@ -93,6 +89,8 @@ const MainPage = (props) => {
           pokemonImageFront: pokemonImageFront,
         };
 
+        //if 9 chosen pokemon url is unique, is this redundant?
+        //checking to make sure newStats to be placed is not inside already
         const doesntContainObject = (obj, list) => {
           var i;
           for (i = 0; i < list.length; i++) {
@@ -113,91 +111,51 @@ const MainPage = (props) => {
       })
     );
   }, [pokemonSelection]);
-  //IGNORE THESE. JUST HERE FOR REFERENCE IF WE WANT TO DO THIS METHOD.
-  // const [pokemonMoveSet, setPokemonMoveSet] = useState([]);
-  // const [pokemonFinalSet, setPokemonFinalSet] = useState([]);
 
-  // const fetchPokemonMove = (url) => {
-  //   axios.get(url).then((move) => {
-  //     const { name, power } = move.data;
-  //     const namePower = [name, power];
-  //     const doesntContainMove = (obj, list) => {
-  //       var i;
-  //       for (i = 0; i < list.length; i++) {
-  //         if (list[i][0] === obj[0]) {
-  //           return false;
-  //         }
-  //       }
-
-  //       return true;
-  //     };
-
-  //     if (doesntContainMove(namePower, pokemonMoveSet)) {
-  //       setPokemonMoveSet([...pokemonMoveSet, namePower]);
-  //     }
-  //   });
-  // };
-
-  // pokemonSelection.map((pokemon) => {
-  //   const movePower = [];
-  //   let i = 0;
-  //   while (i < 4) {
-  //     let j = 0;
-  //     while (j < pokemonMoveSet.length) {
-  //       if (pokemonMoveSet[j][0] === pokemon.pokemonMoves[i]) {
-  //         movePower.push(pokemonMoveSet[j][1]);
-  //         break;
-  //       }
-  //       j++;
-  //     }
-  //     i++;
-  //   }
-
-  //   const newPokemonSet = {
-  //     pokemonName: pokemon.pokemonName,
-  //     pokemonHP: pokemon.pokemonHP,
-  //     pokemonType: pokemon.pokemonType,
-  //     pokemonMoves: pokemon.pokemonMoves,
-  //     pokemonMovesPower: movePower,
-  //     pokemonImageBack: pokemon.pokemonImageBack,
-  //     pokemonImageFront: pokemon.pokemonImageFront,
-  //   };
-
-  //   const doesntContainObject = (obj, list) => {
-  //     var i;
-  //     for (i = 0; i < list.length; i++) {
-  //       if (list[i].pokemonName === obj.pokemonName) {
-  //         return false;
-  //       }
-  //     }
-
-  //     return true;
-  //   };
-
-  //   if (
-  //     pokemonFinalSet.length < 9 &&
-  //     doesntContainObject(newPokemonSet, pokemonFinalSet) &&
-  //     newPokemonSet.pokemonMovesPower.length === 4
-  //   ) {
-  //     setPokemonFinalSet([...pokemonFinalSet, newPokemonSet]);
-  //   }
-  //   return pokemonFinalSet;
-  // });
-
+  //when pokemon selected
   let navigate = useNavigate();
   const [currPokemon, setCurrPokemon] = useState(0);
   const handleChoosePokemonClick = (e) => {
     setCurrPokemon(e.target.name);
+    console.log(e.target.name,"e.target.name name of pokemon")
+    // console.log(pokemon,",data of pokemon")
+    console.log("navigate to select pokemon")
     navigate("/selectpokemon").catch((error) => {
       console.log(error);
     });
   };
 
+  //user press back to pokedex
   const handleReselectPokemon = (e) => {
+    console.log("reselect navigate back")
     setCurrPokemon();
     navigate("/").catch((error) => {
       console.log(error);
     });
+  };
+
+  //math random for computer
+const selectComputerPokemon = (playerPokemon) =>{
+
+for (let i=0;i<pokemonSelection.length;i++){
+  if (pokemonSelection[i].pokemonName==playerPokemon.pokemonName){
+   pokemonSelection.splice(i,1)
+  }
+}
+return pokemonSelection[Math.floor(Math.random()*8 +1)]
+}
+  //user selected and press confirm
+   const handleConfirmPokemon = (confirmedPokemon) => {
+    console.log(confirmedPokemon);
+    //route to battlepage here useNavigate
+    navigate("/battlepage")
+    console.log("battle!")
+    //pass the confirmed pokemons to battlepage
+setPlayerConfirmedPokemon(confirmedPokemon)
+
+setComputerConfirmedPokemon(selectComputerPokemon(confirmedPokemon))
+    //push array of player and comp pokemon info to database
+    //push array of player and comp moves info to database
   };
 
   return (
@@ -215,7 +173,7 @@ const MainPage = (props) => {
                                             [0]: Game 1 etc.
                                             
                              -> user2... */}
-      <UserProfile currUser={props.currUser} userStats={userStats} />
+      <UserProfile/>
       <br />
       <br />
       <Outlet />
@@ -234,8 +192,9 @@ const MainPage = (props) => {
           path="/selectpokemon"
           element={
             <SelectPoke
+            //just put pokemon directly here?
               selectedPokemon={pokemonSelection[currPokemon]}
-              onConfirmPokemon={(e) => handleConfirmPokemon(e)}
+              onConfirmPokemon={(confirmedPokemon) => handleConfirmPokemon(confirmedPokemon)}
               onReselectPokemon={(e) => handleReselectPokemon(e)}
               setPlayerArray={(playerAttackArray) =>
                 setPlayerArray(playerAttackArray)
@@ -243,6 +202,8 @@ const MainPage = (props) => {
             />
           }
         />
+        <Route path="/battlepage" element={<BattlePage playerConfirmedPokemon={playerConfirmedPokemon}
+        computerConfirmedPokemon={computerConfirmedPokemon}/>}/>
       </Routes>
     </div>
   );
