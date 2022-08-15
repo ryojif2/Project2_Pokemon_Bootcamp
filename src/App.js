@@ -24,8 +24,11 @@ import {
   signOut,
   onAuthStateChanged,
 } from "firebase/auth";
+import MainPage from "./Screens/MainPage";
 
 const App = () => {
+  let navigate = useNavigate();
+
   return (
     <div className="App">
       <header className="App-header">
@@ -41,6 +44,9 @@ const App = () => {
         >
           Learn React
         </a>
+        <Routes>
+          <Route path="/*" element={<MainPage />} />
+        </Routes>
       </header>
     </div>
   );
