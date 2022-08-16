@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import "../App.css";
 
 const Pokedex = (props) => {
   let pokemonMap = props.pokemonSelection.map((pokemon, i) => {
@@ -8,9 +9,12 @@ const Pokedex = (props) => {
 
     return (
       <div key={pokemon.pokemonName} name={i}>
-        <button name={i} onClick={(e) => props.onChoosePokemonClick(e)}>
+        <button
+          name={i}
+          onClick={(e) => props.onChoosePokemonClick(e, pokemon)}
+        >
           <img
-            style={{ height: "30vh" }}
+            style={{ height: "10vh" }}
             src={pokemon.pokemonImageFront}
             alt={pokemon.pokemonImageFront}
             name={i}
@@ -25,9 +29,8 @@ const Pokedex = (props) => {
   });
 
   return (
-    <div>
+    <div className="pokedexMap">
       {pokemonMap}
-
       {/* <button onClick={(e, chosenPokemon) => props.onSubmit (e, chosenPokemon)}>Confirm</button> */}
     </div>
   );
