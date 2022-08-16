@@ -33,6 +33,7 @@ const App = () => {
       setEmailInputValue={setEmailInputValue}
       passwordInputValue={passwordInputValue}
       setPasswordInputValue={setPasswordInputValue}
+      auth={auth}
     />
   );
   const login = (
@@ -43,19 +44,30 @@ const App = () => {
       setPasswordInputValue={setPasswordInputValue}
       setLoggedInUser={setLoggedInUser}
       loggedInUser={loggedInUser}
+      auth={auth}
     />
   );
   //Enter the Pokemon selection page
-  const choose = <Choose loggedInUser={loggedInUser} />;
+  const choose = (
+    <Choose
+      loggedInUser={loggedInUser}
+      auth={auth}
+      setLoggedInUser={setLoggedInUser}
+    />
+  );
 
   const createAccountOrSignInButton = (
     <div>
       <button className="buttonR">
-        <Link to="register">Create account</Link>
+        <Link to="register" className="buttonText">
+          Create account
+        </Link>
       </button>
       <br />
-      <button className="buttonL" textDecoration="none">
-        <Link to="login">Login</Link>
+      <button className="buttonL">
+        <Link to="login" className="buttonText2">
+          Login
+        </Link>
       </button>
     </div>
   );
@@ -79,9 +91,9 @@ const App = () => {
           />
           <Routes>
             <Route path="/" element={choosingPage} />
-            <Route path="register" element={register} />
-            <Route path="login" element={login} />
-            <Route path="choose" element={choose} />
+            <Route path="/register" element={register} />
+            <Route path="/login" element={login} />
+            <Route path="/choose" element={choose} />
           </Routes>
         </header>
         <br />

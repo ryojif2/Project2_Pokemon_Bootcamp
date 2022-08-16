@@ -5,12 +5,14 @@ import { auth } from "../DB/firebase";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 
-function Choose() {
+function Choose(props) {
   const navigate = useNavigate();
 
   const logout = () => {
     console.log("logout");
+    props.setLoggedInUser(false);
     signOut(auth);
+    navigate("/");
   };
 
   return (

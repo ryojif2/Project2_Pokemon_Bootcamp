@@ -45,6 +45,7 @@
   margin: 10px;
   text-decoration: none;
   color: whitesmoke;
+  text-decoration: none;
 }
 
 .buttonL {
@@ -52,6 +53,16 @@
   position: relative;
   width: 330px;
   height: 56px;
+  text-decoration: none;
+  color: black;
+}
+
+.buttonText {
+  text-decoration: none;
+  color: #ffffff;
+}
+
+.buttonText2 {
   text-decoration: none;
   color: black;
 }

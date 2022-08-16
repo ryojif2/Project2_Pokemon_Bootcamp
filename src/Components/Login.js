@@ -35,7 +35,7 @@ const Login = (props) => {
       props.passwordInputValue
     )
       .then(closeAuthForm)
-      .then(navigate("/"))
+      .then(navigate("/choose"))
       .catch((error) => {
         alert("You have not registered! Please register");
         console.error(error);
