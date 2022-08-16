@@ -60,10 +60,6 @@ const BattlePage = (props) => {
        </div>
        <div>  <p>Make a move and attack!</p></div>
           <h1>Player (YOU) </h1>
-        {/* <img src="https://images.gameinfo.io/pokemon/256/p143f157.png" alt="snorlax"/>
-       <p>Name:Snorlax</p>
-       <p>Health: 200</p>
-       <p>Skills:sleeping</p> */}
          <div key={playerChosenPokemon} name={playerPokemonName}>
       <img
         style={{ height: "25vh" }}
