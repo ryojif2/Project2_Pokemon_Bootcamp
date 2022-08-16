@@ -1,12 +1,13 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../DB/firebase";
+import { signInWithEmailAndPassword, getAuth } from "firebase/auth";
+// import { auth } from "../DB/firebase";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
+const auth = getAuth();
 
 const Login = (props) => {
   const navigate = useNavigate();
@@ -35,7 +36,7 @@ const Login = (props) => {
       props.passwordInputValue
     )
       .then(closeAuthForm)
-      .then(navigate("/choose"))
+      .then(navigate("/mainpage"))
       .catch((error) => {
         alert("You have not registered! Please register");
         console.error(error);
