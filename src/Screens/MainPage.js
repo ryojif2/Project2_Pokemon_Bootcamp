@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { auth } from "../DB/firebase";
+import Button from "@mui/material/Button";
 import { database, storage } from "../DB/firebase";
 import Pokedex from "../Components/Pokedex.js";
 import SelectPoke from "../Components/SelectPoke";
@@ -14,44 +16,19 @@ import {
   onChildChanged,
 } from "firebase/database";
 import { Routes, Route, Link, useNavigate, Outlet } from "react-router-dom";
+import { signOut } from "firebase/auth";
 
 // const USERSTATS_FOLDER_NAME = "users";
-const PLAYER_POKEMON="playerpokemon"
-const COMPUTER_POKEMON="computerpokemon"
+const PLAYER_POKEMON = "playerpokemon";
+const COMPUTER_POKEMON = "computerpokemon";
 const MainPage = (props) => {
-  // const currUser = props.currUser;
-  // const userRef = dbRef(database, `${USERSTATS_FOLDER_NAME}/${currUser}`);
-  // const [userStats, setUserStats] = useState({
-  //   username: "",
-  //   gamesPlayed: 0,
-  //   gamesWon: 0,
-  //   winRate: 0,
-  //   mostUsed: "",
-  // });
-
-  // During first sign up and log in, we need to upload user data and initialise the above stats into firebase database using set.
-
-  // same as ComponentdidMount. Obtain user profile/stats from firebase database and set state for userStats. Pass the info to Userprofile.js to render. Only set once whenever the stats in firebase database are changed.
-  // useEffect(() => {
-  //   onChildChanged(userRef, (data) => {
-  //     if (data !== null) {
-  //       // setUserStats(() => {
-  //       //   console.log(data.val);
-  //       //   // gamesPlayed: data.val.
-  //       //   // { key: data.key, val: data.val() }
-  //       // });
-  //     }
-  //   });
-  // }, []);
-
  
-
   const [playerArray, setPlayerArray] = useState([]);
-  const [computerArray, setComputerArray]=useState([])
+  const [computerArray, setComputerArray] = useState([]);
 //   [10,20,30,40]
 //  playerAttack=playerArray[math.random()*playerArray.length]
- const [playerConfirmedPokemon, setPlayerConfirmedPokemon]=useState({});
-const [computerConfirmedPokemon, setComputerConfirmedPokemon]=useState({});
+  const [playerConfirmedPokemon, setPlayerConfirmedPokemon] = useState({});
+  const [computerConfirmedPokemon, setComputerConfirmedPokemon] = useState({});
   //Pokedex portion, generate 9 chosen pokemon from their URL
   const [pokemonSelection, setPokemonSelection] = useState([]);
   useEffect(() => {
@@ -121,17 +98,17 @@ const [computerConfirmedPokemon, setComputerConfirmedPokemon]=useState({});
   const [currPokemon, setCurrPokemon] = useState(0);
   const handleChoosePokemonClick = (e) => {
     setCurrPokemon(e.target.name);
-    console.log(e.target.name,"e.target.name name of pokemon")
+    console.log(e.target.name, "e.target.name name of pokemon");
     // console.log(pokemon,",data of pokemon")
-    console.log("navigate to select pokemon")
-    navigate("/selectpokemon").catch((error) => {
+    console.log("navigate to select pokemon");
+    navigate("selectpokemon").catch((error) => {
       console.log(error);
     });
   };
 
   //user press back to pokedex
   const handleReselectPokemon = (e) => {
-    console.log("reselect navigate back")
+    console.log("reselect navigate back");
     setCurrPokemon();
     navigate("/").catch((error) => {
       console.log(error);
@@ -167,17 +144,14 @@ pokemonMovesURL.forEach((url) => {
         console.log("hi running ")
         if (power==null){const power=1; compArray.push(power)}
         else compArray.push(power)
-      }
-      // else {setComputerArray([power])
-      // console.log("dun exist")}
-   ) });
+      }) });
 console.log("set comp array!", compArray)
  setComputerArray(compArray);
 }
 
 
 const pushPlayerPokemonData = (playerPokemonData,computerPokemonData,playerArray,computerArray) => {
- if(playerPokemonData && computerPokemonData && computerArray){ 
+ if(playerPokemonData && computerPokemonData && computerArray.length===4){ 
   console.log(playerPokemonData, "player poke data")
    console.log(computerPokemonData, "computer poke data")
 
@@ -201,36 +175,28 @@ useEffect(()=>{
  //route to battlepage here useNavigate
   if (
       Object.keys(playerConfirmedPokemon).length !== 0 &&
-      Object.keys(computerConfirmedPokemon).length !== 0
-    ) 
+      Object.keys(computerConfirmedPokemon).length !== 0 
+  )
 //  if(playerConfirmedPokemon  && computerArray && computerConfirmedPokemon)
    { console.log("hiiii! player and comp cfm pokemon")
     console.log(playerConfirmedPokemon,playerArray)
-    console.log("is this same updated as COMPUTER CFM POKEMON?", computerConfirmedPokemon)
-console.log("WITH PLAYER INFO USE EFFECT computer array", computerArray);
+    console.log("COMP CFM POKEMON USE EFFECT", computerConfirmedPokemon)
+console.log(" USE EFFECT computer array", computerArray);
 pushPlayerPokemonData(playerConfirmedPokemon,computerConfirmedPokemon,playerArray,computerArray)
 }
 }, [playerConfirmedPokemon,computerConfirmedPokemon,playerArray,computerArray])
 
+ 
 
 
-// useEffect(()=>{
-// //when any changes made to player or comp pokemon
-// console.log("hiiii! computer cfm pokemon", computerConfirmedPokemon)
-// console.log("computer array", computerArray);
-// // pushPlayerPokemonData(confirmedPokemon,selectComputerPokemon(confirmedPokemon)) 
-// },[computerConfirmedPokemon])
-
-  //user selected and press confirm
    const handleConfirmPokemon =(confirmedPokemon) => {
     console.log(confirmedPokemon);
       //pass the confirmed pokemons to battlepage through state
 setPlayerConfirmedPokemon(confirmedPokemon);
 selectComputerPokemon(confirmedPokemon);
-   navigate("/battlepage")
+   navigate("battlepage")
     console.log("battle!")
-  };
-
+  }
 // const [playerTurn,setPlayerTurn]=useState(true)
 
 // const handleAttack = ()=>{
@@ -248,22 +214,16 @@ selectComputerPokemon(confirmedPokemon);
 
 // }
 
+  const logout = () => {
+    console.log("logout");
+    props.setLoggedInUser(false);
+    signOut(auth);
+    navigate("/");
+  };
   return (
     <div>
-      {/* Mainpage will need to get currUser as props from App.js. App.js need to
-      get profile from users -> user1 (identify by name?) 
-                                user name: name @login 
-                                games played: 
-                                games won: 
-                                win rate: 
-                                mostUsed: 
-                                chosenPokemon: object
-                                currGameMoves: array 
-                                gameHistory: array of objects. 
-                                            [0]: Game 1 etc.
-                                            
-                             -> user2... */}
-      <UserProfile/>
+     
+      <UserProfile />
       <br />
       <br />
       <Outlet />
@@ -284,7 +244,9 @@ selectComputerPokemon(confirmedPokemon);
             <SelectPoke
             //just put pokemon directly here?
               selectedPokemon={pokemonSelection[currPokemon]}
-              onConfirmPokemon={(confirmedPokemon) => handleConfirmPokemon(confirmedPokemon)}
+              onConfirmPokemon={(confirmedPokemon) =>
+                handleConfirmPokemon(confirmedPokemon)
+              }
               onReselectPokemon={(e) => handleReselectPokemon(e)}
               setPlayerArray={(playerAttackArray) =>
                 setPlayerArray(playerAttackArray)
@@ -292,9 +254,17 @@ selectComputerPokemon(confirmedPokemon);
             />
           }
         />
-        <Route path="/battlepage" element={<BattlePage playerConfirmedPokemon={playerConfirmedPokemon}
-        computerConfirmedPokemon={computerConfirmedPokemon}/>}/>
+        <Route
+          path="/battlepage"
+          element={
+            <BattlePage
+              playerConfirmedPokemon={playerConfirmedPokemon}
+              computerConfirmedPokemon={computerConfirmedPokemon}
+            />
+          }
+        />
       </Routes>
+      <Button onClick={() => logout()}>Logout</Button>
     </div>
   );
 };
