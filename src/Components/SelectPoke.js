@@ -1,10 +1,11 @@
 import React from "react";
 import axios from "axios";
-import {useEffect} from "react";
+import { useEffect, useState } from "react";
 
 const SelectPoke = (props) => {
-//  useEffect(()=>{ 
-   const chosenPokemon = props.selectedPokemon;
+  //  useEffect(()=>{
+  console.log(props);
+  const chosenPokemon = props.selectedPokemon;
   const {
     pokemonHP,
     pokemonImageFront,
@@ -33,6 +34,57 @@ const SelectPoke = (props) => {
 
   console.log(playerAttackArray);
 
+  // // const computerPokemonSelect = props.selectComputerPokemon;
+  // props.selectComputerPokemon();
+
+  const selectComputerPokemon = (playerPokemon) => {
+    for (let i = 0; i < props.availablePokemon.length; i++) {
+      if (props.availablePokemon[i].pokemonName == playerPokemon.pokemonName) {
+        props.availablePokemon.splice(i, 1);
+      }
+    }
+    const computerPokemonObject =
+      props.availablePokemon[Math.floor(Math.random() * 8 + 1)];
+
+    getComputerArray(computerPokemonObject);
+
+    return computerPokemonObject;
+  };
+
+  const getComputerArray = (pokeAPI) => {
+    const { pokemonMovesURL } = pokeAPI;
+    const compArray = [];
+    pokemonMovesURL.map((url) => {
+      axios.get(url).then(
+        (response) => {
+          const { name, power } = response.data;
+          console.log(name);
+          console.log(power);
+          console.log(compArray, "compArray");
+          console.log("hi running ");
+          compArray.push(power);
+        }
+        // else {setComputerArray([power])
+        // console.log("dun exist")}
+      );
+    });
+    console.log("set comp array!");
+    props.computerMovesState(compArray);
+  };
+
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  if (!isLoaded) {
+    props.computerPokemonState(selectComputerPokemon(chosenPokemon));
+    setIsLoaded(true);
+  } else {
+    console.log("loaded");
+  }
+
+  console.log();
+  // const data = selectComputerPokemon(chosenPokemon);
+
+  // props.setComputerPokemonState(data);
 
   return (
     //repeating pokedex ?
