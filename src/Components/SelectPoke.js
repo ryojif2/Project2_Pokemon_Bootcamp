@@ -31,7 +31,6 @@ const SelectPoke = (props) => {
     });
   });
 
-  console.log(playerAttackArray);
 
 
   return (
@@ -54,6 +53,7 @@ const SelectPoke = (props) => {
         onClick={(e) => {
           props.setPlayerArray(playerAttackArray);
           props.onConfirmPokemon(chosenPokemon);
+
         }}
       >
         Confirm
