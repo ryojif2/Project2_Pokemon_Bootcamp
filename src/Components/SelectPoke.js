@@ -24,7 +24,7 @@ const SelectPoke = (props) => {
   const PokeType = pokemonType.map((type) => <h5>{type}</h5>);
   const PokeMoves = pokemonMoves.map((move) => <h5>{move}</h5>);
 
-  console.log(pokemonMovesURL);
+
 
   const playerAttackArray = [];
 
@@ -46,7 +46,7 @@ const SelectPoke = (props) => {
     navigate("/");
   };
 
-  console.log(playerAttackArray);
+  
 
   return (
     //repeating pokedex ?
@@ -69,6 +69,7 @@ const SelectPoke = (props) => {
           props.setPlayerArray(playerAttackArray);
 
           props.onConfirmPokemon(chosenPokemon);
+
         }}
       >
         Confirm
