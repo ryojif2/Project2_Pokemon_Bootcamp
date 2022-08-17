@@ -3,20 +3,17 @@ import React, { useEffect, useState } from "react";
 import { Link, Routes, Route } from "react-router-dom";
 import "./App.css";
 import Register from "./Components/Register";
-import MainPage from "./Screens/MainPage";
+import MainPage from "./Components/MainPage";
 import Login from "./Components/Login";
 import Typography from "@mui/material/Typography";
 // import Button from "@mui/material/Button";
-// import { auth } from "../src/DB/firebase";
-import SelectPoke from "./Components/SelectPoke";
-import BattlePage from "./Components/BattlePage";
-
+const auth = getAuth();
 const App = () => {
   const [loggedInUser, setLoggedInUser] = useState();
   const [emailInputValue, setEmailInputValue] = useState("");
   const [passwordInputValue, setPasswordInputValue] = useState("");
-  const [username, setUsername] = useState("");
-  const auth = getAuth();
+  const [nameInputValue, setUserName] = useState("");
+
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
       // If user is logged in, save logged-in user to state
@@ -37,8 +34,8 @@ const App = () => {
       passwordInputValue={passwordInputValue}
       setPasswordInputValue={setPasswordInputValue}
       auth={auth}
-      username={username}
-      setUserName={setUsername}
+      nameInputValue={nameInputValue}
+      setUserName={setUserName}
     />
   );
   const login = (
@@ -58,8 +55,7 @@ const App = () => {
       loggedInUser={loggedInUser}
       auth={auth}
       setLoggedInUser={setLoggedInUser}
-      username={username}
-      setUserName={setUsername}
+      nameInputValue={nameInputValue}
     />
   );
 
@@ -100,9 +96,7 @@ const App = () => {
             <Route path="/" element={choosingPage} />
             <Route path="/register" element={register} />
             <Route path="/login" element={login} />
-            <Route path="/mainpage/*" element={mainpage} />
-            <Route path="selectpokemon" element={<SelectPoke />} />
-            <Route path="battlepage" element={<BattlePage />} />
+            <Route path="/mainpage" element={mainpage} />
           </Routes>
         </header>
         <br />

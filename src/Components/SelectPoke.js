@@ -1,10 +1,17 @@
 import React from "react";
 import axios from "axios";
-import {useEffect} from "react";
+import { signOut } from "firebase/auth";
+import { auth } from "../DB/firebase";
+import Button from "@mui/material/Button";
+import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import "../App.css";
 
 const SelectPoke = (props) => {
-//  useEffect(()=>{ 
-   const chosenPokemon = props.selectedPokemon;
+  let navigate = useNavigate();
+
+  //  useEffect(()=>{
+  const chosenPokemon = props.selectedPokemon;
   const {
     pokemonHP,
     pokemonImageFront,
@@ -16,7 +23,7 @@ const SelectPoke = (props) => {
   const PokeName = pokemonName.toUpperCase();
   const PokeType = pokemonType.map((type) => <h5>{type}</h5>);
   const PokeMoves = pokemonMoves.map((move) => <h5>{move}</h5>);
-  // console.log(chosenPokemon);
+
   console.log(pokemonMovesURL);
 
   const playerAttackArray = [];
@@ -24,6 +31,7 @@ const SelectPoke = (props) => {
   pokemonMovesURL.map((url) => {
     axios.get(url).then((response) => {
       const { name, power } = response.data;
+
       console.log(name);
       console.log(power);
       playerAttackArray.push(power);
@@ -31,8 +39,14 @@ const SelectPoke = (props) => {
     });
   });
 
-  console.log(playerAttackArray);
+  const logout = () => {
+    console.log("logout");
+    props.setLoggedInUser(false);
+    signOut(auth);
+    navigate("/");
+  };
 
+  console.log(playerAttackArray);
 
   return (
     //repeating pokedex ?
@@ -43,21 +57,24 @@ const SelectPoke = (props) => {
         alt={pokemonImageFront}
         name={pokemonName}
       />
-      <h4>{PokeName}</h4>
-      <h4>{PokeType}</h4>
-      <h4>HP: {pokemonHP}</h4>
-      <h4>Moves: {PokeMoves}</h4>
+      <p>{PokeName}</p>
+      <p>{PokeType}</p>
+      <p>HP: {pokemonHP}</p>
+      <p>Moves: {PokeMoves}</p>
       <button onClick={(e) => props.onReselectPokemon(e)}>
         Back to Main Pokedex
       </button>
       <button
-        onClick={(e) => {
+        onClick={() => {
           props.setPlayerArray(playerAttackArray);
+
           props.onConfirmPokemon(chosenPokemon);
         }}
       >
         Confirm
       </button>
+
+      <Button onClick={() => logout()}>Logout</Button>
     </div>
   );
 };

@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { auth } from "../DB/firebase";
+import Button from "@mui/material/Button";
 import { database, storage } from "../DB/firebase";
 import Pokedex from "../Components/Pokedex.js";
 import SelectPoke from "../Components/SelectPoke";
@@ -14,10 +16,11 @@ import {
   onChildChanged,
 } from "firebase/database";
 import { Routes, Route, Link, useNavigate, Outlet } from "react-router-dom";
+import { signOut } from "firebase/auth";
 
 // const USERSTATS_FOLDER_NAME = "users";
-const PLAYER_POKEMON="playerpokemon"
-const COMPUTER_POKEMON="computerpokemon"
+const PLAYER_POKEMON = "playerpokemon";
+const COMPUTER_POKEMON = "computerpokemon";
 const MainPage = (props) => {
   // const currUser = props.currUser;
   // const userRef = dbRef(database, `${USERSTATS_FOLDER_NAME}/${currUser}`);
@@ -44,14 +47,12 @@ const MainPage = (props) => {
   //   });
   // }, []);
 
- 
-
   const [playerArray, setPlayerArray] = useState([]);
-  const [computerArray, setComputerArray]=useState([])
-//   [10,20,30,40]
-//  playerAttack=playerArray[math.random()*playerArray.length]
- const [playerConfirmedPokemon, setPlayerConfirmedPokemon]=useState({});
-const [computerConfirmedPokemon, setComputerConfirmedPokemon]=useState({});
+  const [computerArray, setComputerArray] = useState([]);
+  //   [10,20,30,40]
+  //  playerAttack=playerArray[math.random()*playerArray.length]
+  const [playerConfirmedPokemon, setPlayerConfirmedPokemon] = useState({});
+  const [computerConfirmedPokemon, setComputerConfirmedPokemon] = useState({});
   //Pokedex portion, generate 9 chosen pokemon from their URL
   const [pokemonSelection, setPokemonSelection] = useState([]);
   useEffect(() => {
@@ -67,9 +68,9 @@ const [computerConfirmedPokemon, setComputerConfirmedPokemon]=useState({});
     promises.push(axios.get("https://pokeapi.co/api/v2/pokemon/92"));
 
     Promise.all(promises).then((results) =>
-    //map each pokemon result into a stats object
+      //map each pokemon result into a stats object
       results.map((pokemonData) => {
-      //destructure from data
+        //destructure from data
         const { name, stats, types, sprites, moves } = pokemonData.data;
         //HP based on level 60 bc level 1 is too low
         const pokemonHP = Math.floor(
@@ -121,17 +122,17 @@ const [computerConfirmedPokemon, setComputerConfirmedPokemon]=useState({});
   const [currPokemon, setCurrPokemon] = useState(0);
   const handleChoosePokemonClick = (e) => {
     setCurrPokemon(e.target.name);
-    console.log(e.target.name,"e.target.name name of pokemon")
+    console.log(e.target.name, "e.target.name name of pokemon");
     // console.log(pokemon,",data of pokemon")
-    console.log("navigate to select pokemon")
-    navigate("/selectpokemon").catch((error) => {
+    console.log("navigate to select pokemon");
+    navigate("selectpokemon").catch((error) => {
       console.log(error);
     });
   };
 
   //user press back to pokedex
   const handleReselectPokemon = (e) => {
-    console.log("reselect navigate back")
+    console.log("reselect navigate back");
     setCurrPokemon();
     navigate("/").catch((error) => {
       console.log(error);
@@ -139,90 +140,98 @@ const [computerConfirmedPokemon, setComputerConfirmedPokemon]=useState({});
   };
 
   //math random for computer pokemon
-const selectComputerPokemon = (playerPokemon) =>{
-
-for (let i=0;i<pokemonSelection.length;i++){
-  if (pokemonSelection[i].pokemonName==playerPokemon.pokemonName){
-   pokemonSelection.splice(i,1)
-  }
-}
-return pokemonSelection[Math.floor(Math.random()*8 +1)]
-}
-
-const getComputerArray=(pokeAPI)=>{
-const {pokemonMovesURL} = pokeAPI;
-const compArray=[]
-  pokemonMovesURL.map((url) => {
-    axios.get(url).then((response) => {
-       const { name, power } = response.data;
-      console.log(name);
-      console.log(power);
-      console.log(compArray,"compArray")
-        console.log("hi running ")
-        compArray.push(power)
+  const selectComputerPokemon = (playerPokemon) => {
+    for (let i = 0; i < pokemonSelection.length; i++) {
+      if (pokemonSelection[i].pokemonName === playerPokemon.pokemonName) {
+        pokemonSelection.splice(i, 1);
       }
-      // else {setComputerArray([power])
-      // console.log("dun exist")}
-   ) });
-console.log("set comp array!")
- setComputerArray(compArray);
-}
-
-
-const pushPlayerPokemonData = (playerPokemonData,computerPokemonData) => {
-  console.log(playerPokemonData, "player poke data");
-   console.log(computerPokemonData, "computer poke data");
-  const playerRef=dbRef(database,PLAYER_POKEMON);
-  const newPlayerRef=push(playerRef);
-  set(newPlayerRef,{pokemonName:playerPokemonData.pokemonName, 
-    pokemonHP:playerPokemonData.pokemonHP,
-    pokemonAttacks:[playerArray]})
-
-
- const computerRef=dbRef(database,COMPUTER_POKEMON);
-  const newComputerRef=push(computerRef);
-  set(newComputerRef, {pokemonName:computerPokemonData.pokemonName,
-     pokemonHP:computerPokemonData.pokemonHP,
-     pokemonAttacks:[computerArray]})
-//consider to set into internal state
-
-
-}
-
-
-  //user selected and press confirm
-   const handleConfirmPokemon = (confirmedPokemon) => {
-    console.log(confirmedPokemon);
-    //route to battlepage here useNavigate
-    navigate("/battlepage")
-    console.log("battle!")
-    //pass the confirmed pokemons to battlepage
-setPlayerConfirmedPokemon(confirmedPokemon)
-setComputerConfirmedPokemon(selectComputerPokemon(confirmedPokemon))
-    //push array of player and comp pokemon info to database
-pushPlayerPokemonData(confirmedPokemon,selectComputerPokemon(confirmedPokemon))    
-//push array of player and comp moves info to database
-getComputerArray(selectComputerPokemon(confirmedPokemon));
-
+    }
+    return pokemonSelection[Math.floor(Math.random() * 8 + 1)];
   };
 
-// const [playerTurn,setPlayerTurn]=useState(true)
+  const getComputerArray = (pokeAPI) => {
+    const { pokemonMovesURL } = pokeAPI;
+    const compArray = [];
+    pokemonMovesURL.map((url) => {
+      axios.get(url).then(
+        (response) => {
+          const { name, power } = response.data;
+          console.log(name);
+          console.log(power);
+          console.log(compArray, "compArray");
+          console.log("hi running ");
+          compArray.push(power);
+        }
+        // else {setComputerArray([power])
+        // console.log("dun exist")}
+      );
+    });
+    console.log("set comp array!");
+    setComputerArray(compArray);
+  };
 
-// const handleAttack = ()=>{
-//   if(playerTurn){
-// //ref player attack damage
-// const playerAttack=playerArray[math.random()*playerArray.length]
-// //ref computer DB and minus the HP
-// //toggle to !PlayerTurn and auto call func again
+  const pushPlayerPokemonData = (playerPokemonData, computerPokemonData) => {
+    console.log(playerPokemonData, "player poke data");
+    console.log(computerPokemonData, "computer poke data");
+    const playerRef = dbRef(database, PLAYER_POKEMON);
+    const newPlayerRef = push(playerRef);
+    set(newPlayerRef, {
+      pokemonName: playerPokemonData.pokemonName,
+      pokemonHP: playerPokemonData.pokemonHP,
+      pokemonAttacks: [playerArray],
+    });
 
-//   } else (playerTurn===false){
-// //ref computer attack damage
-// //ref player DB and minus the HP
-// //toggle to playerTurn
-//   }
+    const computerRef = dbRef(database, COMPUTER_POKEMON);
+    const newComputerRef = push(computerRef);
+    set(newComputerRef, {
+      pokemonName: computerPokemonData.pokemonName,
+      pokemonHP: computerPokemonData.pokemonHP,
+      pokemonAttacks: [computerArray],
+    });
+    //consider to set into internal state
+  };
 
-// }
+  //user selected and press confirm
+  const handleConfirmPokemon = (confirmedPokemon) => {
+    console.log(confirmedPokemon);
+    //route to battlepage here useNavigate
+    navigate("battlepage");
+    console.log("battle!");
+    //pass the confirmed pokemons to battlepage
+    setPlayerConfirmedPokemon(confirmedPokemon);
+    setComputerConfirmedPokemon(selectComputerPokemon(confirmedPokemon));
+    //push array of player and comp pokemon info to database
+    pushPlayerPokemonData(
+      confirmedPokemon,
+      selectComputerPokemon(confirmedPokemon)
+    );
+    //push array of player and comp moves info to database
+    getComputerArray(selectComputerPokemon(confirmedPokemon));
+  };
 
+  // const [playerTurn,setPlayerTurn]=useState(true)
+
+  // const handleAttack = ()=>{
+  //   if(playerTurn){
+  // //ref player attack damage
+  // const playerAttack=playerArray[math.random()*playerArray.length]
+  // //ref computer DB and minus the HP
+  // //toggle to !PlayerTurn and auto call func again
+
+  //   } else (playerTurn===false){
+  // //ref computer attack damage
+  // //ref player DB and minus the HP
+  // //toggle to playerTurn
+  //   }
+
+  // }
+
+  const logout = () => {
+    console.log("logout");
+    props.setLoggedInUser(false);
+    signOut(auth);
+    navigate("/");
+  };
   return (
     <div>
       {/* Mainpage will need to get currUser as props from App.js. App.js need to
@@ -238,7 +247,7 @@ getComputerArray(selectComputerPokemon(confirmedPokemon));
                                             [0]: Game 1 etc.
                                             
                              -> user2... */}
-      <UserProfile/>
+      <UserProfile />
       <br />
       <br />
       <Outlet />
@@ -257,9 +266,11 @@ getComputerArray(selectComputerPokemon(confirmedPokemon));
           path="/selectpokemon"
           element={
             <SelectPoke
-            //just put pokemon directly here?
+              //just put pokemon directly here?
               selectedPokemon={pokemonSelection[currPokemon]}
-              onConfirmPokemon={(confirmedPokemon) => handleConfirmPokemon(confirmedPokemon)}
+              onConfirmPokemon={(confirmedPokemon) =>
+                handleConfirmPokemon(confirmedPokemon)
+              }
               onReselectPokemon={(e) => handleReselectPokemon(e)}
               setPlayerArray={(playerAttackArray) =>
                 setPlayerArray(playerAttackArray)
@@ -267,9 +278,17 @@ getComputerArray(selectComputerPokemon(confirmedPokemon));
             />
           }
         />
-        <Route path="/battlepage" element={<BattlePage playerConfirmedPokemon={playerConfirmedPokemon}
-        computerConfirmedPokemon={computerConfirmedPokemon}/>}/>
+        <Route
+          path="/battlepage"
+          element={
+            <BattlePage
+              playerConfirmedPokemon={playerConfirmedPokemon}
+              computerConfirmedPokemon={computerConfirmedPokemon}
+            />
+          }
+        />
       </Routes>
+      <Button onClick={() => logout()}>Logout</Button>
     </div>
   );
 };
