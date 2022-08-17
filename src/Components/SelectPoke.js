@@ -4,9 +4,13 @@ import { signOut } from "firebase/auth";
 import { auth } from "../DB/firebase";
 import Button from "@mui/material/Button";
 import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import "../App.css";
 
 const SelectPoke = (props) => {
   let navigate = useNavigate();
+
+  //  useEffect(()=>{
   const chosenPokemon = props.selectedPokemon;
   const {
     pokemonHP,
@@ -19,9 +23,11 @@ const SelectPoke = (props) => {
   const PokeName = pokemonName.toUpperCase();
   const PokeType = pokemonType.map((type) => <h5>{type}</h5>);
   const PokeMoves = pokemonMoves.map((move) => <h5>{move}</h5>);
+
   console.log(pokemonMovesURL);
 
   const playerAttackArray = [];
+
   pokemonMovesURL.map((url) => {
     axios.get(url).then((response) => {
       const { name, power } = response.data;
@@ -43,6 +49,7 @@ const SelectPoke = (props) => {
   console.log(playerAttackArray);
 
   return (
+    //repeating pokedex ?
     <div key={chosenPokemon} name={pokemonName}>
       <img
         style={{ height: "30vh" }}
@@ -50,17 +57,18 @@ const SelectPoke = (props) => {
         alt={pokemonImageFront}
         name={pokemonName}
       />
-      <h4>{PokeName}</h4>
-      <h4>{PokeType}</h4>
-      <h4>HP: {pokemonHP}</h4>
-      <h4>Moves: {PokeMoves}</h4>
+      <p>{PokeName}</p>
+      <p>{PokeType}</p>
+      <p>HP: {pokemonHP}</p>
+      <p>Moves: {PokeMoves}</p>
       <button onClick={(e) => props.onReselectPokemon(e)}>
         Back to Main Pokedex
       </button>
       <button
-        onClick={(e) => {
+        onClick={() => {
           props.setPlayerArray(playerAttackArray);
-          props.onConfirmPokemon(e);
+
+          props.onConfirmPokemon(chosenPokemon);
         }}
       >
         Confirm

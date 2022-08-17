@@ -3,17 +3,20 @@ import React, { useEffect, useState } from "react";
 import { Link, Routes, Route } from "react-router-dom";
 import "./App.css";
 import Register from "./Components/Register";
-import MainPage from "./Components/MainPage";
+import MainPage from "./Screens/MainPage";
 import Login from "./Components/Login";
 import Typography from "@mui/material/Typography";
 // import Button from "@mui/material/Button";
-const auth = getAuth();
+// import { auth } from "../src/DB/firebase";
+import SelectPoke from "./Components/SelectPoke";
+import BattlePage from "./Components/BattlePage";
+
 const App = () => {
   const [loggedInUser, setLoggedInUser] = useState();
   const [emailInputValue, setEmailInputValue] = useState("");
   const [passwordInputValue, setPasswordInputValue] = useState("");
-  const [nameInputValue, setUserName] = useState("");
-
+  const [username, setUsername] = useState("");
+  const auth = getAuth();
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
       // If user is logged in, save logged-in user to state
@@ -34,8 +37,8 @@ const App = () => {
       passwordInputValue={passwordInputValue}
       setPasswordInputValue={setPasswordInputValue}
       auth={auth}
-      nameInputValue={nameInputValue}
-      setUserName={setUserName}
+      username={username}
+      setUserName={setUsername}
     />
   );
   const login = (
@@ -55,7 +58,8 @@ const App = () => {
       loggedInUser={loggedInUser}
       auth={auth}
       setLoggedInUser={setLoggedInUser}
-      nameInputValue={nameInputValue}
+      username={username}
+      setUserName={setUsername}
     />
   );
 
@@ -96,7 +100,9 @@ const App = () => {
             <Route path="/" element={choosingPage} />
             <Route path="/register" element={register} />
             <Route path="/login" element={login} />
-            <Route path="/mainpage" element={mainpage} />
+            <Route path="/mainpage/*" element={mainpage} />
+            <Route path="selectpokemon" element={<SelectPoke />} />
+            <Route path="battlepage" element={<BattlePage />} />
           </Routes>
         </header>
         <br />

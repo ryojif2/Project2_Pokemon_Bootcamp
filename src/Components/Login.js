@@ -7,11 +7,10 @@ import Grid from "@mui/material/Grid";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
-const auth = getAuth();
 
 const Login = (props) => {
+  const auth = getAuth();
   const navigate = useNavigate();
-
   const handleInputChange = (event) => {
     if (event.target.name === "emailInputValue") {
       props.setEmailInputValue(event.target.value);
@@ -84,10 +83,10 @@ const Login = (props) => {
           <br />
         </Box>
         <Button onClick={() => navigate(-1)}>go back</Button>
-        <footer>
+        {/* <footer>
           <br />
           <br />
-        </footer>
+        </footer> */}
       </Typography>
     </div>
   );
