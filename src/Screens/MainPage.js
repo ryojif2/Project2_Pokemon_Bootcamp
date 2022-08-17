@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { auth } from "../DB/firebase";
+import Button from "@mui/material/Button";
 import { database, storage } from "../DB/firebase";
 import Pokedex from "../Components/Pokedex.js";
 import SelectPoke from "../Components/SelectPoke";
@@ -14,6 +16,7 @@ import {
   onChildChanged,
 } from "firebase/database";
 import { Routes, Route, Link, useNavigate, Outlet } from "react-router-dom";
+import { signOut } from "firebase/auth";
 
 // const USERSTATS_FOLDER_NAME = "users";
 const PLAYER_POKEMON = "playerpokemon";
@@ -421,6 +424,7 @@ const MainPage = (props) => {
           element={
             <SelectPoke
               //just put pokemon directly here?
+
               availablePokemon={pokemonSelection}
               // selectComputerPokemon={selectComputerPokemon}
               computerMovesState={(data) => setComputerArray(data)}
@@ -446,6 +450,7 @@ const MainPage = (props) => {
           }
         />
       </Routes>
+      <Button onClick={() => logout()}>Logout</Button>
     </div>
   );
 };

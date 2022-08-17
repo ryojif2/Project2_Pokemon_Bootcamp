@@ -3,7 +3,7 @@ import "../App.css";
 
 const Pokedex = (props) => {
   let pokemonMap = props.pokemonSelection.map((pokemon, i) => {
-    const PokeType = pokemon.pokemonType.map((type) => <h5>{type}</h5>);
+    const PokeType = pokemon.pokemonType.map((type) => <p>{type}</p>);
     // const PokeMoves = pokemon.pokemonMoves.map((move) => <h5>{move}</h5>);
     const PokeName = pokemon.pokemonName.toUpperCase();
 
@@ -19,9 +19,9 @@ const Pokedex = (props) => {
             alt={pokemon.pokemonImageFront}
             name={i}
           />
-          <h4>{PokeName}</h4>
-          <h4>{PokeType}</h4>
-          <h4>HP: {pokemon.pokemonHP}</h4>
+          <p>{PokeName}</p>
+          <p>{PokeType}</p>
+          <p>HP: {pokemon.pokemonHP}</p>
           {/* <h4>Moves: {PokeMoves}</h4> */}
         </button>
       </div>
@@ -31,7 +31,9 @@ const Pokedex = (props) => {
   return (
     <div className="pokedexMap">
       {pokemonMap}
-      {/* <button onClick={(e, chosenPokemon) => props.onSubmit (e, chosenPokemon)}>Confirm</button> */}
+      {/* <button onClick={(e, chosenPokemon) => props.onSubmit(e, chosenPokemon)}> */}
+      {/* Confirm
+      </button> */}
     </div>
   );
 };

@@ -14,7 +14,8 @@
 }
 
 .App-header {
-  background-color: #282c34;
+  background-color: #0e1f40;
+  /* background-color: #282c34; */
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -37,10 +38,38 @@
   }
 }
 
-.pokedexMap{
-  display:flex;
-  justify-content: space-evenly;
-  align-items: stretch;
-
+.buttonR {
+  background-color: #1e232c;
+  position: relative;
+  width: 330px;
+  height: 56px;
+  margin: 10px;
+  text-decoration: none;
+  color: whitesmoke;
+  text-decoration: none;
 }
 
+.buttonL {
+  background-color: #ffffff;
+  position: relative;
+  width: 330px;
+  height: 56px;
+  text-decoration: none;
+  color: black;
+}
+
+.buttonText {
+  text-decoration: none;
+  color: #ffffff;
+}
+
+.buttonText2 {
+  text-decoration: none;
+  color: black;
+}
+
+.pokedexMap {
+  display: flex;
+  justify-content: space-evenly;
+  align-items: stretch;
+}
