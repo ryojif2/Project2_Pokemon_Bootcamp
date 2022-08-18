@@ -1,11 +1,16 @@
 import React from "react";
 import axios from "axios";
-
-import { useEffect, useState } from "react";
+import { signOut } from "firebase/auth";
+import { auth } from "../DB/firebase";
+import Button from "@mui/material/Button";
+import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import "../App.css";
 
 const SelectPoke = (props) => {
+  let navigate = useNavigate();
+
   //  useEffect(()=>{
-  console.log(props);
   const chosenPokemon = props.selectedPokemon;
   const {
     pokemonHP,
@@ -19,17 +24,20 @@ const SelectPoke = (props) => {
   const PokeType = pokemonType.map((type) => <h5>{type}</h5>);
   const PokeMoves = pokemonMoves.map((move) => <h5>{move}</h5>);
 
-  console.log(pokemonMovesURL);
-
   const playerAttackArray = [];
 
   pokemonMovesURL.map((url) => {
     axios.get(url).then((response) => {
-      const { name, power } = response.data;
+      let { name, power } = response.data;
 
       console.log(name);
       console.log(power);
-      playerAttackArray.push(power);
+      let modifiedPower = 1;
+      if (power === null) {
+        playerAttackArray.push(modifiedPower);
+      } else {
+        playerAttackArray.push(power);
+      }
       return playerAttackArray;
     });
   });
@@ -40,58 +48,6 @@ const SelectPoke = (props) => {
     signOut(auth);
     navigate("/");
   };
-
-  // // const computerPokemonSelect = props.selectComputerPokemon;
-  // props.selectComputerPokemon();
-
-  const selectComputerPokemon = (playerPokemon) => {
-    for (let i = 0; i < props.availablePokemon.length; i++) {
-      if (props.availablePokemon[i].pokemonName == playerPokemon.pokemonName) {
-        props.availablePokemon.splice(i, 1);
-      }
-    }
-    const computerPokemonObject =
-      props.availablePokemon[Math.floor(Math.random() * 8 + 1)];
-
-    getComputerArray(computerPokemonObject);
-
-    return computerPokemonObject;
-  };
-
-  const getComputerArray = (pokeAPI) => {
-    const { pokemonMovesURL } = pokeAPI;
-    const compArray = [];
-    pokemonMovesURL.map((url) => {
-      axios.get(url).then(
-        (response) => {
-          const { name, power } = response.data;
-          console.log(name);
-          console.log(power);
-          console.log(compArray, "compArray");
-          console.log("hi running ");
-          compArray.push(power);
-        }
-        // else {setComputerArray([power])
-        // console.log("dun exist")}
-      );
-    });
-    console.log("set comp array!");
-    props.computerMovesState(compArray);
-  };
-
-  const [isLoaded, setIsLoaded] = useState(false);
-
-  if (!isLoaded) {
-    props.computerPokemonState(selectComputerPokemon(chosenPokemon));
-    setIsLoaded(true);
-  } else {
-    console.log("loaded");
-  }
-
-  console.log();
-  // const data = selectComputerPokemon(chosenPokemon);
-
-  // props.setComputerPokemonState(data);
 
   return (
     //repeating pokedex ?
