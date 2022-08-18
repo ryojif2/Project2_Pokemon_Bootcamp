@@ -28,11 +28,16 @@ const SelectPoke = (props) => {
 
   pokemonMovesURL.map((url) => {
     axios.get(url).then((response) => {
-      const { name, power } = response.data;
+      let { name, power } = response.data;
 
       console.log(name);
       console.log(power);
-      playerAttackArray.push(power);
+      let modifiedPower = 1;
+      if (power === null) {
+        playerAttackArray.push(modifiedPower);
+      } else {
+        playerAttackArray.push(power);
+      }
       return playerAttackArray;
     });
   });

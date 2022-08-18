@@ -123,31 +123,36 @@ const MainPage = (props) => {
     }
     const computerPokemon = pokemonSelection[Math.floor(Math.random() * 8 + 1)];
     setComputerConfirmedPokemon(computerPokemon);
-    getComputerArray(computerPokemon);
+    getComputerArray(computerPokemon.pokemonMovesURL);
   };
 
   //async and await the axios request
   // let data = axios.get(url)
   //promise
-  const getComputerArray = (pokemon) => {
-    const { pokemonMovesURL } = pokemon;
-    const compArray = [];
 
-    pokemonMovesURL.forEach((url) => {
-      axios.get(url).then((response) => {
-        const { name, power } = response.data;
-        console.log(name);
-        console.log(power);
-        console.log(compArray, "compArray");
-        console.log("hi running ");
-        if (power == null) {
-          const power = 1;
-          compArray.push(power);
-        } else compArray.push(power);
-      });
-    });
-    console.log("set comp array!", compArray);
-    setComputerArray(compArray);
+  const getComputerArray = (pokemonMovesURL) => {
+    const [move1, move2, move3, move4] = pokemonMovesURL;
+
+    const promise2 = [];
+    promise2.push(axios.get(move1));
+    promise2.push(axios.get(move2));
+    promise2.push(axios.get(move3));
+    promise2.push(axios.get(move4));
+
+    Promise.all(promise2)
+      .then((results) => {
+        const powerMoves = results.map((data) => {
+          let { power } = data.data;
+          if (power == null) {
+            power = 1;
+          }
+          console.log(power);
+          return power;
+        });
+        console.log(powerMoves);
+        return powerMoves;
+      })
+      .then((powerMoves) => setComputerArray(powerMoves));
   };
 
   const pushPlayerPokemonData = (
@@ -159,7 +164,7 @@ const MainPage = (props) => {
     console.log(
       playerPokemonData && computerPokemonData && computerArray.length > 3
     );
-    if (playerPokemonData && computerPokemonData) {
+    if (playerPokemonData && computerPokemonData && computerArray.length > 3) {
       console.log(playerPokemonData, "player poke data");
       console.log(computerPokemonData, "computer poke data");
 
@@ -178,18 +183,15 @@ const MainPage = (props) => {
         pokemonHP: computerPokemonData.pokemonHP,
         pokemonAttacks: computerArray,
       });
-      console.log("Done. Data is pushed");
     } else return;
-    //consider to set into internal state
   };
 
   useEffect(() => {
-    //route to battlepage here useNavigate
-    //add async await
     if (
       Object.keys(playerConfirmedPokemon).length !== 0 &&
-      Object.keys(computerConfirmedPokemon).length !== 0
-      //put in the computerArray.length >3 ?
+      Object.keys(computerConfirmedPokemon).length !== 0 &&
+      computerArray.length > 3 &&
+      playerArray.length > 3
     ) {
       //  if(playerConfirmedPokemon  && computerArray && computerConfirmedPokemon)
       console.log("hiiii! player and comp cfm pokemon");
