@@ -151,7 +151,8 @@ console.log("set comp array!", compArray)
 
 
 const pushPlayerPokemonData = (playerPokemonData,computerPokemonData,playerArray,computerArray) => {
- if(playerPokemonData && computerPokemonData && computerArray.length===4){ 
+
+  if(computerArray.length>0){ 
   console.log(playerPokemonData, "player poke data")
    console.log(computerPokemonData, "computer poke data")
 
@@ -166,28 +167,23 @@ const pushPlayerPokemonData = (playerPokemonData,computerPokemonData,playerArray
   set(newComputerRef, {pokemonName:computerPokemonData.pokemonName,
      pokemonHP:computerPokemonData.pokemonHP,
      pokemonAttacks:computerArray})}
-
 else return;
 //consider to set into internal state
 }
 
 useEffect(()=>{
  //route to battlepage here useNavigate
-  if (
-      Object.keys(playerConfirmedPokemon).length !== 0 &&
-      Object.keys(computerConfirmedPokemon).length !== 0 
-  )
+  if ( Object.keys(playerConfirmedPokemon).length !== 0 &&
+      Object.keys(computerConfirmedPokemon).length !== 0 )
 //  if(playerConfirmedPokemon  && computerArray && computerConfirmedPokemon)
    { console.log("hiiii! player and comp cfm pokemon")
     console.log(playerConfirmedPokemon,playerArray)
     console.log("COMP CFM POKEMON USE EFFECT", computerConfirmedPokemon)
 console.log(" USE EFFECT computer array", computerArray);
 pushPlayerPokemonData(playerConfirmedPokemon,computerConfirmedPokemon,playerArray,computerArray)
-}
-}, [playerConfirmedPokemon,computerConfirmedPokemon,playerArray,computerArray])
+}}, [playerConfirmedPokemon,computerConfirmedPokemon,playerArray,computerArray])
 
  
-
 
    const handleConfirmPokemon =(confirmedPokemon) => {
     console.log(confirmedPokemon);
