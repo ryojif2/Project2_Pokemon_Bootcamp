@@ -22,11 +22,10 @@ import { signOut } from "firebase/auth";
 const PLAYER_POKEMON = "playerpokemon";
 const COMPUTER_POKEMON = "computerpokemon";
 const MainPage = (props) => {
- 
   const [playerArray, setPlayerArray] = useState([]);
   const [computerArray, setComputerArray] = useState([]);
-//   [10,20,30,40]
-//  playerAttack=playerArray[math.random()*playerArray.length]
+  //   [10,20,30,40]
+  //  playerAttack=playerArray[math.random()*playerArray.length]
   const [playerConfirmedPokemon, setPlayerConfirmedPokemon] = useState({});
   const [computerConfirmedPokemon, setComputerConfirmedPokemon] = useState({});
   //Pokedex portion, generate 9 chosen pokemon from their URL
@@ -44,9 +43,9 @@ const MainPage = (props) => {
     promises.push(axios.get("https://pokeapi.co/api/v2/pokemon/92"));
 
     Promise.all(promises).then((results) =>
-    //map each pokemon result into a stats object
+      //map each pokemon result into a stats object
       results.map((pokemonData) => {
-      //destructure from data
+        //destructure from data
         const { name, stats, types, sprites, moves } = pokemonData.data;
         //HP based on level 60 bc level 1 is too low
         const pokemonHP = Math.floor(
@@ -115,104 +114,127 @@ const MainPage = (props) => {
     });
   };
 
-
-
-
   //math random for computer pokemon
-const selectComputerPokemon = (playerPokemon) =>{
+  const selectComputerPokemon = (playerPokemon) => {
+    for (let i = 0; i < pokemonSelection.length; i++) {
+      if (pokemonSelection[i].pokemonName === playerPokemon.pokemonName) {
+        pokemonSelection.splice(i, 1);
+      }
+    }
+    const computerPokemon = pokemonSelection[Math.floor(Math.random() * 8 + 1)];
+    setComputerConfirmedPokemon(computerPokemon);
+    getComputerArray(computerPokemon.pokemonMovesURL);
+  };
 
-for (let i=0;i<pokemonSelection.length;i++){
-  if (pokemonSelection[i].pokemonName===playerPokemon.pokemonName){
-   pokemonSelection.splice(i,1)
-  }
-}
-const computerPokemon= pokemonSelection[Math.floor(Math.random()*8 +1)]
-setComputerConfirmedPokemon(computerPokemon);
-getComputerArray(computerPokemon);
-}
+  //async and await the axios request
+  // let data = axios.get(url)
+  //promise
+  const getComputerArray = (pokemonMovesURL) => {
+    const [move1, move2, move3, move4] = pokemonMovesURL;
 
-const getComputerArray=(pokemon)=>{
-const {pokemonMovesURL} = pokemon;
-const compArray= [];
+    const promise2 = [];
+    promise2.push(axios.get(move1));
+    promise2.push(axios.get(move2));
+    promise2.push(axios.get(move3));
+    promise2.push(axios.get(move4));
 
-pokemonMovesURL.forEach((url) => {
-    axios.get(url).then((response) => {
-       const { name, power } = response.data;
-      console.log(name);
-      console.log(power);
-      console.log(compArray,"compArray")
-        console.log("hi running ")
-        if (power==null){const power=1; compArray.push(power)}
-        else compArray.push(power)
-      }) });
-console.log("set comp array!", compArray)
- setComputerArray(compArray);
-}
+    Promise.all(promise2)
+      .then((results) => {
+        const powerMoves = results.map((data) => {
+          let { power } = data.data;
+          if (power == null) {
+            power = 1;
+          }
+          console.log(power);
+          return power;
+        });
+        console.log(powerMoves);
+        return powerMoves;
+      })
+      .then((powerMoves) => setComputerArray(powerMoves));
+  };
 
+  const pushPlayerPokemonData = (
+    playerPokemonData,
+    computerPokemonData,
+    playerArray,
+    computerArray
+  ) => {
+    console.log(
+      playerPokemonData && computerPokemonData && computerArray.length > 3
+    );
+    if (playerPokemonData && computerPokemonData && computerArray.length > 3) {
+      console.log(playerPokemonData, "player poke data");
+      console.log(computerPokemonData, "computer poke data");
 
-const pushPlayerPokemonData = (playerPokemonData,computerPokemonData,playerArray,computerArray) => {
- if(playerPokemonData && computerPokemonData && computerArray.length===4){ 
-  console.log(playerPokemonData, "player poke data")
-   console.log(computerPokemonData, "computer poke data")
+      const playerRef = dbRef(database, PLAYER_POKEMON);
+      const newPlayerRef = push(playerRef);
+      set(newPlayerRef, {
+        pokemonName: playerPokemonData.pokemonName,
+        pokemonHP: playerPokemonData.pokemonHP,
+        pokemonAttacks: playerArray,
+      });
 
-  const playerRef=dbRef(database,PLAYER_POKEMON);
-  const newPlayerRef=push(playerRef);
-  set(newPlayerRef,{pokemonName:playerPokemonData.pokemonName, 
-    pokemonHP:playerPokemonData.pokemonHP,
-    pokemonAttacks:playerArray})
+      const computerRef = dbRef(database, COMPUTER_POKEMON);
+      const newComputerRef = push(computerRef);
+      set(newComputerRef, {
+        pokemonName: computerPokemonData.pokemonName,
+        pokemonHP: computerPokemonData.pokemonHP,
+        pokemonAttacks: computerArray,
+      });
+    } else return;
+  };
 
- const computerRef=dbRef(database,COMPUTER_POKEMON);
-  const newComputerRef=push(computerRef);
-  set(newComputerRef, {pokemonName:computerPokemonData.pokemonName,
-     pokemonHP:computerPokemonData.pokemonHP,
-     pokemonAttacks:computerArray})}
-
-else return;
-//consider to set into internal state
-}
-
-useEffect(()=>{
- //route to battlepage here useNavigate
-  if (
+  useEffect(() => {
+    if (
       Object.keys(playerConfirmedPokemon).length !== 0 &&
-      Object.keys(computerConfirmedPokemon).length !== 0 
-  )
-//  if(playerConfirmedPokemon  && computerArray && computerConfirmedPokemon)
-   { console.log("hiiii! player and comp cfm pokemon")
-    console.log(playerConfirmedPokemon,playerArray)
-    console.log("COMP CFM POKEMON USE EFFECT", computerConfirmedPokemon)
-console.log(" USE EFFECT computer array", computerArray);
-pushPlayerPokemonData(playerConfirmedPokemon,computerConfirmedPokemon,playerArray,computerArray)
-}
-}, [playerConfirmedPokemon,computerConfirmedPokemon,playerArray,computerArray])
+      Object.keys(computerConfirmedPokemon).length !== 0 &&
+      computerArray.length > 3 &&
+      playerArray.length > 3
+    ) {
+      //  if(playerConfirmedPokemon  && computerArray && computerConfirmedPokemon)
+      console.log("hiiii! player and comp cfm pokemon");
+      console.log(playerConfirmedPokemon, playerArray);
+      console.log("COMP CFM POKEMON USE EFFECT", computerConfirmedPokemon);
+      console.log(" USE EFFECT computer array", computerArray);
+      pushPlayerPokemonData(
+        playerConfirmedPokemon,
+        computerConfirmedPokemon,
+        playerArray,
+        computerArray
+      );
+    }
+  }, [
+    playerConfirmedPokemon,
+    computerConfirmedPokemon,
+    playerArray,
+    computerArray,
+  ]);
 
- 
-
-
-   const handleConfirmPokemon =(confirmedPokemon) => {
+  const handleConfirmPokemon = (confirmedPokemon) => {
     console.log(confirmedPokemon);
-      //pass the confirmed pokemons to battlepage through state
-setPlayerConfirmedPokemon(confirmedPokemon);
-selectComputerPokemon(confirmedPokemon);
-   navigate("battlepage")
-    console.log("battle!")
-  }
-// const [playerTurn,setPlayerTurn]=useState(true)
+    //pass the confirmed pokemons to battlepage through state
+    setPlayerConfirmedPokemon(confirmedPokemon);
+    selectComputerPokemon(confirmedPokemon);
+    navigate("battlepage");
+    console.log("battle!");
+  };
+  // const [playerTurn,setPlayerTurn]=useState(true)
 
-// const handleAttack = ()=>{
-//   if(playerTurn){
-// //ref player attack damage
-// const playerAttack=playerArray[math.random()*playerArray.length]
-// //ref computer DB and minus the HP
-// //toggle to !PlayerTurn and auto call func again
+  // const handleAttack = ()=>{
+  //   if(playerTurn){
+  // //ref player attack damage
+  // const playerAttack=playerArray[math.random()*playerArray.length]
+  // //ref computer DB and minus the HP
+  // //toggle to !PlayerTurn and auto call func again
 
-//   } else (playerTurn===false){
-// //ref computer attack damage
-// //ref player DB and minus the HP
-// //toggle to playerTurn
-//   }
+  //   } else (playerTurn===false){
+  // //ref computer attack damage
+  // //ref player DB and minus the HP
+  // //toggle to playerTurn
+  //   }
 
-// }
+  // }
 
   const logout = () => {
     console.log("logout");
@@ -222,7 +244,6 @@ selectComputerPokemon(confirmedPokemon);
   };
   return (
     <div>
-     
       <UserProfile />
       <br />
       <br />
@@ -242,7 +263,7 @@ selectComputerPokemon(confirmedPokemon);
           path="/selectpokemon"
           element={
             <SelectPoke
-            //just put pokemon directly here?
+              //just put pokemon directly here?
               selectedPokemon={pokemonSelection[currPokemon]}
               onConfirmPokemon={(confirmedPokemon) =>
                 handleConfirmPokemon(confirmedPokemon)

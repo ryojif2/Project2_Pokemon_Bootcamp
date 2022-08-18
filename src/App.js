@@ -17,7 +17,7 @@ const App = () => {
   const [passwordInputValue, setPasswordInputValue] = useState("");
   const [username, setUsername] = useState("");
   const auth = getAuth();
-  const navigate=useNavigate();
+  const navigate = useNavigate();
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
       // If user is logged in, save logged-in user to state
@@ -83,9 +83,7 @@ const App = () => {
   //if user click registration, bring user to register
   //if user click login, bring user to login
   //else bring user to choosing page
-  const choosingPage = (
-   loggedInUser ? mainpage : createAccountOrSignInButton
-  );
+  const choosingPage = loggedInUser ? mainpage : createAccountOrSignInButton;
 
   // useEffect(()=>{
 
@@ -102,14 +100,22 @@ const App = () => {
             width="400px"
           />
           <Routes>
-            <Route path="/" element= {loggedInUser ? <Navigate to="/mainpage"/> : createAccountOrSignInButton }/>
+            <Route
+              path="/"
+              element={
+                loggedInUser ? (
+                  <Navigate to="/mainpage" />
+                ) : (
+                  createAccountOrSignInButton
+                )
+              }
+            />
             <Route path="/register" element={register} />
             <Route path="/login" element={login} />
-            <Route path="/mainpage/*" element={mainpage}/>
+            <Route path="/mainpage/*" element={mainpage} />
             {/* <Route path="/pokedex" element={<Pokedex/>}/> */}
-            <Route path="/selectpokemon" element={<SelectPoke />} />
-            <Route path="/battlepage" element={<BattlePage />} />
-          
+            {/* <Route path="/selectpokemon" element={<SelectPoke />} />
+            <Route path="/battlepage" element={<BattlePage />} /> */}
           </Routes>
         </header>
         <br />

@@ -24,17 +24,20 @@ const SelectPoke = (props) => {
   const PokeType = pokemonType.map((type) => <h5>{type}</h5>);
   const PokeMoves = pokemonMoves.map((move) => <h5>{move}</h5>);
 
-
-
   const playerAttackArray = [];
 
   pokemonMovesURL.map((url) => {
     axios.get(url).then((response) => {
-      const { name, power } = response.data;
+      let { name, power } = response.data;
 
       console.log(name);
       console.log(power);
-      playerAttackArray.push(power);
+      let modifiedPower = 1;
+      if (power === null) {
+        playerAttackArray.push(modifiedPower);
+      } else {
+        playerAttackArray.push(power);
+      }
       return playerAttackArray;
     });
   });
@@ -45,8 +48,6 @@ const SelectPoke = (props) => {
     signOut(auth);
     navigate("/");
   };
-
-  
 
   return (
     //repeating pokedex ?
@@ -69,7 +70,6 @@ const SelectPoke = (props) => {
           props.setPlayerArray(playerAttackArray);
 
           props.onConfirmPokemon(chosenPokemon);
-
         }}
       >
         Confirm
