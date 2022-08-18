@@ -24,8 +24,6 @@ const SelectPoke = (props) => {
   const PokeType = pokemonType.map((type) => <h5>{type}</h5>);
   const PokeMoves = pokemonMoves.map((move) => <h5>{move}</h5>);
 
-  console.log(pokemonMovesURL);
-
   const playerAttackArray = [];
 
   pokemonMovesURL.map((url) => {
@@ -43,9 +41,8 @@ const SelectPoke = (props) => {
     console.log("logout");
     signOut(auth);
     navigate("/");
+    console.log(props.loggedInUser);
   };
-
-  console.log(playerAttackArray);
 
   return (
     //repeating pokedex ?

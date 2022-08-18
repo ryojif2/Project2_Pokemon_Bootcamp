@@ -22,31 +22,6 @@ import { signOut } from "firebase/auth";
 const PLAYER_POKEMON = "playerpokemon";
 const COMPUTER_POKEMON = "computerpokemon";
 const MainPage = (props) => {
-  // const currUser = props.currUser;
-  // const userRef = dbRef(database, `${USERSTATS_FOLDER_NAME}/${currUser}`);
-  // const [userStats, setUserStats] = useState({
-  //   username: "",
-  //   gamesPlayed: 0,
-  //   gamesWon: 0,
-  //   winRate: 0,
-  //   mostUsed: "",
-  // });
-
-  // During first sign up and log in, we need to upload user data and initialise the above stats into firebase database using set.
-
-  // same as ComponentdidMount. Obtain user profile/stats from firebase database and set state for userStats. Pass the info to Userprofile.js to render. Only set once whenever the stats in firebase database are changed.
-  // useEffect(() => {
-  //   onChildChanged(userRef, (data) => {
-  //     if (data !== null) {
-  //       // setUserStats(() => {
-  //       //   console.log(data.val);
-  //       //   // gamesPlayed: data.val.
-  //       //   // { key: data.key, val: data.val() }
-  //       // });
-  //     }
-  //   });
-  // }, []);
-
   const [playerArray, setPlayerArray] = useState([]);
   const [computerArray, setComputerArray] = useState([]);
   //   [10,20,30,40]
@@ -146,69 +121,103 @@ const MainPage = (props) => {
         pokemonSelection.splice(i, 1);
       }
     }
-    return pokemonSelection[Math.floor(Math.random() * 8 + 1)];
+    const computerPokemon = pokemonSelection[Math.floor(Math.random() * 8 + 1)];
+    setComputerConfirmedPokemon(computerPokemon);
+    getComputerArray(computerPokemon);
   };
 
-  const getComputerArray = (pokeAPI) => {
-    const { pokemonMovesURL } = pokeAPI;
+  //async and await the axios request
+  // let data = axios.get(url)
+  //promise
+  const getComputerArray = (pokemon) => {
+    const { pokemonMovesURL } = pokemon;
     const compArray = [];
-    pokemonMovesURL.map((url) => {
-      axios.get(url).then(
-        (response) => {
-          const { name, power } = response.data;
-          console.log(name);
-          console.log(power);
-          console.log(compArray, "compArray");
-          console.log("hi running ");
+
+    pokemonMovesURL.forEach((url) => {
+      axios.get(url).then((response) => {
+        const { name, power } = response.data;
+        console.log(name);
+        console.log(power);
+        console.log(compArray, "compArray");
+        console.log("hi running ");
+        if (power == null) {
+          const power = 1;
           compArray.push(power);
-        }
-        // else {setComputerArray([power])
-        // console.log("dun exist")}
-      );
+        } else compArray.push(power);
+      });
     });
-    console.log("set comp array!");
+    console.log("set comp array!", compArray);
     setComputerArray(compArray);
   };
 
-  const pushPlayerPokemonData = (playerPokemonData, computerPokemonData) => {
-    console.log(playerPokemonData, "player poke data");
-    console.log(computerPokemonData, "computer poke data");
-    const playerRef = dbRef(database, PLAYER_POKEMON);
-    const newPlayerRef = push(playerRef);
-    set(newPlayerRef, {
-      pokemonName: playerPokemonData.pokemonName,
-      pokemonHP: playerPokemonData.pokemonHP,
-      pokemonAttacks: [playerArray],
-    });
+  const pushPlayerPokemonData = (
+    playerPokemonData,
+    computerPokemonData,
+    playerArray,
+    computerArray
+  ) => {
+    console.log(
+      playerPokemonData && computerPokemonData && computerArray.length > 3
+    );
+    if (playerPokemonData && computerPokemonData) {
+      console.log(playerPokemonData, "player poke data");
+      console.log(computerPokemonData, "computer poke data");
 
-    const computerRef = dbRef(database, COMPUTER_POKEMON);
-    const newComputerRef = push(computerRef);
-    set(newComputerRef, {
-      pokemonName: computerPokemonData.pokemonName,
-      pokemonHP: computerPokemonData.pokemonHP,
-      pokemonAttacks: [computerArray],
-    });
+      const playerRef = dbRef(database, PLAYER_POKEMON);
+      const newPlayerRef = push(playerRef);
+      set(newPlayerRef, {
+        pokemonName: playerPokemonData.pokemonName,
+        pokemonHP: playerPokemonData.pokemonHP,
+        pokemonAttacks: playerArray,
+      });
+
+      const computerRef = dbRef(database, COMPUTER_POKEMON);
+      const newComputerRef = push(computerRef);
+      set(newComputerRef, {
+        pokemonName: computerPokemonData.pokemonName,
+        pokemonHP: computerPokemonData.pokemonHP,
+        pokemonAttacks: computerArray,
+      });
+      console.log("Done. Data is pushed");
+    } else return;
     //consider to set into internal state
   };
 
-  //user selected and press confirm
+  useEffect(() => {
+    //route to battlepage here useNavigate
+    //add async await
+    if (
+      Object.keys(playerConfirmedPokemon).length !== 0 &&
+      Object.keys(computerConfirmedPokemon).length !== 0
+      //put in the computerArray.length >3 ?
+    ) {
+      //  if(playerConfirmedPokemon  && computerArray && computerConfirmedPokemon)
+      console.log("hiiii! player and comp cfm pokemon");
+      console.log(playerConfirmedPokemon, playerArray);
+      console.log("COMP CFM POKEMON USE EFFECT", computerConfirmedPokemon);
+      console.log(" USE EFFECT computer array", computerArray);
+      pushPlayerPokemonData(
+        playerConfirmedPokemon,
+        computerConfirmedPokemon,
+        playerArray,
+        computerArray
+      );
+    }
+  }, [
+    playerConfirmedPokemon,
+    computerConfirmedPokemon,
+    playerArray,
+    computerArray,
+  ]);
+
   const handleConfirmPokemon = (confirmedPokemon) => {
     console.log(confirmedPokemon);
-    //route to battlepage here useNavigate
+    //pass the confirmed pokemons to battlepage through state
+    setPlayerConfirmedPokemon(confirmedPokemon);
+    selectComputerPokemon(confirmedPokemon);
     navigate("battlepage");
     console.log("battle!");
-    //pass the confirmed pokemons to battlepage
-    setPlayerConfirmedPokemon(confirmedPokemon);
-    setComputerConfirmedPokemon(selectComputerPokemon(confirmedPokemon));
-    //push array of player and comp pokemon info to database
-    pushPlayerPokemonData(
-      confirmedPokemon,
-      selectComputerPokemon(confirmedPokemon)
-    );
-    //push array of player and comp moves info to database
-    getComputerArray(selectComputerPokemon(confirmedPokemon));
   };
-
   // const [playerTurn,setPlayerTurn]=useState(true)
 
   // const handleAttack = ()=>{
@@ -234,19 +243,6 @@ const MainPage = (props) => {
   };
   return (
     <div>
-      {/* Mainpage will need to get currUser as props from App.js. App.js need to
-      get profile from users -> user1 (identify by name?) 
-                                user name: name @login 
-                                games played: 
-                                games won: 
-                                win rate: 
-                                mostUsed: 
-                                chosenPokemon: object
-                                currGameMoves: array 
-                                gameHistory: array of objects. 
-                                            [0]: Game 1 etc.
-                                            
-                             -> user2... */}
       <UserProfile />
       <br />
       <br />

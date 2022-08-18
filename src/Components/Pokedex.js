@@ -11,7 +11,7 @@ const Pokedex = (props) => {
       <div key={pokemon.pokemonName} name={i}>
         <button
           name={i}
-          onClick={(e) => props.onChoosePokemonClick(e, pokemon)}
+          onClick={(e) => props.onChoosePokemonClick(e)}
         >
           <img
             style={{ height: "10vh" }}

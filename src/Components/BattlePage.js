@@ -27,19 +27,10 @@ const BattlePage = (props) => {
     pokemonName:computerPokemonName,
   } = computerChosenPokemon;
 
-  //  const computerChosenPokemon = props.computerConfirmedPokemon;
-  // const {
-  //   cpokemonHP,
-  //   cpokemonImageFront,
-  //   cpokemonMoves,
-  //   cpokemonMovesURL,
-  //   cpokemonName,
-  //   cpokemonType,
-  // } = computerChosenPokemon;
-  const CPokeName = computerPokemonName.toUpperCase();
-  // const PokeType = pokemonType.map((type) => <h5>{type}</h5>);
-  // const PokeMoves = pokemonMoves.map((move) => <h5>{move}</h5>);
  
+  const CPokeName = computerPokemonName.toUpperCase();
+
+  //onChildChanged
 
   return (
     <div className="App">
