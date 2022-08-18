@@ -83,10 +83,10 @@ const App = () => {
   //if user click registration, bring user to register
   //if user click login, bring user to login
   //else bring user to choosing page
+
   const choosingPage = loggedInUser ? mainpage : createAccountOrSignInButton;
 
   // useEffect(()=>{
-
   // },[])
 
   return (
@@ -103,11 +103,7 @@ const App = () => {
             <Route
               path="/"
               element={
-                loggedInUser ? (
-                  <Navigate to="/mainpage" />
-                ) : (
-                  createAccountOrSignInButton
-                )
+                loggedInUser ? <Navigate to="/" /> : createAccountOrSignInButton
               }
             />
             <Route path="/register" element={register} />

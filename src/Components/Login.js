@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { signInWithEmailAndPassword, getAuth } from "firebase/auth";
+import { signInWithEmailAndPassword, getAuth, signOut } from "firebase/auth";
 // import { auth } from "../DB/firebase";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
@@ -43,6 +43,12 @@ const Login = (props) => {
       });
   };
 
+  const logout = () => {
+    console.log("back");
+    props.setLoggedInUser(false);
+    signOut(auth);
+    navigate("/");
+  };
   return (
     <div>
       <Typography>
@@ -82,7 +88,7 @@ const Login = (props) => {
           />
           <br />
         </Box>
-        <Button onClick={() => navigate(-1)}>go back</Button>
+        <Button onClick={() => logout()}>Go back to Homepage</Button>
         {/* <footer>
           <br />
           <br />

@@ -5,6 +5,7 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   getAuth,
+  signOut,
 } from "firebase/auth";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
@@ -15,7 +16,6 @@ import { ref, set, getDatabase } from "firebase/database";
 
 const Register = (props) => {
   const [isNewUser, setIsNewUser] = useState(true);
-  const [username, setUsername] = useState("");
   const navigate = useNavigate();
   const auth = getAuth();
   const db = getDatabase();
@@ -34,8 +34,7 @@ const Register = (props) => {
       // Reset auth form state
       props.setEmailInputValue("");
       props.setPasswordInputValue("");
-      setIsNewUser(true);
-      navigate("/login");
+      setIsNewUser(false);
     };
 
     // Authenticate user on submit
@@ -47,28 +46,21 @@ const Register = (props) => {
       )
         .then(closeAuthForm)
         .catch((error) => {
-          alert("You have registered! Please login");
           console.error(error);
-
+          alert("You have registered! Please sign in");
           // Return the user a graceful error message
-        });
+        })
+        .then(navigate("/login"));
     } else {
       signInWithEmailAndPassword(
         auth,
         props.emailInputValue,
         props.passwordInputValue
       )
-        .then((userCredential) => {
-          set(ref(db, "users/" + userCredential.user.uid), {
-            username: username,
-          });
-        })
         .then(closeAuthForm)
+        .then(navigate("/mainpage"))
         .catch((error) => {
           console.error(error);
-          console.log(username);
-          alert("You have not registered! Please register or sign in");
-          // Return the user a graceful error message
         });
     }
   };
@@ -77,13 +69,19 @@ const Register = (props) => {
     setIsNewUser(!isNewUser);
   };
 
+  const logout = () => {
+    console.log("back");
+    signOut(auth);
+    navigate("/");
+  };
+
   return (
     <div>
       <Typography>
         <h1>Register</h1>
-        <Box component="form" onSubmit={handleSubmit} sx={{ mt: 3 }}>
+        <Box component="form" sx={{ mt: 3 }}>
           <Grid container spacing={2}>
-            <Grid item xs={12}>
+            {/* <Grid item xs={12}>
               <span>Name: </span>
               <TextField
                 placeholder="username"
@@ -91,7 +89,7 @@ const Register = (props) => {
                 autoFocus
                 sx={{ input: { color: "white" } }}
               />
-            </Grid>
+            </Grid> */}
             <br />
             <Grid item xs={12}>
               <span>Email: </span>
@@ -123,6 +121,7 @@ const Register = (props) => {
             value={isNewUser ? "Create Account" : "Sign In"}
             // Disable form submission if email or password are empty
             disabled={!props.emailInputValue || !props.passwordInputValue}
+            onClick={handleSubmit}
           />
           <br />
           <Button variant="link" onClick={toggleNewOrReturningAuth}>
@@ -131,7 +130,7 @@ const Register = (props) => {
               : "If you are a new user, click here to create account"}
           </Button>
         </Box>
-        <Button onClick={() => navigate("/")}>Go back</Button>
+        <Button onClick={() => logout()}>Go back</Button>
       </Typography>
     </div>
   );

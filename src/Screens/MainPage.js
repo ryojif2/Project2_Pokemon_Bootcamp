@@ -129,6 +129,7 @@ const MainPage = (props) => {
   //async and await the axios request
   // let data = axios.get(url)
   //promise
+
   const getComputerArray = (pokemonMovesURL) => {
     const [move1, move2, move3, move4] = pokemonMovesURL;
 
