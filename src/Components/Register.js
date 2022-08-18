@@ -34,8 +34,8 @@ const Register = (props) => {
       // Reset auth form state
       props.setEmailInputValue("");
       props.setPasswordInputValue("");
-      setIsNewUser(true);
-      navigate("/login");
+      setIsNewUser(false);
+      navigate("/mainpage");
     };
 
     // Authenticate user on submit
@@ -47,7 +47,7 @@ const Register = (props) => {
       )
         .then(closeAuthForm)
         .catch((error) => {
-          alert("You have registered! Please login");
+          alert("You have not registered! Please register");
           console.error(error);
 
           // Return the user a graceful error message
@@ -67,8 +67,7 @@ const Register = (props) => {
         .catch((error) => {
           console.error(error);
           console.log(username);
-          alert("You have not registered! Please register or sign in");
-          // Return the user a graceful error message
+          alert("You have registered! Please sign in");
         });
     }
   };

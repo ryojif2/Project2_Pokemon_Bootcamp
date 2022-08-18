@@ -41,7 +41,6 @@ const SelectPoke = (props) => {
 
   const logout = () => {
     console.log("logout");
-    props.setLoggedInUser(false);
     signOut(auth);
     navigate("/");
   };
