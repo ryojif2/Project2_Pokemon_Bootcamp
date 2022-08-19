@@ -6,6 +6,7 @@ import { database, storage } from "../DB/firebase";
 import Pokedex from "../Components/Pokedex.js";
 import SelectPoke from "../Components/SelectPoke";
 import BattlePage from "../Components/BattlePage";
+import Results from "../Components/Results";
 import UserProfile from "../Components/UserProfile";
 import {
   onChildAdded,
@@ -228,6 +229,8 @@ const MainPage = (props) => {
 
   const [playerTurn, setPlayerTurn] = useState();
   const [computerTurn, setComputerTurn] = useState();
+  const [pastMoves, setPastMoves] = useState([]);
+  const [recentMoves, setRecentMoves] = useState([]);
 
   const handleAttack = () => {
     console.log("this is running");
@@ -237,6 +240,14 @@ const MainPage = (props) => {
       //ref player attack damage
       const playerAttack =
         playerArray[Math.floor(Math.random() * playerArray.length)];
+
+      if (pastMoves === []) {
+        setPastMoves([playerAttack]);
+      } else {
+        setPastMoves((prevState) => [...prevState, playerAttack]);
+      }
+
+      setRecentMoves([playerAttack]);
 
       let newComputerHP = 0;
 
@@ -278,7 +289,8 @@ const MainPage = (props) => {
       computerArray[Math.floor(Math.random() * computerArray.length)];
 
     let newPlayerHP = 0;
-
+    setPastMoves((prevState) => [...prevState, computerAttack]);
+    setRecentMoves((prevState) => [...prevState, computerAttack]);
     if (computerAttack - playerConfirmedPokemon.pokemonHP >= 0) {
       newPlayerHP = 0;
     } else {
@@ -296,6 +308,7 @@ const MainPage = (props) => {
   };
 
   console.log(playerTurn);
+  console.log(pastMoves);
 
   useEffect(() => {
     if (playerTurn) {
@@ -340,6 +353,14 @@ const MainPage = (props) => {
   }, [playerTurn, computerTurn]);
 
   console.log(computerConfirmedPokemon);
+
+  const handleSummary = () => {
+    navigate("results");
+  };
+
+  const handleNewBattle = () => {
+    navigate("/");
+  };
 
   const logout = () => {
     console.log("logout");
@@ -390,6 +411,20 @@ const MainPage = (props) => {
               computerConfirmedPokemon={computerConfirmedPokemon}
               onAttack={() => handleAttack()}
               isPlayerTurn={playerTurn}
+              isComputerTurn={computerTurn}
+              historyMoves={recentMoves}
+              onSummary={() => handleSummary()}
+            />
+          }
+        />
+        <Route
+          path="/results"
+          element={
+            <Results
+              playerConfirmedPokemon={playerConfirmedPokemon}
+              computerConfirmedPokemon={computerConfirmedPokemon}
+              historyMoves={pastMoves}
+              onNewBattle={handleNewBattle}
             />
           }
         />

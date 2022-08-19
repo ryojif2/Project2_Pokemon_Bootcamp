@@ -26,6 +26,7 @@ const BattlePage = (props) => {
 
   const CPokeName = computerPokemonName.toUpperCase();
 
+  console.log(props.historyMoves);
   //onChildChanged
 
   return (
@@ -46,8 +47,25 @@ const BattlePage = (props) => {
           <h4>HP: {computerHP}</h4>
         </div>
         <div>
-          {" "}
-          <p>Make a move and attack!</p>
+          {props.historyMoves.length >= 1 ? (
+            <p>
+              {" "}
+              Your {playerPokemonName} has hit enemy {computerPokemonName} for{" "}
+              {props.historyMoves[0]} damage!{" "}
+            </p>
+          ) : null}
+          {props.historyMoves.length === 2 ? (
+            <p>
+              {" "}
+              Enemy {computerPokemonName} has hit your {playerPokemonName} for{" "}
+              {props.historyMoves[1]} damage!{" "}
+            </p>
+          ) : null}
+          {props.isPlayerTurn && playerHP > 0 ? (
+            <p>Make a move and attack!</p>
+          ) : null}
+          {computerHP <= 0 ? <p>You have won the battle!</p> : null}
+          {playerHP <= 0 ? <p>You have lost the battle!</p> : null}
         </div>
         <h1>Player (YOU) </h1>
         <div key={playerChosenPokemon} name={playerPokemonName}>
@@ -66,6 +84,11 @@ const BattlePage = (props) => {
           >
             Attack
           </button>
+          {playerHP <= 0 || computerHP <= 0 ? (
+            <button onClick={() => props.onSummary()}>
+              Proceed to Summary
+            </button>
+          ) : null}
         </div>
       </header>
     </div>
