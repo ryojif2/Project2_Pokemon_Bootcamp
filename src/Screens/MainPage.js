@@ -14,6 +14,7 @@ import {
   set,
   update,
   onChildChanged,
+  child,
 } from "firebase/database";
 import { Routes, Route, Link, useNavigate, Outlet } from "react-router-dom";
 import { signOut } from "firebase/auth";
@@ -155,29 +156,34 @@ const MainPage = (props) => {
       .then((powerMoves) => setComputerArray(powerMoves));
   };
 
+  const [computerPokemonRefID, setComputerPokemonRefID] = useState("");
+  const [playerPokemonRefID, setPlayerPokemonRefID] = useState("");
+
   const pushPlayerPokemonData = (
     playerPokemonData,
     computerPokemonData,
     playerArray,
     computerArray
   ) => {
-    console.log(
-      playerPokemonData && computerPokemonData && computerArray.length > 3
-    );
     if (playerPokemonData && computerPokemonData && computerArray.length > 3) {
       console.log(playerPokemonData, "player poke data");
       console.log(computerPokemonData, "computer poke data");
-
       const playerRef = dbRef(database, PLAYER_POKEMON);
       const newPlayerRef = push(playerRef);
+
+      const playerRefID = newPlayerRef.key;
+      setPlayerPokemonRefID(playerRefID);
+
       set(newPlayerRef, {
         pokemonName: playerPokemonData.pokemonName,
         pokemonHP: playerPokemonData.pokemonHP,
         pokemonAttacks: playerArray,
       });
-
       const computerRef = dbRef(database, COMPUTER_POKEMON);
       const newComputerRef = push(computerRef);
+      // const { key, val } = newComputerRef;
+      const computerRefID = newComputerRef.key;
+      setComputerPokemonRefID(computerRefID);
       set(newComputerRef, {
         pokemonName: computerPokemonData.pokemonName,
         pokemonHP: computerPokemonData.pokemonHP,
@@ -188,12 +194,11 @@ const MainPage = (props) => {
 
   useEffect(() => {
     if (
-      Object.keys(playerConfirmedPokemon).length !== 0 &&
-      Object.keys(computerConfirmedPokemon).length !== 0 &&
+      // Object.keys(playerConfirmedPokemon).length !== 0 &&
+      // Object.keys(computerConfirmedPokemon).length !== 0 &&
       computerArray.length > 3 &&
       playerArray.length > 3
     ) {
-      //  if(playerConfirmedPokemon  && computerArray && computerConfirmedPokemon)
       console.log("hiiii! player and comp cfm pokemon");
       console.log(playerConfirmedPokemon, playerArray);
       console.log("COMP CFM POKEMON USE EFFECT", computerConfirmedPokemon);
@@ -206,8 +211,8 @@ const MainPage = (props) => {
       );
     }
   }, [
-    playerConfirmedPokemon,
-    computerConfirmedPokemon,
+    // playerConfirmedPokemon,
+    // computerConfirmedPokemon,
     playerArray,
     computerArray,
   ]);
@@ -220,22 +225,121 @@ const MainPage = (props) => {
     navigate("battlepage");
     console.log("battle!");
   };
-  // const [playerTurn,setPlayerTurn]=useState(true)
 
-  // const handleAttack = ()=>{
-  //   if(playerTurn){
-  // //ref player attack damage
-  // const playerAttack=playerArray[math.random()*playerArray.length]
-  // //ref computer DB and minus the HP
-  // //toggle to !PlayerTurn and auto call func again
+  const [playerTurn, setPlayerTurn] = useState();
+  const [computerTurn, setComputerTurn] = useState();
 
-  //   } else (playerTurn===false){
-  // //ref computer attack damage
-  // //ref player DB and minus the HP
-  // //toggle to playerTurn
-  //   }
+  const handleAttack = () => {
+    console.log("this is running");
+    if (playerTurn) {
+      console.log("playerturn now");
+      setComputerTurn(false);
+      //ref player attack damage
+      const playerAttack =
+        playerArray[Math.floor(Math.random() * playerArray.length)];
 
-  // }
+      let newComputerHP = 0;
+
+      if (playerAttack - computerConfirmedPokemon.pokemonHP >= 0) {
+        newComputerHP = 0;
+      } else {
+        newComputerHP = computerConfirmedPokemon.pokemonHP - playerAttack;
+      }
+      update(dbRef(database, COMPUTER_POKEMON + "/" + computerPokemonRefID), {
+        pokemonHP: newComputerHP,
+      });
+
+      //ref computer DB and minus the HP
+      //toggle to !PlayerTurn and auto call func again
+      setPlayerTurn(false);
+
+      if (newComputerHP > 0) {
+        handleComputerAttack();
+      } else {
+        console.log("computer pokemon is dead");
+      }
+      // handleAttack();
+    } else if (!playerTurn) {
+      console.log("computerturn now");
+      //ref computer attack damage
+      //ref player DB and minus the HP
+      //toggle to playerTurn
+    }
+  };
+
+  const handleComputerAttack = () => {
+    setPlayerTurn(false);
+    setComputerTurn(true);
+    console.log("yes myturn now");
+    console.log(computerConfirmedPokemon);
+    console.log(computerTurn);
+
+    const computerAttack =
+      computerArray[Math.floor(Math.random() * computerArray.length)];
+
+    let newPlayerHP = 0;
+
+    if (computerAttack - playerConfirmedPokemon.pokemonHP >= 0) {
+      newPlayerHP = 0;
+    } else {
+      newPlayerHP = playerConfirmedPokemon.pokemonHP - computerAttack;
+    }
+    update(dbRef(database, PLAYER_POKEMON + "/" + playerPokemonRefID), {
+      pokemonHP: newPlayerHP,
+    });
+
+    if (newPlayerHP > 0) {
+      setPlayerTurn(true);
+    } else {
+      console.log("player pokemon is dead");
+    }
+  };
+
+  console.log(playerTurn);
+
+  useEffect(() => {
+    if (playerTurn) {
+      console.log("playerTurn is true but onChildChanged is not running");
+      const computerRef = dbRef(database, COMPUTER_POKEMON);
+      onChildChanged(computerRef, (data) => {
+        console.log(data.val());
+        console.log("this is running3");
+        const { pokemonHP } = data.val();
+
+        const newComputerStats = {
+          pokemonName: computerConfirmedPokemon.pokemonName,
+          pokemonHP: pokemonHP,
+          pokemonImageBack: computerConfirmedPokemon.pokemonImageBack,
+          pokemonImageFront: computerConfirmedPokemon.pokemonImageFront,
+        };
+
+        setComputerConfirmedPokemon(newComputerStats);
+        console.log("this is running2");
+      });
+    }
+
+    if (computerTurn) {
+      console.log("computer turn is running");
+      const playerRef = dbRef(database, PLAYER_POKEMON);
+      onChildChanged(playerRef, (data) => {
+        console.log(data.val());
+        console.log("this is running3");
+        const { pokemonHP } = data.val();
+
+        const newPlayerStats = {
+          pokemonName: playerConfirmedPokemon.pokemonName,
+          pokemonHP: pokemonHP,
+          pokemonImageBack: playerConfirmedPokemon.pokemonImageBack,
+          pokemonImageFront: playerConfirmedPokemon.pokemonImageFront,
+        };
+
+        setPlayerConfirmedPokemon(newPlayerStats);
+        console.log("this is running2");
+      });
+    }
+  }, [playerTurn, computerTurn]);
+
+  console.log(computerConfirmedPokemon);
 
   const logout = () => {
     console.log("logout");
@@ -266,9 +370,11 @@ const MainPage = (props) => {
             <SelectPoke
               //just put pokemon directly here?
               selectedPokemon={pokemonSelection[currPokemon]}
-              onConfirmPokemon={(confirmedPokemon) =>
-                handleConfirmPokemon(confirmedPokemon)
-              }
+              onConfirmPokemon={(confirmedPokemon) => {
+                handleConfirmPokemon(confirmedPokemon);
+                setPlayerTurn(true);
+                setComputerTurn(true);
+              }}
               onReselectPokemon={(e) => handleReselectPokemon(e)}
               setPlayerArray={(playerAttackArray) =>
                 setPlayerArray(playerAttackArray)
@@ -282,6 +388,8 @@ const MainPage = (props) => {
             <BattlePage
               playerConfirmedPokemon={playerConfirmedPokemon}
               computerConfirmedPokemon={computerConfirmedPokemon}
+              onAttack={() => handleAttack()}
+              isPlayerTurn={playerTurn}
             />
           }
         />

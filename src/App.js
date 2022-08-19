@@ -103,7 +103,11 @@ const App = () => {
             <Route
               path="/"
               element={
-                loggedInUser ? <Navigate to="/" /> : createAccountOrSignInButton
+                loggedInUser ? (
+                  <Navigate to="/mainpage/" />
+                ) : (
+                  createAccountOrSignInButton
+                )
               }
             />
             <Route path="/register" element={register} />

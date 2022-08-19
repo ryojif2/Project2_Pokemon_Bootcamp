@@ -60,7 +60,12 @@ const BattlePage = (props) => {
           <h4>{PlayerPokeName}</h4>
           {/* <h4>{PokeType}</h4> */}
           <h4>HP: {playerHP}</h4>
-          <button>Attack</button>
+          <button
+            disabled={!props.isPlayerTurn}
+            onClick={() => props.onAttack()}
+          >
+            Attack
+          </button>
         </div>
       </header>
     </div>
