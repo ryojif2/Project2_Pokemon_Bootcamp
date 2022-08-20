@@ -11,6 +11,7 @@ import Typography from "@mui/material/Typography";
 import SelectPoke from "./Components/SelectPoke";
 import BattlePage from "./Components/BattlePage";
 import Pokedex from "./Components/Pokedex";
+
 const App = () => {
   const [loggedInUser, setLoggedInUser] = useState();
   const [emailInputValue, setEmailInputValue] = useState("");
@@ -39,7 +40,7 @@ const App = () => {
       setPasswordInputValue={setPasswordInputValue}
       auth={auth}
       username={username}
-      setUserName={setUsername}
+      setUsername={setUsername}
     />
   );
   const login = (

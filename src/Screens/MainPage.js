@@ -16,14 +16,40 @@ import {
   update,
   onChildChanged,
   child,
+  onValue,
 } from "firebase/database";
 import { Routes, Route, Link, useNavigate, Outlet } from "react-router-dom";
 import { signOut } from "firebase/auth";
 
-// const USERSTATS_FOLDER_NAME = "users";
+const USERSTATS_FOLDER_NAME = "users";
 const PLAYER_POKEMON = "playerpokemon";
 const COMPUTER_POKEMON = "computerpokemon";
 const MainPage = (props) => {
+  console.log(props.loggedInUser);
+
+  //Initialise state for userStats of each player. This is for userProfile.js.
+  const [userStats, setUserStats] = useState({});
+
+  //After initial rendering, get a snapshot of the current user stats from the realtime database. Set as the data for userStats state.
+  useEffect(() => {
+    if (props.loggedInUser) {
+      const { email } = props.loggedInUser;
+      console.log(email);
+      const emailWoSpecialChar = email.replace(/[^a-zA-Z0-9 ]/g, "");
+
+      const userDataRef = dbRef(
+        database,
+        USERSTATS_FOLDER_NAME + "/" + emailWoSpecialChar
+      );
+      onValue(userDataRef, (data) => {
+        console.log(data.val());
+        setUserStats(data.val());
+      });
+    }
+  }, [props.loggedInUser]);
+
+  console.log(userStats);
+
   const [playerArray, setPlayerArray] = useState([]);
   const [computerArray, setComputerArray] = useState([]);
   //   [10,20,30,40]
@@ -223,32 +249,69 @@ const MainPage = (props) => {
     //pass the confirmed pokemons to battlepage through state
     setPlayerConfirmedPokemon(confirmedPokemon);
     selectComputerPokemon(confirmedPokemon);
+
+    //When User clicks select pokemon, update the usedPokemon data within the realtime database. This is needed to calculate out most used pokemon for the user.
+    if (userStats.usedPokemon && userStats.usedPokemon.length !== 0) {
+      update(dbRef(database, USERSTATS_FOLDER_NAME + "/" + userStats.email), {
+        usedPokemon: [...userStats.usedPokemon, confirmedPokemon.pokemonName],
+      });
+    } else {
+      update(dbRef(database, USERSTATS_FOLDER_NAME + "/" + userStats.email), {
+        usedPokemon: [confirmedPokemon.pokemonName],
+      });
+    }
+
     navigate("battlepage");
     console.log("battle!");
   };
 
   const [playerTurn, setPlayerTurn] = useState();
   const [computerTurn, setComputerTurn] = useState();
+  //pastMoves is to record the entire history of the battle.
   const [pastMoves, setPastMoves] = useState([]);
+  //recentMoves is to record only the moves of each turn. Player turn and computer turn. This is to render on the battlepage the 2 attacks that happened.
   const [recentMoves, setRecentMoves] = useState([]);
 
+  //Helper function for finding the most used pokemon of each user based on usedPokemon array. This is run in useEffect.
+  const findMostUsed = (usedPokemon) => {
+    const tally = {};
+    for (const pokemon of usedPokemon) {
+      tally[pokemon] ? tally[pokemon]++ : (tally[pokemon] = 1);
+    }
+
+    let maxFreq = 0;
+    let mostUsedPokemon;
+
+    Object.keys(tally).forEach((pokemon) => {
+      if (tally[pokemon] > maxFreq) {
+        maxFreq = tally[pokemon];
+        mostUsedPokemon = pokemon;
+      }
+    });
+
+    return mostUsedPokemon;
+  };
+
+  //When User clicks attack in battle page. Playerturn state is already true.
   const handleAttack = () => {
     console.log("this is running");
     if (playerTurn) {
       console.log("playerturn now");
+      // Set the computerturn state to false.
       setComputerTurn(false);
       //ref player attack damage
       const playerAttack =
         playerArray[Math.floor(Math.random() * playerArray.length)];
-
+      //Add the player attack damage to history of moves array state.
       if (pastMoves === []) {
         setPastMoves([playerAttack]);
       } else {
         setPastMoves((prevState) => [...prevState, playerAttack]);
       }
-
+      //Add the player attack damage to recent moves array state.
       setRecentMoves([playerAttack]);
 
+      //Calculate the hp of computer after player attack.
       let newComputerHP = 0;
 
       if (playerAttack - computerConfirmedPokemon.pokemonHP >= 0) {
@@ -256,60 +319,93 @@ const MainPage = (props) => {
       } else {
         newComputerHP = computerConfirmedPokemon.pokemonHP - playerAttack;
       }
+
+      //Update the database with computer pokemon's new hp.
       update(dbRef(database, COMPUTER_POKEMON + "/" + computerPokemonRefID), {
         pokemonHP: newComputerHP,
       });
 
-      //ref computer DB and minus the HP
-      //toggle to !PlayerTurn and auto call func again
+      //Set playerTurn state to false.
       setPlayerTurn(false);
 
+      //If computer pokemon's hp is not 0 with User's pokemon attack, go to computer turn & execute computer turn function.
+      //If computer pokemon's hp is 0 with User's pokemon attack, battle ends. Update stats of user into the realtime database.
       if (newComputerHP > 0) {
         handleComputerAttack();
       } else {
         console.log("computer pokemon is dead");
+
+        let mostUsedPokemon;
+        if (userStats.usedPokemon && userStats.usedPokemon.length !== 0) {
+          mostUsedPokemon = findMostUsed(userStats.usedPokemon);
+        } else {
+          mostUsedPokemon = "NA";
+        }
+
+        update(dbRef(database, USERSTATS_FOLDER_NAME + "/" + userStats.email), {
+          gamesPlayed: userStats.gamesPlayed + 1,
+          gamesWon: userStats.gamesWon + 1,
+          mostUsed: mostUsedPokemon,
+        });
       }
-      // handleAttack();
     } else if (!playerTurn) {
       console.log("computerturn now");
-      //ref computer attack damage
-      //ref player DB and minus the HP
-      //toggle to playerTurn
     }
   };
 
+  // Computer turn function for battle page. This is executed if computer's hp is not 0 after player's turn.
   const handleComputerAttack = () => {
+    //May be redundant, but set playerTurn's state to false and computerTurn state to true to ensure.
     setPlayerTurn(false);
     setComputerTurn(true);
     console.log("yes myturn now");
     console.log(computerConfirmedPokemon);
     console.log(computerTurn);
 
+    //ref computer attack dmg.
     const computerAttack =
       computerArray[Math.floor(Math.random() * computerArray.length)];
 
     let newPlayerHP = 0;
+
+    //Add the computer attack damage to history of moves array state.
+    //Add the computer attack damage to recent moves array state.
     setPastMoves((prevState) => [...prevState, computerAttack]);
     setRecentMoves((prevState) => [...prevState, computerAttack]);
+
+    //Calculate player's pokemon HP after computer attack.
     if (computerAttack - playerConfirmedPokemon.pokemonHP >= 0) {
       newPlayerHP = 0;
     } else {
       newPlayerHP = playerConfirmedPokemon.pokemonHP - computerAttack;
     }
+
+    //Update the database with player pokemon's new hp.
     update(dbRef(database, PLAYER_POKEMON + "/" + playerPokemonRefID), {
       pokemonHP: newPlayerHP,
     });
 
+    //If User pokemon's hp is not 0 with computer's pokemon attack, set playerTurn state to true. Allow's player to click attack again.
+    //If User pokemon's hp is 0 with computer's pokemon attack, battle ends. Update stats of user into the realtime database.
     if (newPlayerHP > 0) {
       setPlayerTurn(true);
     } else {
       console.log("player pokemon is dead");
+      const mostUsedPokemon = findMostUsed(userStats.usedPokemon);
+
+      update(dbRef(database, USERSTATS_FOLDER_NAME + "/" + userStats.email), {
+        gamesPlayed: userStats.gamesPlayed + 1,
+        mostUsed: mostUsedPokemon,
+      });
     }
   };
 
   console.log(playerTurn);
   console.log(pastMoves);
 
+  //useEffect for updating the internal states of the computer pokemon and player pokemon during battle page. This useEffect is triggered by force every time there is a change in state for computerTurn and playerTurn.
+  //useEffect is also triggered when the realtime database's data is updated for computer pokemon and player pokemon.
+  //This allows the browser/app to render out the latest HP of each pokemon.
   useEffect(() => {
     if (playerTurn) {
       console.log("playerTurn is true but onChildChanged is not running");
@@ -370,7 +466,7 @@ const MainPage = (props) => {
   };
   return (
     <div>
-      <UserProfile />
+      <UserProfile currUser={userStats} pokemonSelection={pokemonSelection} />
       <br />
       <br />
       <Outlet />
@@ -381,7 +477,6 @@ const MainPage = (props) => {
             <Pokedex
               pokemonSelection={pokemonSelection}
               onChoosePokemonClick={(e) => handleChoosePokemonClick(e)}
-              // onSubmit={(e, pokemonData) => handleSubmit(e, pokemonData)}
             />
           }
         />
@@ -393,6 +488,7 @@ const MainPage = (props) => {
               selectedPokemon={pokemonSelection[currPokemon]}
               onConfirmPokemon={(confirmedPokemon) => {
                 handleConfirmPokemon(confirmedPokemon);
+                //When User confirms pokemon and is sent to battle page, playerTurn and computerTurn states are set to true.
                 setPlayerTurn(true);
                 setComputerTurn(true);
               }}

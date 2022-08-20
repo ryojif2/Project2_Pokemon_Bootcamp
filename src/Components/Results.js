@@ -1,7 +1,9 @@
 import "../App.css";
 import React, { useState, useEffect } from "react";
 
+//This is the summary page after each battle.
 const Results = (props) => {
+  //Get data of player chosen pokemon that was used for battle. To use the name and image so that can render out.
   const playerChosenPokemon = props.playerConfirmedPokemon;
   const {
     pokemonHP: playerHP,
@@ -11,6 +13,7 @@ const Results = (props) => {
 
   const PlayerPokeName = playerPokemonName.toUpperCase();
 
+  //Get data of computer chosen pokemon that was used for battle. To use the name and image so that can render out.
   const computerChosenPokemon = props.computerConfirmedPokemon;
   const {
     pokemonHP: computerHP,
@@ -20,6 +23,7 @@ const Results = (props) => {
 
   const CPokeName = computerPokemonName.toUpperCase();
 
+  //Takes the state of damages dealt for the entire battle and maps the array. Even index is for player. Odd index is for computer.
   const movesHistory = props.historyMoves.map((move, i) => {
     if (i % 2 === 0) {
       return (

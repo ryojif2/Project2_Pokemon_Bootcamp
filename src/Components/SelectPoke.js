@@ -74,8 +74,6 @@ const SelectPoke = (props) => {
       >
         Confirm
       </button>
-
-      <Button onClick={() => logout()}>Logout</Button>
     </div>
   );
 };
