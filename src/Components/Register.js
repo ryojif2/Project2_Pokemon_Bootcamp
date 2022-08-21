@@ -149,9 +149,7 @@ const Register = (props) => {
             value={isNewUser ? "Create Account" : "Sign In"}
             // Disable form submission if email or password are empty
             disabled={!props.emailInputValue || !props.passwordInputValue}
-            onClick={handleSubmit}
-            onClick={handleSubmit}
-          />
+            onClick={handleSubmit}/>
           <br />
           <Button variant="link" onClick={toggleNewOrReturningAuth}>
             {isNewUser
