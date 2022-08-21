@@ -26,11 +26,15 @@ const Pokedex = (props) => {
   });
 
   return (
-    <div className="pokedexMap">
-      {pokemonMap}
-      {/* <button onClick={(e, chosenPokemon) => props.onSubmit(e, chosenPokemon)}> */}
-      {/* Confirm
+    <div>
+      <p>Ready for your next battle?</p>
+      <p>Choose your Pokemon below! </p>
+      <div className="pokedexMap">
+        {pokemonMap}
+        {/* <button onClick={(e, chosenPokemon) => props.onSubmit(e, chosenPokemon)}> */}
+        {/* Confirm
       </button> */}
+      </div>
     </div>
   );
 };
