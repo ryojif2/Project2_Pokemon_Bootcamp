@@ -12,21 +12,26 @@ import Grid from "@mui/material/Grid";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
-import { ref, set, getDatabase } from "firebase/database";
+import "../App.css";
 
 const Register = (props) => {
   const [isNewUser, setIsNewUser] = useState(true);
   const navigate = useNavigate();
   const auth = getAuth();
-  const db = getDatabase();
+
+  //1. handle inputs
   const handleInputChange = (event) => {
-    if (event.target.name === "emailInputValue") {
+    if (event.target.name === "username") {
+      props.setUsername(event.target.value);
+    } else if (event.target.name === "emailInputValue") {
       props.setEmailInputValue(event.target.value);
     } else if (event.target.name === "passwordInputValue") {
       props.setPasswordInputValue(event.target.value);
     }
+    console.log(props.emailInputValue);
   };
 
+  //2. authenticate user portion
   const handleSubmit = (event) => {
     event.preventDefault();
 
@@ -63,12 +68,15 @@ const Register = (props) => {
           console.error(error);
         });
     }
+    console.log(props.emailInputValue);
   };
 
+  //3. toggle
   const toggleNewOrReturningAuth = () => {
     setIsNewUser(!isNewUser);
   };
 
+  //4. if press back will go back to homepage
   const logout = () => {
     console.log("back");
     signOut(auth);
@@ -79,17 +87,8 @@ const Register = (props) => {
     <div>
       <Typography>
         <h1>Register</h1>
-        <Box component="form" sx={{ mt: 3 }}>
+        <Box component="form" sx={{ mt: 3 }} borderColor="primary.main">
           <Grid container spacing={2}>
-            {/* <Grid item xs={12}>
-              <span>Name: </span>
-              <TextField
-                placeholder="username"
-                onChange={(e) => setUsername(e.target.value)}
-                autoFocus
-                sx={{ input: { color: "white" } }}
-              />
-            </Grid> */}
             <br />
             <Grid item xs={12}>
               <span>Email: </span>
@@ -99,7 +98,9 @@ const Register = (props) => {
                 value={props.emailInputValue}
                 onChange={handleInputChange}
                 autoFocus
-                sx={{ input: { color: "white" } }}
+                sx={{
+                  input: { color: "white" },
+                }}
               />
             </Grid>
             <br />

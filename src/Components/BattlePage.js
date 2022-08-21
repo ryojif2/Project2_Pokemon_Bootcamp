@@ -1,35 +1,54 @@
 import "../App.css";
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import gym from "../Sounds/gym.mp3";
 
 const BattlePage = (props) => {
   const playerChosenPokemon = props.playerConfirmedPokemon;
   const {
     pokemonHP: playerHP,
-    pokemonImageFront: playerImageFront,
+    pokemonImage: pokemonImage,
     pokemonName: playerPokemonName,
   } = playerChosenPokemon;
 
-  // const playerHP=props.playerConfirmedPokemon.pokemonHP;
-  // const pokemonImageFront=props.playerConfirmedPokemon.pokemonHP
-  // const playerHP=props.playerConfirmedPokemon.pokemonHP
-
   const PlayerPokeName = playerPokemonName.toUpperCase();
-  // const PPokeType = ppokemonType.map((type) => <h5>{type}</h5>);
-  // const PPokeMoves = ppokemonMoves.map((move) => <h5>{move}</h5>);
 
   const computerChosenPokemon = props.computerConfirmedPokemon;
   const {
     pokemonHP: computerHP,
-    pokemonImageFront: computerImageFront,
+    pokemonImage: computerImageFront,
     pokemonName: computerPokemonName,
   } = computerChosenPokemon;
 
   const CPokeName = computerPokemonName.toUpperCase();
+  const [attack, setAttack] = useState(false);
+  //Audio upon pressing button
+  const attackCry = () => {
+    setAttack(true);
+    console.log("hit");
+  };
 
-  //onChildChanged
+  // useEffect(() => {
+  //   attack === true ? setAttack(false) : null;
+  // });
+
+  useEffect(() => {
+    if (attack !== false) {
+      setTimeout(() => {
+        setAttack(false);
+      }, 1000);
+    }
+  }, [attack]);
 
   return (
     <div className="App">
+      {attack === true ? (
+        <audio
+          autoPlay
+          src="https://play.pokemonshowdown.com/audio/cries/alakazam-mega.ogg"
+        >
+          Your browser does not support the audio element.
+        </audio>
+      ) : null}
       <header className="App-header">
         <p>Battle page</p>
 
@@ -41,9 +60,9 @@ const BattlePage = (props) => {
             alt={computerImageFront}
             name={computerPokemonName}
           />
-          <h4>{CPokeName}</h4>
+          {/* <h4>{CPokeName}</h4> */}
           {/* <h4>{PokeType}</h4> */}
-          <h4>HP: {computerHP}</h4>
+          {/* <h4>HP: {computerHP}</h4> */}
         </div>
         <div>
           {" "}
@@ -53,14 +72,14 @@ const BattlePage = (props) => {
         <div key={playerChosenPokemon} name={playerPokemonName}>
           <img
             style={{ height: "25vh" }}
-            src={playerImageFront}
-            alt={playerImageFront}
+            src={pokemonImage}
+            alt={pokemonImage}
             name={playerPokemonName}
           />
           <h4>{PlayerPokeName}</h4>
           {/* <h4>{PokeType}</h4> */}
-          <h4>HP: {playerHP}</h4>
-          <button>Attack</button>
+          {/* <h4>HP: {playerHP}</h4> */}
+          <button onClick={() => attackCry()}>Attack</button>
         </div>
       </header>
     </div>

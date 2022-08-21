@@ -1,22 +1,15 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { auth } from "../DB/firebase";
-import Button from "@mui/material/Button";
-import { database, storage } from "../DB/firebase";
+// import { auth } from "../DB/firebase";
+// import Button from "@mui/material/Button";
+import { database } from "../DB/firebase";
 import Pokedex from "../Components/Pokedex.js";
 import SelectPoke from "../Components/SelectPoke";
 import BattlePage from "../Components/BattlePage";
 import UserProfile from "../Components/UserProfile";
-import {
-  onChildAdded,
-  push,
-  ref as dbRef,
-  set,
-  update,
-  onChildChanged,
-} from "firebase/database";
-import { Routes, Route, Link, useNavigate, Outlet } from "react-router-dom";
-import { signOut } from "firebase/auth";
+import { push, ref as dbRef, set } from "firebase/database";
+import { Routes, Route, useNavigate, Outlet } from "react-router-dom";
+import gym from "../Sounds/gym.mp3";
 
 // const USERSTATS_FOLDER_NAME = "users";
 const PLAYER_POKEMON = "playerpokemon";
@@ -24,6 +17,11 @@ const COMPUTER_POKEMON = "computerpokemon";
 const MainPage = (props) => {
   const [playerArray, setPlayerArray] = useState([]);
   const [computerArray, setComputerArray] = useState([]);
+  const [battle, setBattle] = useState(false);
+  const { userEmail } = props;
+
+  //determine if next page is selected
+  const [nextPage, setNextPage] = useState(false);
   //   [10,20,30,40]
   //  playerAttack=playerArray[math.random()*playerArray.length]
   const [playerConfirmedPokemon, setPlayerConfirmedPokemon] = useState({});
@@ -55,6 +53,7 @@ const MainPage = (props) => {
         const pokemonType = types.map((element) => element.type.name);
         const pokemonImageBack = sprites.back_default;
         const pokemonImageFront = sprites.front_default;
+        const pokemonImage = sprites.other.dream_world.front_default;
         //extracting first 4 moves
         const pokemonMoves = moves.map((move) => move.move.name).slice(0, 4);
         const pokemonMovesURL = moves.map((move) => move.move.url).slice(0, 4);
@@ -67,6 +66,7 @@ const MainPage = (props) => {
           pokemonMovesURL: pokemonMovesURL,
           pokemonImageBack: pokemonImageBack,
           pokemonImageFront: pokemonImageFront,
+          pokemonImage: pokemonImage,
         };
 
         //if 9 chosen pokemon url is unique, is this redundant?
@@ -100,6 +100,7 @@ const MainPage = (props) => {
     console.log(e.target.name, "e.target.name name of pokemon");
     // console.log(pokemon,",data of pokemon")
     console.log("navigate to select pokemon");
+    setNextPage(true);
     navigate("selectpokemon").catch((error) => {
       console.log(error);
     });
@@ -109,7 +110,8 @@ const MainPage = (props) => {
   const handleReselectPokemon = (e) => {
     console.log("reselect navigate back");
     setCurrPokemon();
-    navigate("/").catch((error) => {
+    setNextPage(false);
+    navigate("/mainpage").catch((error) => {
       console.log(error);
     });
   };
@@ -217,37 +219,21 @@ const MainPage = (props) => {
     //pass the confirmed pokemons to battlepage through state
     setPlayerConfirmedPokemon(confirmedPokemon);
     selectComputerPokemon(confirmedPokemon);
+    setBattle(true);
     navigate("battlepage");
     console.log("battle!");
   };
-  // const [playerTurn,setPlayerTurn]=useState(true)
 
-  // const handleAttack = ()=>{
-  //   if(playerTurn){
-  // //ref player attack damage
-  // const playerAttack=playerArray[math.random()*playerArray.length]
-  // //ref computer DB and minus the HP
-  // //toggle to !PlayerTurn and auto call func again
-
-  //   } else (playerTurn===false){
-  // //ref computer attack damage
-  // //ref player DB and minus the HP
-  // //toggle to playerTurn
-  //   }
-
-  // }
-
-  const logout = () => {
-    console.log("logout");
-    props.setLoggedInUser(false);
-    signOut(auth);
-    navigate("/");
-  };
   return (
     <div>
-      <UserProfile />
+      <UserProfile userEmail={userEmail} battle={battle} />
       <br />
       <br />
+      {/* {nextPage !== true ? (
+        <audio loop autoPlay src={gym}>
+          Your browser does not support the audio element.
+        </audio>
+      ) : null} */}
       <Outlet />
       <Routes>
         <Route
@@ -256,7 +242,6 @@ const MainPage = (props) => {
             <Pokedex
               pokemonSelection={pokemonSelection}
               onChoosePokemonClick={(e) => handleChoosePokemonClick(e)}
-              // onSubmit={(e, pokemonData) => handleSubmit(e, pokemonData)}
             />
           }
         />
@@ -266,6 +251,7 @@ const MainPage = (props) => {
             <SelectPoke
               //just put pokemon directly here?
               selectedPokemon={pokemonSelection[currPokemon]}
+              pokemonSelection={pokemonSelection}
               onConfirmPokemon={(confirmedPokemon) =>
                 handleConfirmPokemon(confirmedPokemon)
               }
@@ -273,6 +259,8 @@ const MainPage = (props) => {
               setPlayerArray={(playerAttackArray) =>
                 setPlayerArray(playerAttackArray)
               }
+              nextPage={nextPage}
+              setNextPage={setNextPage}
             />
           }
         />
@@ -286,7 +274,6 @@ const MainPage = (props) => {
           }
         />
       </Routes>
-      <Button onClick={() => logout()}>Logout</Button>
     </div>
   );
 };

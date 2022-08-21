@@ -22,22 +22,15 @@ const Login = (props) => {
   //Upon submission, login the user
   const handleSubmit = (event) => {
     event.preventDefault();
-
-    const closeAuthForm = () => {
-      // Reset auth form state
-      props.setEmailInputValue("");
-      props.setPasswordInputValue("");
-    };
-
+    props.setLoggedInUser(true);
     signInWithEmailAndPassword(
       auth,
       props.emailInputValue,
       props.passwordInputValue
     )
-      .then(closeAuthForm)
       .then(navigate("/mainpage"))
       .catch((error) => {
-        alert("You have not registered! Please register");
+        // alert("You have not registered! Please register");
         console.error(error);
         // Return the user a graceful error message
       });
