@@ -216,7 +216,7 @@ else return;
     navigate("battlepage");
     console.log("battle!");
   };
-  
+
   // const [playerTurn,setPlayerTurn]=useState(true)
 
   // const handleAttack = ()=>{
@@ -279,6 +279,7 @@ else return;
             <BattlePage
               playerConfirmedPokemon={playerConfirmedPokemon}
               computerConfirmedPokemon={computerConfirmedPokemon}
+              user={props.loggedInUser}
             />
           }
         />

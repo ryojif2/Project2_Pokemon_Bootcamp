@@ -73,3 +73,14 @@
   justify-content: space-evenly;
   align-items: stretch;
 }
+
+.battlepage{
+  display:flex
+  
+}
+.battlearea{
+flex:1
+}
+.chatarea{
+  flex:1
+}

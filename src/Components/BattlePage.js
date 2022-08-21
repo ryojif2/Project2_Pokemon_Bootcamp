@@ -1,5 +1,7 @@
 import "../App.css";
 import React, { useState, useEffect } from "react";
+// import Chatarea from './Chatarea.js'
+import { onAuthStateChanged ,auth } from "firebase/auth";
 
 const BattlePage = (props) => {
   const playerChosenPokemon = props.playerConfirmedPokemon;
@@ -28,41 +30,70 @@ const BattlePage = (props) => {
 
   //onChildChanged
 
-  return (
-    <div className="App">
-      <header className="App-header">
-        <p>Battle page</p>
+const [message,setMessage]=useState('');
+const [messagelist,setMessageList]=useState([])
+const [userEmail,setUserEmail]=useState(props.user.email);
 
-        <h1>Computer</h1>
+
+const submitMessages=(e)=>{
+e.preventDefault();
+setMessageList([...messagelist,message]);
+setMessage('');
+
+}
+
+
+
+// useEffect(()=>{
+//  onAuthStateChanged(auth, (user) => {
+//       if (user) {
+//         console.log(user);
+//         setUser(user)
+//        }})},[user])
+
+  return (
+    <div className="battlepage">
+ 
+ <div className="battlearea">
+  <p>Battle page</p>
+      
         <div>
+            <h1>Computer</h1>
           <img
             style={{ height: "25vh" }}
             src={computerImageFront}
             alt={computerImageFront}
             name={computerPokemonName}
           />
-          <h4>{CPokeName}</h4>
+          <h6>{CPokeName}</h6>
           {/* <h4>{PokeType}</h4> */}
-          <h4>HP: {computerHP}</h4>
+          <h6>HP: {computerHP}</h6>
         </div>
-        <div>
-          {" "}
+       
           <p>Make a move and attack!</p>
-        </div>
-        <h1>Player (YOU) </h1>
+     
+      
         <div key={playerChosenPokemon} name={playerPokemonName}>
+            <h1>Player (YOU) </h1>
           <img
             style={{ height: "25vh" }}
             src={playerImageFront}
             alt={playerImageFront}
             name={playerPokemonName}
           />
-          <h4>{PlayerPokeName}</h4>
+          <h6>{PlayerPokeName}</h6>
           {/* <h4>{PokeType}</h4> */}
-          <h4>HP: {playerHP}</h4>
+          <h6>HP: {playerHP}</h6>
           <button>Attack</button>
         </div>
-      </header>
+
+        </div>
+    <div className="chatarea">
+
+<input type="text" value={message} onChange={(e)=>setMessage(e.target.value)} placeholder="write a message!"/>
+<button type="submit" onClick={submitMessages}>Submit</button>
+{messagelist.map(item=>(<p>{item} by {userEmail} </p>))}
+    </div>
     </div>
   );
 };

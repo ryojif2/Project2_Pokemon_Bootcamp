@@ -56,6 +56,7 @@ const App = () => {
   //Enter the Pokemon selection page
   const mainpage = (
     <MainPage
+    
       loggedInUser={loggedInUser}
       auth={auth}
       setLoggedInUser={setLoggedInUser}
@@ -96,8 +97,8 @@ const App = () => {
           <img
             src="https://www.freepnglogos.com/uploads/pokemon-logo-png-0.png"
             alt="Pokemon"
-            height="400px"
-            width="400px"
+            height="25vh"
+            width="25vh"
           />
           <Routes>
             <Route
