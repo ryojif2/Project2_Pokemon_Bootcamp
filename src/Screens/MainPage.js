@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 // import Button from "@mui/material/Button";
-import { database } from "../DB/firebase";
+import { auth, database } from "../DB/firebase";
 import Pokedex from "../Components/Pokedex.js";
 import SelectPoke from "../Components/SelectPoke";
 import BattlePage from "../Components/BattlePage";
@@ -17,6 +17,8 @@ import {
   onChildChanged,
   onValue,
 } from "firebase/database";
+import { signOut } from "firebase/auth";
+import Lobby from "../Components/Lobby";
 
 const USERSTATS_FOLDER_NAME = "users";
 const PLAYER_POKEMON = "playerpokemon";
@@ -320,7 +322,7 @@ const MainPage = (props) => {
 
       //Calculate the hp of computer after player attack.
       let newComputerHP = 0;
-
+      //if player attack is more than computer HP
       if (playerAttack - computerConfirmedPokemon.pokemonHP >= 0) {
         newComputerHP = 0;
       } else {
@@ -482,6 +484,20 @@ const MainPage = (props) => {
     navigate("/mainpage");
   };
 
+  const [gameStart, setGameStart] = useState(false);
+
+  const startGame = (e) => {
+    setGameStart(true);
+    e.preventDefault();
+  };
+
+  const logout = () => {
+    console.log("logout");
+    props.setLoggedInUser(false);
+    signOut(auth);
+    navigate("/");
+  };
+
   return (
     <div>
       {battle !== true ? (
@@ -499,12 +515,17 @@ const MainPage = (props) => {
         <Route
           path="/"
           element={
-            <Pokedex
-              pokemonSelection={pokemonSelection}
-              onChoosePokemonClick={(e) => handleChoosePokemonClick(e)}
-            />
+            gameStart ? (
+              <Pokedex
+                pokemonSelection={pokemonSelection}
+                onChoosePokemonClick={(e) => handleChoosePokemonClick(e)}
+              />
+            ) : (
+              <Lobby startGame={startGame} currUser={userStats} />
+            )
           }
         />
+
         <Route
           path="/selectpokemon"
           element={
