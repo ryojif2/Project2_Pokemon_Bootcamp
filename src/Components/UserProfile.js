@@ -34,11 +34,11 @@ const UserProfile = (props) => {
     } else return;
   }, [props.currUser]);
 
-  console.log(mostUsedPokemonImage);
+  // console.log(mostUsedPokemonImage);
 
   return (
     <div>
-      {Object.keys(props.currUser).length !== 0 ? (
+      {props.currUser!=null && Object.keys(props.currUser).length !== 0 ? (
         <div>
           <p>Welcome back user {props.currUser.username}!</p>
           <p>Games Played: {props.currUser.gamesPlayed}</p>

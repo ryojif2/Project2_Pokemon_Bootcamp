@@ -97,8 +97,8 @@ const App = () => {
           <img
             src="https://www.freepnglogos.com/uploads/pokemon-logo-png-0.png"
             alt="Pokemon"
-            height="400px"
-            width="400px"
+            height="30vh"
+            width="30vh"
           />
           <Routes>
             <Route

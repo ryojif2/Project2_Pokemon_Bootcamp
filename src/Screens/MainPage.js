@@ -20,6 +20,7 @@ import {
 } from "firebase/database";
 import { Routes, Route, Link, useNavigate, Outlet } from "react-router-dom";
 import { signOut } from "firebase/auth";
+import Lobby from '../Components/Lobby';
 
 const USERSTATS_FOLDER_NAME = "users";
 const PLAYER_POKEMON = "playerpokemon";
@@ -313,7 +314,7 @@ const MainPage = (props) => {
 
       //Calculate the hp of computer after player attack.
       let newComputerHP = 0;
-
+//if player attack is more than computer HP
       if (playerAttack - computerConfirmedPokemon.pokemonHP >= 0) {
         newComputerHP = 0;
       } else {
@@ -458,6 +459,13 @@ const MainPage = (props) => {
     navigate("/");
   };
 
+const [gameStart,setGameStart]=useState(false);
+
+  const startGame=(e)=>{
+    setGameStart(true)
+    e.preventDefault();
+    }
+
   const logout = () => {
     console.log("logout");
     props.setLoggedInUser(false);
@@ -473,13 +481,14 @@ const MainPage = (props) => {
       <Routes>
         <Route
           path="/"
-          element={
+          element={ gameStart ?
             <Pokedex
               pokemonSelection={pokemonSelection}
               onChoosePokemonClick={(e) => handleChoosePokemonClick(e)}
-            />
+            /> : <Lobby startGame={startGame} currUser={userStats}/>
           }
         />
+        
         <Route
           path="/selectpokemon"
           element={
