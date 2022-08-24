@@ -34,10 +34,12 @@ const Login = (props) => {
       props.emailInputValue,
       props.passwordInputValue
     )
+      .then(props.setLoggedIn(false))
       .then(closeAuthForm)
       .then(navigate("/mainpage"))
+      .then(props.setLoggedIn(true))
       .catch((error) => {
-        alert("You have not registered! Please register");
+        // alert("You have not registered! Please register");
         console.error(error);
         // Return the user a graceful error message
       });
@@ -45,7 +47,7 @@ const Login = (props) => {
 
   const logout = () => {
     console.log("back");
-    props.setLoggedInUser(false);
+    props.setLoggedIn(false);
     signOut(auth);
     navigate("/");
   };

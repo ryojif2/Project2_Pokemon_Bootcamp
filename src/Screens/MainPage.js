@@ -1,35 +1,34 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { auth } from "../DB/firebase";
-import Button from "@mui/material/Button";
-import { database, storage } from "../DB/firebase";
+// import Button from "@mui/material/Button";
+import { auth, database } from "../DB/firebase";
 import Pokedex from "../Components/Pokedex.js";
 import SelectPoke from "../Components/SelectPoke";
 import BattlePage from "../Components/BattlePage";
 import Results from "../Components/Results";
 import UserProfile from "../Components/UserProfile";
+import { Routes, Route, useNavigate, Outlet } from "react-router-dom";
+import gym from "../Sounds/gym.mp3";
 import {
-  onChildAdded,
   push,
   ref as dbRef,
   set,
   update,
   onChildChanged,
-  child,
   onValue,
 } from "firebase/database";
-import { Routes, Route, Link, useNavigate, Outlet } from "react-router-dom";
 import { signOut } from "firebase/auth";
-import Lobby from '../Components/Lobby';
+import Lobby from "../Components/Lobby";
 
 const USERSTATS_FOLDER_NAME = "users";
 const PLAYER_POKEMON = "playerpokemon";
 const COMPUTER_POKEMON = "computerpokemon";
 const MainPage = (props) => {
-  console.log(props.loggedInUser);
-
   //Initialise state for userStats of each player. This is for userProfile.js.
   const [userStats, setUserStats] = useState({});
+  console.log(props.loggedInUser);
+  const [victory, setVictory] = useState(false);
+  const [loss, setLoss] = useState(false);
 
   //After initial rendering, get a snapshot of the current user stats from the realtime database. Set as the data for userStats state.
   useEffect(() => {
@@ -53,6 +52,9 @@ const MainPage = (props) => {
 
   const [playerArray, setPlayerArray] = useState([]);
   const [computerArray, setComputerArray] = useState([]);
+  const [battle, setBattle] = useState(false);
+  //determine if next page is selected
+  const [nextPage, setNextPage] = useState(false);
   //   [10,20,30,40]
   //  playerAttack=playerArray[math.random()*playerArray.length]
   const [playerConfirmedPokemon, setPlayerConfirmedPokemon] = useState({});
@@ -84,6 +86,7 @@ const MainPage = (props) => {
         const pokemonType = types.map((element) => element.type.name);
         const pokemonImageBack = sprites.back_default;
         const pokemonImageFront = sprites.front_default;
+        const pokemonImage = sprites.other.dream_world.front_default;
         //extracting first 4 moves
         const pokemonMoves = moves.map((move) => move.move.name).slice(0, 4);
         const pokemonMovesURL = moves.map((move) => move.move.url).slice(0, 4);
@@ -96,6 +99,7 @@ const MainPage = (props) => {
           pokemonMovesURL: pokemonMovesURL,
           pokemonImageBack: pokemonImageBack,
           pokemonImageFront: pokemonImageFront,
+          pokemonImage: pokemonImage,
         };
 
         //if 9 chosen pokemon url is unique, is this redundant?
@@ -129,6 +133,7 @@ const MainPage = (props) => {
     console.log(e.target.name, "e.target.name name of pokemon");
     // console.log(pokemon,",data of pokemon")
     console.log("navigate to select pokemon");
+    setNextPage(true);
     navigate("selectpokemon").catch((error) => {
       console.log(error);
     });
@@ -138,7 +143,8 @@ const MainPage = (props) => {
   const handleReselectPokemon = (e) => {
     console.log("reselect navigate back");
     setCurrPokemon();
-    navigate("/").catch((error) => {
+    setNextPage(false);
+    navigate("/mainpage").catch((error) => {
       console.log(error);
     });
   };
@@ -239,10 +245,10 @@ const MainPage = (props) => {
       );
     }
   }, [
-    // playerConfirmedPokemon,
-    // computerConfirmedPokemon,
     playerArray,
     computerArray,
+    playerConfirmedPokemon,
+    computerConfirmedPokemon,
   ]);
 
   const handleConfirmPokemon = (confirmedPokemon) => {
@@ -250,6 +256,7 @@ const MainPage = (props) => {
     //pass the confirmed pokemons to battlepage through state
     setPlayerConfirmedPokemon(confirmedPokemon);
     selectComputerPokemon(confirmedPokemon);
+    setBattle(true);
 
     //When User clicks select pokemon, update the usedPokemon data within the realtime database. This is needed to calculate out most used pokemon for the user.
     if (userStats.usedPokemon && userStats.usedPokemon.length !== 0) {
@@ -261,11 +268,12 @@ const MainPage = (props) => {
         usedPokemon: [confirmedPokemon.pokemonName],
       });
     }
-
+    setNextPage(true);
     navigate("battlepage");
     console.log("battle!");
   };
 
+  //changes here
   const [playerTurn, setPlayerTurn] = useState();
   const [computerTurn, setComputerTurn] = useState();
   //pastMoves is to record the entire history of the battle.
@@ -314,7 +322,7 @@ const MainPage = (props) => {
 
       //Calculate the hp of computer after player attack.
       let newComputerHP = 0;
-//if player attack is more than computer HP
+      //if player attack is more than computer HP
       if (playerAttack - computerConfirmedPokemon.pokemonHP >= 0) {
         newComputerHP = 0;
       } else {
@@ -421,6 +429,7 @@ const MainPage = (props) => {
           pokemonHP: pokemonHP,
           pokemonImageBack: computerConfirmedPokemon.pokemonImageBack,
           pokemonImageFront: computerConfirmedPokemon.pokemonImageFront,
+          pokemonImage: computerConfirmedPokemon.pokemonImage,
         };
 
         setComputerConfirmedPokemon(newComputerStats);
@@ -441,13 +450,26 @@ const MainPage = (props) => {
           pokemonHP: pokemonHP,
           pokemonImageBack: playerConfirmedPokemon.pokemonImageBack,
           pokemonImageFront: playerConfirmedPokemon.pokemonImageFront,
+          pokemonImage: playerConfirmedPokemon.pokemonImage,
         };
 
         setPlayerConfirmedPokemon(newPlayerStats);
         console.log("this is running2");
       });
     }
-  }, [playerTurn, computerTurn]);
+    //  }, [playerTurn, computerTurn]);
+  }, [
+    playerTurn,
+    computerTurn,
+    computerConfirmedPokemon.pokemonImage,
+    computerConfirmedPokemon.pokemonImageBack,
+    computerConfirmedPokemon.pokemonImageFront,
+    computerConfirmedPokemon.pokemonName,
+    playerConfirmedPokemon.pokemonImage,
+    playerConfirmedPokemon.pokemonImageBack,
+    playerConfirmedPokemon.pokemonImageFront,
+    playerConfirmedPokemon.pokemonName,
+  ]);
 
   console.log(computerConfirmedPokemon);
 
@@ -456,15 +478,18 @@ const MainPage = (props) => {
   };
 
   const handleNewBattle = () => {
-    navigate("/");
+    setNextPage(false);
+    setVictory(false);
+    setLoss(false);
+    navigate("/mainpage");
   };
 
-const [gameStart,setGameStart]=useState(false);
+  const [gameStart, setGameStart] = useState(false);
 
-  const startGame=(e)=>{
-    setGameStart(true)
+  const startGame = (e) => {
+    setGameStart(true);
     e.preventDefault();
-    }
+  };
 
   const logout = () => {
     console.log("logout");
@@ -472,29 +497,42 @@ const [gameStart,setGameStart]=useState(false);
     signOut(auth);
     navigate("/");
   };
+
   return (
     <div>
-      <UserProfile currUser={userStats} pokemonSelection={pokemonSelection} />
+      {battle !== true ? (
+        <UserProfile currUser={userStats} pokemonSelection={pokemonSelection} />
+      ) : null}
       <br />
       <br />
+      {nextPage !== true ? (
+        <audio loop autoPlay src={gym}>
+          Your browser does not support the audio element.
+        </audio>
+      ) : null}
       <Outlet />
       <Routes>
         <Route
           path="/"
-          element={ gameStart ?
-            <Pokedex
-              pokemonSelection={pokemonSelection}
-              onChoosePokemonClick={(e) => handleChoosePokemonClick(e)}
-            /> : <Lobby startGame={startGame} currUser={userStats}/>
+          element={
+            gameStart ? (
+              <Pokedex
+                pokemonSelection={pokemonSelection}
+                onChoosePokemonClick={(e) => handleChoosePokemonClick(e)}
+              />
+            ) : (
+              <Lobby startGame={startGame} currUser={userStats} />
+            )
           }
         />
-        
+
         <Route
           path="/selectpokemon"
           element={
             <SelectPoke
               //just put pokemon directly here?
               selectedPokemon={pokemonSelection[currPokemon]}
+              pokemonSelection={pokemonSelection}
               onConfirmPokemon={(confirmedPokemon) => {
                 handleConfirmPokemon(confirmedPokemon);
                 //When User confirms pokemon and is sent to battle page, playerTurn and computerTurn states are set to true.
@@ -505,6 +543,8 @@ const [gameStart,setGameStart]=useState(false);
               setPlayerArray={(playerAttackArray) =>
                 setPlayerArray(playerAttackArray)
               }
+              nextPage={nextPage}
+              setNextPage={setNextPage}
             />
           }
         />
@@ -519,6 +559,13 @@ const [gameStart,setGameStart]=useState(false);
               isComputerTurn={computerTurn}
               historyMoves={recentMoves}
               onSummary={() => handleSummary()}
+              battle={battle}
+              setBattle={setBattle}
+              setVictory={setVictory}
+              victory={victory}
+              setLoss={setLoss}
+              loss={loss}
+              currUser={userStats}
             />
           }
         />
@@ -529,12 +576,15 @@ const [gameStart,setGameStart]=useState(false);
               playerConfirmedPokemon={playerConfirmedPokemon}
               computerConfirmedPokemon={computerConfirmedPokemon}
               historyMoves={pastMoves}
+              setVictory={setVictory}
+              victory={victory}
+              setLoss={setLoss}
+              loss={loss}
               onNewBattle={handleNewBattle}
             />
           }
         />
       </Routes>
-      <Button onClick={() => logout()}>Logout</Button>
     </div>
   );
 };

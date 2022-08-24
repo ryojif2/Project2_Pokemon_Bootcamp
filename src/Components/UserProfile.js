@@ -19,7 +19,8 @@ const UserProfile = (props) => {
           .get(`https://pokeapi.co/api/v2/pokemon/${mostUsed}`)
           .then((result) => {
             const { sprites } = result.data;
-            const pokemonImageFront = sprites.front_default;
+            console.log(sprites);
+            const pokemonImageFront = sprites.other.dream_world.front_default;
             return pokemonImageFront;
           })
           .then((data) => setMostUsedPokemonImage(data));

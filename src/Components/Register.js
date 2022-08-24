@@ -12,8 +12,9 @@ import Grid from "@mui/material/Grid";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
+import "../App.css";
 import { database } from "../DB/firebase";
-import { ref as dbRef, set, getDatabase, child } from "firebase/database";
+import { ref as dbRef, set, child } from "firebase/database";
 
 //Define userStats folder in realtime database.
 const USERSTATS_FOLDER_NAME = "users";
@@ -22,17 +23,22 @@ const Register = (props) => {
   const [isNewUser, setIsNewUser] = useState(true);
   const navigate = useNavigate();
   const auth = getAuth();
+  const { username } = props;
+
+  //1. handle inputs
   // const db = getDatabase();
   const handleInputChange = (event) => {
-    if (event.target.name === "emailInputValue") {
+    if (event.target.name === "username") {
+      props.setUsername(event.target.value);
+    } else if (event.target.name === "emailInputValue") {
       props.setEmailInputValue(event.target.value);
     } else if (event.target.name === "passwordInputValue") {
       props.setPasswordInputValue(event.target.value);
-    } else if (event.target.name === "username") {
-      props.setUsername(event.target.value);
     }
+    console.log(props.emailInputValue);
   };
 
+  //2. authenticate user portion
   //User stats for each user are created upon account registration.
   //Set email as ID in the database for each user, instead of the default randomly generated ID. This is so that we can identify which user folder to update whenever the stats change during game or after game.
   //Initiate the user stats in database.
@@ -58,6 +64,7 @@ const Register = (props) => {
       // Reset auth form state
       props.setEmailInputValue("");
       props.setPasswordInputValue("");
+      props.setUsername("");
       setIsNewUser(false);
     };
 
@@ -88,12 +95,15 @@ const Register = (props) => {
           console.error(error);
         });
     }
+    console.log(props.emailInputValue);
   };
 
+  //3. toggle
   const toggleNewOrReturningAuth = () => {
     setIsNewUser(!isNewUser);
   };
 
+  //4. if press back will go back to homepage
   const logout = () => {
     console.log("back");
     signOut(auth);
@@ -104,7 +114,7 @@ const Register = (props) => {
     <div>
       <Typography>
         <h1>Register</h1>
-        <Box component="form" sx={{ mt: 3 }}>
+        <Box component="form" sx={{ mt: 3 }} borderColor="primary.main">
           <Grid container spacing={2}>
             <Grid item xs={12}>
               <span>Name: </span>
@@ -126,7 +136,9 @@ const Register = (props) => {
                 value={props.emailInputValue}
                 onChange={handleInputChange}
                 autoFocus
-                sx={{ input: { color: "white" } }}
+                sx={{
+                  input: { color: "white" },
+                }}
               />
             </Grid>
             <br />

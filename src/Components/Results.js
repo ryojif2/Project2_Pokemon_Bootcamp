@@ -1,5 +1,6 @@
 import "../App.css";
-import React, { useState, useEffect } from "react";
+import "../battle.css";
+import React from "react";
 
 //This is the summary page after each battle.
 const Results = (props) => {
@@ -16,7 +17,7 @@ const Results = (props) => {
   //Get data of computer chosen pokemon that was used for battle. To use the name and image so that can render out.
   const computerChosenPokemon = props.computerConfirmedPokemon;
   const {
-    pokemonHP: computerHP,
+    // pokemonHP: computerHP,
     pokemonImageFront: computerImageFront,
     pokemonName: computerPokemonName,
   } = computerChosenPokemon;
@@ -28,14 +29,14 @@ const Results = (props) => {
     if (i % 2 === 0) {
       return (
         <p>
-          Your {playerPokemonName} hit enemy {computerPokemonName} for
+          Your {playerPokemonName} hit enemy {computerPokemonName} for{" "}
           {props.historyMoves[i]} damage!
         </p>
       );
     } else {
       return (
         <p>
-          Enemy {computerPokemonName} hit your {playerPokemonName} for
+          Enemy {computerPokemonName} hit your {playerPokemonName} for{" "}
           {props.historyMoves[i]} damage!
         </p>
       );
@@ -44,16 +45,18 @@ const Results = (props) => {
 
   return (
     <div className="App">
-      <header className="App-header">
+      <header>
         <p>Battle Summary</p>
         {movesHistory}
-        {playerHP === 0 ? (
-          <p>Your {playerPokemonName} fainted! You lost!</p>
-        ) : (
-          <p>Enemy {computerPokemonName} fainted! You won! </p>
-        )}
-        <h1>Computer</h1>
-        <div>
+        <div className={playerHP > 0 ? "winner" : "loser"}>
+          {playerHP === 0 ? (
+            <p>Your {playerPokemonName} fainted! You lost!</p>
+          ) : (
+            <p>Enemy {computerPokemonName} fainted! You won! </p>
+          )}
+        </div>
+        <div className={playerHP > 0 ? "loser" : "winner"}>
+          <h1>Computer</h1>
           <img
             style={{ height: "25vh" }}
             src={computerImageFront}
@@ -63,16 +66,18 @@ const Results = (props) => {
           <h4>{CPokeName}</h4>
           {/* <h4>{PokeType}</h4> */}
         </div>
-        <h1>Player (YOU) </h1>
-        <div key={playerChosenPokemon} name={playerPokemonName}>
-          <img
-            style={{ height: "25vh" }}
-            src={playerImageFront}
-            alt={playerImageFront}
-            name={playerPokemonName}
-          />
-          <h4>{PlayerPokeName}</h4>
-          {/* <h4>{PokeType}</h4> */}
+        <div className={playerHP > 0 ? "winner" : "loser"}>
+          <h1>Player (YOU) </h1>
+          <div key={playerChosenPokemon} name={playerPokemonName}>
+            <img
+              style={{ height: "25vh" }}
+              src={playerImageFront}
+              alt={playerImageFront}
+              name={playerPokemonName}
+            />
+            <h4>{PlayerPokeName}</h4>
+            {/* <h4>{PokeType}</h4> */}
+          </div>
         </div>
         <button
           onClick={() => {
