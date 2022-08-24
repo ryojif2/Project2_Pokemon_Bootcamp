@@ -22,13 +22,22 @@ const Login = (props) => {
   //Upon submission, login the user
   const handleSubmit = (event) => {
     event.preventDefault();
-    props.setLoggedInUser(true);
+
+    const closeAuthForm = () => {
+      // Reset auth form state
+      props.setEmailInputValue("");
+      props.setPasswordInputValue("");
+    };
+
     signInWithEmailAndPassword(
       auth,
       props.emailInputValue,
       props.passwordInputValue
     )
+      .then(props.setLoggedIn(false))
+      .then(closeAuthForm)
       .then(navigate("/mainpage"))
+      .then(props.setLoggedIn(true))
       .catch((error) => {
         // alert("You have not registered! Please register");
         console.error(error);
@@ -38,7 +47,7 @@ const Login = (props) => {
 
   const logout = () => {
     console.log("back");
-    props.setLoggedInUser(false);
+    props.setLoggedIn(false);
     signOut(auth);
     navigate("/");
   };

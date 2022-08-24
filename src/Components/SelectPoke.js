@@ -4,7 +4,7 @@ import "../App.css";
 import ConfirmedCard from "./ConfirmedCard";
 
 const SelectPoke = (props) => {
-  console.log(props.battle);
+  const { onReselectPokemon, setPlayerArray, onConfirmPokemon } = props;
   const chosenPokemon = props.selectedPokemon;
   const {
     pokemonHP,
@@ -38,7 +38,6 @@ const SelectPoke = (props) => {
   });
 
   return (
-    //repeating pokedex ?
     <div key={chosenPokemon} name={pokemonName}>
       <ConfirmedCard
         name={PokeName}
@@ -46,19 +45,12 @@ const SelectPoke = (props) => {
         type={PokeType}
         HP={pokemonHP}
         Moves={PokeMoves}
+        onReselectPokemon={onReselectPokemon}
+        setPlayerArray={setPlayerArray}
+        onConfirmPokemon={onConfirmPokemon}
+        playerAttackArray={playerAttackArray}
+        chosenPokemon={chosenPokemon}
       />
-      <button onClick={(e) => props.onReselectPokemon(e)}>
-        Back to Main Pokedex
-      </button>
-      <button
-        onClick={() => {
-          props.setPlayerArray(playerAttackArray);
-
-          props.onConfirmPokemon(chosenPokemon);
-        }}
-      >
-        Confirm
-      </button>
     </div>
   );
 };

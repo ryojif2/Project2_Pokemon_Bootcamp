@@ -8,20 +8,18 @@ import Login from "./Components/Login";
 import Typography from "@mui/material/Typography";
 // import Button from "@mui/material/Button";
 // import { auth } from "../src/DB/firebase";
-// import SelectPoke from "./Components/SelectPoke";
-// import BattlePage from "./Components/BattlePage";
-// import Pokedex from "./Components/Pokedex";
 import Navbar from "./Components/Navbar";
 import Loginsound from "../src/Sounds/opening.mp3";
-import button from "../src/Sounds/button.mp3";
+// import button from "../src/Sounds/button.mp3";
+import click from "../src/Sounds/click.mp3";
 
 const App = () => {
   const [loggedInUser, setLoggedInUser] = useState();
   const [emailInputValue, setEmailInputValue] = useState("");
   const [passwordInputValue, setPasswordInputValue] = useState("");
-  const [username, setUsername] = useState();
-  const [userEmail, setUserEmail] = useState("");
+  const [loggedIn, setLoggedIn] = useState();
   const [buttonSound, setButtonSound] = useState(false);
+  const [username, setUsername] = useState("");
 
   const auth = getAuth();
 
@@ -29,14 +27,13 @@ const App = () => {
     onAuthStateChanged(auth, (user) => {
       // If user is logged in, save logged-in user to state
       if (user) {
-        setLoggedInUser(true);
-        setUsername(user);
+        setLoggedInUser(user);
         return;
       }
       // Else set logged-in user in state to null
       setLoggedInUser(null);
     });
-  }, [auth]);
+  }, []);
 
   // Initialise components to render in variables for organisational purposes
   const register = (
@@ -47,7 +44,7 @@ const App = () => {
       setPasswordInputValue={setPasswordInputValue}
       auth={auth}
       username={username}
-      setUserName={setUsername}
+      setUsername={setUsername}
     />
   );
   const login = (
@@ -59,17 +56,21 @@ const App = () => {
       setLoggedInUser={setLoggedInUser}
       loggedInUser={loggedInUser}
       auth={auth}
+      setLoggedIn={setLoggedIn}
+      loggedIn={loggedIn}
     />
   );
   //Enter the Pokemon selection page
   const mainpage = (
     <MainPage
-      loggedInUser={loggedInUser}
       auth={auth}
+      loggedInUser={loggedInUser}
       setLoggedInUser={setLoggedInUser}
+      setLoggedIn={setLoggedIn}
+      loggedIn={loggedIn}
+      emailInputValue={emailInputValue}
       username={username}
-      setUserName={setUsername}
-      userEmail={userEmail}
+      setUsername={setUsername}
     />
   );
 
@@ -78,6 +79,14 @@ const App = () => {
     setButtonSound(true);
     console.log("pew");
   };
+
+  useEffect(() => {
+    if (buttonSound !== false) {
+      setTimeout(() => {
+        setButtonSound(false);
+      }, 1000);
+    }
+  }, [buttonSound]);
 
   const createAccountOrSignInButton = (
     <div>
@@ -96,35 +105,28 @@ const App = () => {
     </div>
   );
 
-  useEffect(() => {
-    if (buttonSound !== false) {
-      setTimeout(() => {
-        setButtonSound(false);
-      }, 2000);
-    }
-  }, [buttonSound]);
-
   return (
     <div className="App">
       {buttonSound === true ? (
-        <audio autoPlay src={button}>
+        <audio autoPlay src={click}>
           Your browser does not support the audio element.
         </audio>
       ) : null}
       <Navbar
         loggedInUser={loggedInUser}
         setLoggedInUser={setLoggedInUser}
+        setLoggedIn={setLoggedIn}
+        loggedIn={loggedIn}
         emailInputValue={emailInputValue}
-        userEmail={userEmail}
-        username={username}
         setEmailInputValue={setEmailInputValue}
         setPasswordInputValue={setPasswordInputValue}
+        username={username}
       />
-      {/* {loggedInUser !== true ? (
+      {loggedIn !== true ? (
         <audio loop autoPlay src={Loginsound}>
           Your browser does not support the audio element.
         </audio>
-      ) : null} */}
+      ) : null}
 
       <Typography>
         <header className="App-header">
@@ -133,6 +135,7 @@ const App = () => {
             alt="Pokemon"
             height="400px"
             width="400px"
+            className="pokemonImg"
           />
           <Routes>
             <Route

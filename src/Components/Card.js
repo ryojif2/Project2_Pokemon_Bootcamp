@@ -6,15 +6,9 @@ import Button from "@mui/material/Button";
 
 const PokeCard = ({ id, image, name, type, HP, onChoosePokemonClick }) => {
   const style = type[0].props.children + " thumb-container";
-  const iconStyle = "icon" + type[0].props.children;
-  console.log(iconStyle);
 
   return (
     <div className={style}>
-      <div className={iconStyle}>
-        {/* <img alt="Image 1" /> */}
-        <image />
-      </div>
       <div className="number">
         <small>{id + 1}</small>
       </div>

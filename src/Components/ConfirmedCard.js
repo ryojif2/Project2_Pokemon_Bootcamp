@@ -1,6 +1,18 @@
 import React from "react";
+import Button from "@mui/material/Button";
 
-const ConfirmedCard = ({ image, name, type, HP, Moves }) => {
+const ConfirmedCard = ({
+  image,
+  name,
+  type,
+  HP,
+  Moves,
+  onReselectPokemon,
+  setPlayerArray,
+  onConfirmPokemon,
+  chosenPokemon,
+  playerAttackArray,
+}) => {
   const style = type[0].props.children + " thumb-container";
   console.log(Moves[0].props.children);
   return (
@@ -19,6 +31,19 @@ const ConfirmedCard = ({ image, name, type, HP, Moves }) => {
             ${Moves[3].props.children}`}
         </small>
       </div>
+      <br />
+      <Button onClick={(e) => onReselectPokemon(e)}>
+        Back to Main Pokedex
+      </Button>
+      <Button
+        onClick={() => {
+          setPlayerArray(playerAttackArray);
+
+          onConfirmPokemon(chosenPokemon);
+        }}
+      >
+        Confirm
+      </Button>
     </div>
   );
 };

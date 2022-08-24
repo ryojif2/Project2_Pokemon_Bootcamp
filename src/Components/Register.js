@@ -13,13 +13,20 @@ import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import "../App.css";
+import { database } from "../DB/firebase";
+import { ref as dbRef, set, child } from "firebase/database";
+
+//Define userStats folder in realtime database.
+const USERSTATS_FOLDER_NAME = "users";
 
 const Register = (props) => {
   const [isNewUser, setIsNewUser] = useState(true);
   const navigate = useNavigate();
   const auth = getAuth();
+  const { username } = props;
 
   //1. handle inputs
+  // const db = getDatabase();
   const handleInputChange = (event) => {
     if (event.target.name === "username") {
       props.setUsername(event.target.value);
@@ -32,6 +39,24 @@ const Register = (props) => {
   };
 
   //2. authenticate user portion
+  //User stats for each user are created upon account registration.
+  //Set email as ID in the database for each user, instead of the default randomly generated ID. This is so that we can identify which user folder to update whenever the stats change during game or after game.
+  //Initiate the user stats in database.
+  const pushUserData = (email, username) => {
+    const emailWoSpecialChar = email.replace(/[^a-zA-Z0-9 ]/g, "");
+    const userDataRef = dbRef(database, USERSTATS_FOLDER_NAME);
+    const newUserDataRef = child(userDataRef, emailWoSpecialChar);
+
+    set(newUserDataRef, {
+      email: emailWoSpecialChar,
+      username: username,
+      gamesPlayed: 0,
+      gamesWon: 0,
+      usedPokemon: [],
+      mostUsed: "",
+    });
+  };
+
   const handleSubmit = (event) => {
     event.preventDefault();
 
@@ -39,6 +64,7 @@ const Register = (props) => {
       // Reset auth form state
       props.setEmailInputValue("");
       props.setPasswordInputValue("");
+      props.setUsername("");
       setIsNewUser(false);
     };
 
@@ -49,6 +75,7 @@ const Register = (props) => {
         props.emailInputValue,
         props.passwordInputValue
       )
+        .then(pushUserData(props.emailInputValue, props.username))
         .then(closeAuthForm)
         .catch((error) => {
           console.error(error);
@@ -89,6 +116,17 @@ const Register = (props) => {
         <h1>Register</h1>
         <Box component="form" sx={{ mt: 3 }} borderColor="primary.main">
           <Grid container spacing={2}>
+            <Grid item xs={12}>
+              <span>Name: </span>
+              <TextField
+                // placeholder="username"
+                name="username"
+                value={props.username}
+                onChange={handleInputChange}
+                autoFocus
+                sx={{ input: { color: "white" } }}
+              />
+            </Grid>
             <br />
             <Grid item xs={12}>
               <span>Email: </span>

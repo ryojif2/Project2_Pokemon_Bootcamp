@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { useState, useEffect } from "react";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
@@ -12,34 +12,29 @@ import { auth } from "../DB/firebase";
 
 const Navbar = (props) => {
   const {
-    loggedInUser,
-    setLoggedInUser,
-    setCurrPage,
-    emailInputValue,
     setEmailInputValue,
     setPasswordInputValue,
+    loggedIn,
+    setLoggedIn,
+    loggedInUser,
+    setLoggedInUser,
+    emailInputValue,
   } = props;
-  console.log(emailInputValue);
+
   let navigate = useNavigate();
-
-  // var user = emailInputValue.substr(0, emailInputValue.indexOf("@"));
-
-  // if (loggedInUser === true) {
-  //   var username = emailInputValue.substr(0, emailInputValue.indexOf("@"));
-  // } else return;
+  var email = emailInputValue;
 
   const logout = () => {
-    console.log("logout");
-    setLoggedInUser(false);
-    signOut(auth);
-    setCurrPage(false);
-    navigate("/");
     setPasswordInputValue("");
     setEmailInputValue("");
+    setLoggedIn(false);
+    navigate("/");
+    signOut(auth);
   };
+
   return (
     <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="static" style={{ background: "#2E3B55" }}>
+      <AppBar position="static" style={{ background: "2C849C" }}>
         <Toolbar>
           <IconButton
             size="large"
@@ -51,9 +46,9 @@ const Navbar = (props) => {
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            Hello {emailInputValue.substr(0, emailInputValue.indexOf("@"))}
+            Hello {email.substr(0, email.indexOf("@"))}
           </Typography>
-          {loggedInUser === true ? (
+          {loggedIn === true ? (
             <Button color="inherit" onClick={() => logout()}>
               Logout
             </Button>

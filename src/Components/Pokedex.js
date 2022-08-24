@@ -24,7 +24,14 @@ const Pokedex = (props) => {
       </div>
     );
   });
-  return <div className="pokedexMap">{pokemonMap}</div>;
+
+  return (
+    <div>
+      <p>Ready for your next battle?</p>
+      <p>Choose your Pokemon below! </p>
+      <div className="pokedexMap">{pokemonMap}</div>
+    </div>
+  );
 };
 
 export default Pokedex;
