@@ -20,7 +20,6 @@ const USERSTATS_FOLDER_NAME = "users";
 
 const Register = (props) => {
   const [isNewUser, setIsNewUser] = useState(true);
-  const [username, setUsername] = useState("");
   const navigate = useNavigate();
   const auth = getAuth();
   // const db = getDatabase();
@@ -149,7 +148,8 @@ const Register = (props) => {
             value={isNewUser ? "Create Account" : "Sign In"}
             // Disable form submission if email or password are empty
             disabled={!props.emailInputValue || !props.passwordInputValue}
-            onClick={handleSubmit}/>
+            onClick={handleSubmit}
+          />
           <br />
           <Button variant="link" onClick={toggleNewOrReturningAuth}>
             {isNewUser

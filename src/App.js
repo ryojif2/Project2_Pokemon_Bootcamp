@@ -11,6 +11,7 @@ import Typography from "@mui/material/Typography";
 import SelectPoke from "./Components/SelectPoke";
 import BattlePage from "./Components/BattlePage";
 import Pokedex from "./Components/Pokedex";
+
 const App = () => {
   const [loggedInUser, setLoggedInUser] = useState();
   const [emailInputValue, setEmailInputValue] = useState("");
@@ -39,7 +40,7 @@ const App = () => {
       setPasswordInputValue={setPasswordInputValue}
       auth={auth}
       username={username}
-      setUserName={setUsername}
+      setUsername={setUsername}
     />
   );
   const login = (
@@ -56,7 +57,6 @@ const App = () => {
   //Enter the Pokemon selection page
   const mainpage = (
     <MainPage
-    
       loggedInUser={loggedInUser}
       auth={auth}
       setLoggedInUser={setLoggedInUser}
@@ -84,10 +84,10 @@ const App = () => {
   //if user click registration, bring user to register
   //if user click login, bring user to login
   //else bring user to choosing page
+
   const choosingPage = loggedInUser ? mainpage : createAccountOrSignInButton;
 
   // useEffect(()=>{
-
   // },[])
 
   return (
@@ -97,15 +97,15 @@ const App = () => {
           <img
             src="https://www.freepnglogos.com/uploads/pokemon-logo-png-0.png"
             alt="Pokemon"
-            height="25vh"
-            width="25vh"
+            height="30vh"
+            width="30vh"
           />
           <Routes>
             <Route
               path="/"
               element={
                 loggedInUser ? (
-                  <Navigate to="/mainpage" />
+                  <Navigate to="/mainpage/" />
                 ) : (
                   createAccountOrSignInButton
                 )

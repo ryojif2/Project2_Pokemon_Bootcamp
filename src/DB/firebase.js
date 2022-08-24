@@ -3,6 +3,9 @@ import { initializeApp } from "firebase/app";
 import { getDatabase } from "firebase/database";
 import { getStorage } from "firebase/storage";
 import { getAuth } from "firebase/auth";
+// import { initializeApp, applicationDefault, cert } from 'firebase/app';
+import {getFirestore, Timestamp, FieldValue } from 'firebase/firestore';
+
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -26,3 +29,4 @@ const firebaseApp = initializeApp(firebaseConfig);
 export const auth = getAuth(firebaseApp);
 export const database = getDatabase(firebaseApp);
 export const storage = getStorage(firebaseApp);
+export const firestore=getFirestore(firebaseApp)

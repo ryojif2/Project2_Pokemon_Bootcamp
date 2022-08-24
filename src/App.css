@@ -84,3 +84,15 @@ flex:1
 .chatarea{
   flex:1
 }
+
+.lobby{
+  display:flex;
+justify-content: space-between;
+gap:15vh
+}
+.chat{
+  flex-grow:1
+}
+.rooms{
+  flex-grow:1
+}
