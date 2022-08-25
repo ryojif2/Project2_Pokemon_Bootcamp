@@ -2,7 +2,7 @@ import React from 'react';
 import "../App.css";
 import { useState, useEffect } from "react";
 import { database,firestore } from "../DB/firebase";
-import { collection, query, where, onSnapshot,getDocs,addDoc } from "firebase/firestore";
+import { collection, query, where, onSnapshot,getDocs,addDoc, documentId } from "firebase/firestore";
 import { doc, setDoc,updateDoc,increment ,arrayUnion,FieldValue} from "firebase/firestore"; 
 import {
   onChildAdded,
@@ -90,6 +90,14 @@ console.log(rooms);
 
   const [roomName,setRoomName]=useState('')
   const createRoom = async (e)=>{
+
+    // if( room name exist ) { room alrdy exist pick another name}
+    // navigate to /room 
+    // pass in the user info 
+    // display both players
+    // if 2/2 nobody can enter 
+
+
     e.preventDefault();
        const date= new Date().toLocaleString();
   //    const roomListRef = dbRef(database, ROOMS_LIST);
@@ -101,9 +109,19 @@ console.log(rooms);
   date:date.toString(),
   userCount:1,
   createdBy:props.currUser.username,
-  users:props.currUser.username
 });
 
+
+await setDoc(doc(firestore, "rooms", roomName,'users', props.currUser.username), {
+  email:props.currUser.email,
+      username: props.currUser.username,
+      gamesPlayed: props.currUser.gamesPlayed,
+      gamesWon: props.currUser.gamesWon,
+      usedPokemon: props.currUser.usedPokemon,
+      confirmed:false
+});
+// await setDoc(doc(firestore, "rooms", props.currUser.username), {...props.currUser});
+props.startGame(roomName);
 // await roomRef.set({
 //   date:date.toString(),
 //   userCount:1,
@@ -144,7 +162,8 @@ setRoomName('');
   await addDoc(collection(firestore, "lobbytexts"), {
   date:date.toString(),
   text:inputText,
-  createdBy:[props.currUser.username]
+  createdBy:props.currUser.username,
+  user:[props.currUser.username]
 })
   setInputText('');
  }
@@ -180,7 +199,18 @@ setChats(snapshot.docs.map((doc)=>({id:doc.id, data:doc.data()})))
 const enterRoom = async (e, roomID) => {
 e.preventDefault();
 const roomRef= doc(firestore,'rooms',roomID)
-await updateDoc(roomRef,{ userCount:2, users:arrayUnion(props.currUser.username)})
+await updateDoc(roomRef, {userCount:increment(1), users:arrayUnion(props.currUser.username)})
+//all data r objects/ collections r arrayss
+await setDoc(doc(firestore, "rooms", roomID,'users', props.currUser.username), {
+  email:props.currUser.email,
+      username: props.currUser.username,
+      gamesPlayed: props.currUser.gamesPlayed,
+      gamesWon: props.currUser.gamesWon,
+      usedPokemon: props.currUser.usedPokemon,
+      confirmed:false
+});
+
+props.startGame(roomID);
 
 }
 

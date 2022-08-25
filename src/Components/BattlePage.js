@@ -33,20 +33,20 @@ const BattlePage = (props) => {
     <div className="App">
       <header className="App-header">
         <p>Battle page</p>
-
-        <h1>Computer</h1>
-        <div>
-          <img
-            style={{ height: "25vh" }}
-            src={computerImageFront}
-            alt={computerImageFront}
-            name={computerPokemonName}
-          />
-          <h4>{CPokeName}</h4>
-          {/* <h4>{PokeType}</h4> */}
-          <h4>HP: {computerHP}</h4>
-        </div>
-        <div>
+  <h1>Other player / Computer </h1>
+  { props.bothConfirmed ? 
+  <div>
+    <img
+      style={{ height: "25vh" }}
+      src={computerImageFront}
+      alt={computerImageFront}
+      name={computerPokemonName}
+    />
+    <h4>{CPokeName}</h4>
+    {/* <h4>{PokeType}</h4> */}
+    <h4>HP: {computerHP}</h4>
+  </div>: <p>Waiting for player 2....</p>}
+  <div> 
           {props.historyMoves.length >= 1 ? (
             <p>
               {" "}
@@ -80,7 +80,7 @@ const BattlePage = (props) => {
           <h4>HP: {playerHP}</h4>
           <button
             disabled={!props.isPlayerTurn}
-            onClick={() => props.onAttack()}
+            onClick={() => props.onAttack(props)}
           >
             Attack
           </button>

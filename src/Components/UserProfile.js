@@ -10,8 +10,8 @@ const UserProfile = (props) => {
 
   // To only load user profile after all the components load, and after props.currUser loads (i.e. userStats state in Mainpage.js)
   useEffect(() => {
-    if (Object.keys(props.currUser).length !== 0) {
-      const { gamesPlayed, gamesWon, mostUsed } = props.currUser;
+    if (props.currUser[0]) {
+      const { gamesPlayed, gamesWon, mostUsed } = props.currUser[0];
       setWinRate(((gamesWon / gamesPlayed) * 100).toFixed(2));
 
       if (mostUsed !== "") {
@@ -38,19 +38,19 @@ const UserProfile = (props) => {
 
   return (
     <div>
-      {props.currUser!=null && Object.keys(props.currUser).length !== 0 ? (
+      {props.currUser[0]!=null && Object.keys(props.currUser[0]).length !== 0 ? (
         <div>
-          <p>Welcome back user {props.currUser.username}!</p>
-          <p>Games Played: {props.currUser.gamesPlayed}</p>
-          <p>Games Won: {props.currUser.gamesWon}</p>
-          {props.currUser.gamesPlayed === 0 ? (
+          <p>Welcome back user {props.currUser[0].username}!</p>
+          <p>Games Played: {props.currUser[0].gamesPlayed}</p>
+          <p>Games Won: {props.currUser[0].gamesWon}</p>
+          {props.currUser[0].gamesPlayed === 0 ? (
             <p>Win Rate: NA </p>
           ) : (
             <p>Win Rate: {winRate}%</p>
           )}
-          {props.currUser.mostUsed !== "" ? (
+          {props.currUser[0].mostUsed !== "" ? (
             <div>
-              <p>Most used Pokemon: {props.currUser.mostUsed.toUpperCase()} </p>
+              <p>Most used Pokemon: {props.currUser[0].mostUsed} </p>
               <img
                 style={{ height: "20vh" }}
                 src={mostUsedPokemonImage}
