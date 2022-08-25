@@ -35,6 +35,7 @@ const BattlePage = (props) => {
         <p>Battle page</p>
   <h1>Other player / Computer </h1>
   { props.bothConfirmed ? 
+  
   <div>
     <img
       style={{ height: "25vh" }}
@@ -45,7 +46,7 @@ const BattlePage = (props) => {
     <h4>{CPokeName}</h4>
     {/* <h4>{PokeType}</h4> */}
     <h4>HP: {computerHP}</h4>
-  </div>: <p>Waiting for player 2....</p>}
+  </div> : <p>Waiting for player 2....</p>}
   <div> 
           {props.historyMoves.length >= 1 ? (
             <p>

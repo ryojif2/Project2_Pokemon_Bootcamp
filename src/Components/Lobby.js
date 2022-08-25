@@ -88,8 +88,10 @@ console.log(rooms);
 // firestore.collection('messages').onSnapshot
 // },[])
 
+
   const [roomName,setRoomName]=useState('')
-  const createRoom = async (e)=>{
+  const createPvpRoom = async (e)=>{
+  const gameType='pvp'
 
     // if( room name exist ) { room alrdy exist pick another name}
     // navigate to /room 
@@ -109,19 +111,19 @@ console.log(rooms);
   date:date.toString(),
   userCount:1,
   createdBy:props.currUser.username,
+   type:'pvp',
+      users:[props.currUser.username]
 });
-
-
 await setDoc(doc(firestore, "rooms", roomName,'users', props.currUser.username), {
   email:props.currUser.email,
       username: props.currUser.username,
       gamesPlayed: props.currUser.gamesPlayed,
       gamesWon: props.currUser.gamesWon,
       usedPokemon: props.currUser.usedPokemon,
-      confirmed:false
+      confirmed:false,
 });
 // await setDoc(doc(firestore, "rooms", props.currUser.username), {...props.currUser});
-props.startGame(roomName);
+props.startGame(roomName,gameType);
 // await roomRef.set({
 //   date:date.toString(),
 //   userCount:1,
@@ -131,7 +133,29 @@ props.startGame(roomName);
 setRoomName('');
 }
 
+const createPveRoom= async (e)=>{
+ const gameType='pve'
+const roomName=`PVE of ${props.currUser.username}`
+   e.preventDefault();
+    const date= new Date().toLocaleString();
+     await setDoc(doc(firestore, "rooms",roomName), {
+  date:date.toString(),
+  userCount:2,
+  createdBy:props.currUser.username,
+  type:'pve',
+  users:props.currUser.username});
 
+
+await setDoc(doc(firestore, "rooms", roomName,'users', props.currUser.username), {
+  email:props.currUser.email,
+      username: props.currUser.username,
+      gamesPlayed: props.currUser.gamesPlayed,
+      gamesWon: props.currUser.gamesWon,
+      usedPokemon: props.currUser.usedPokemon,
+      confirmed:false,
+});
+props.startGame(roomName,gameType);
+}
 
  
 
@@ -220,7 +244,8 @@ props.startGame(roomID);
 <div className="rooms">
   <h1>Rooms:</h1>
   <input type="text" value={roomName} onChange={(e)=>setRoomName(e.target.value)} placeholder="room name?"/>
-  <button onClick={createRoom} >Create Room</button>
+  <button onClick={createPvpRoom}>Create PvP Room</button>
+  <button onClick={createPveRoom}>Enter PvE Room</button>
 {/* <ol>{rooms && rooms.length>0 ? { */}
  {/* { rooms.map(({id,createdBy,userCount,date})=>
 <div key={id}>
@@ -229,8 +254,7 @@ props.startGame(roomID);
 
 <ul>{rooms.map((room,i)=>(<li key={room.id}>
  {room.data.date}: {room.id} by {room.data.createdBy}. UserCount:{room.data.userCount}
-<button onClick={(e)=>enterRoom(e,room.id)}>Enter Room</button>
-</li>))}</ul>
+<button disabled={room.data.userCount===2} onClick={(e)=>enterRoom(e,room.id)}>Enter Room</button></li>))}</ul>
 
 {/* } : null }</ol> */}
 
