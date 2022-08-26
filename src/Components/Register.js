@@ -111,11 +111,16 @@ const Register = (props) => {
   };
 
   return (
-    <div>
+    <div className="register">
       <Typography>
         <h1>Register</h1>
         <Box component="form" sx={{ mt: 3 }} borderColor="primary.main">
-          <Grid container spacing={2}>
+          <Grid
+            container
+            spacing={2}
+            sx={{ input: { backgroundColor: "white", opacity: "0.8" } }}
+            className="register"
+          >
             <Grid item xs={12}>
               <span>Name: </span>
               <TextField
@@ -124,7 +129,7 @@ const Register = (props) => {
                 value={props.username}
                 onChange={handleInputChange}
                 autoFocus
-                sx={{ input: { color: "white" } }}
+                sx={{ input: { backgroundColor: "white", opacity: "0.8" } }}
               />
             </Grid>
             <br />
@@ -136,9 +141,7 @@ const Register = (props) => {
                 value={props.emailInputValue}
                 onChange={handleInputChange}
                 autoFocus
-                sx={{
-                  input: { color: "white" },
-                }}
+                sx={{ input: { backgroundColor: "white", opacity: "0.8" } }}
               />
             </Grid>
             <br />
@@ -150,7 +153,7 @@ const Register = (props) => {
                 value={props.passwordInputValue}
                 onChange={handleInputChange}
                 autoFocus
-                sx={{ input: { color: "white" } }}
+                sx={{ input: { backgroundColor: "white", opacity: "0.8" } }}
               />
             </Grid>
           </Grid>
@@ -163,13 +166,19 @@ const Register = (props) => {
             onClick={handleSubmit}
           />
           <br />
-          <Button variant="link" onClick={toggleNewOrReturningAuth}>
+          <Button
+            variant="link"
+            onClick={toggleNewOrReturningAuth}
+            className="register-buttons"
+          >
             {isNewUser
               ? "Already have an account? Sign in"
               : "If you are a new user, click here to create account"}
           </Button>
         </Box>
-        <Button onClick={() => logout()}>Go back</Button>
+        <Button onClick={() => logout()} className="register">
+          Go back
+        </Button>
       </Typography>
     </div>
   );

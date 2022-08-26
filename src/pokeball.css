@@ -1,0 +1,141 @@
+.pokeball {
+  display: inline-block;
+  width: 50px;
+  height: 50px;
+  background: #b71c1c;
+  border-radius: 50%;
+  box-shadow: inset 0 -36px 0 -12px #fff, inset 0 -38px 0 -17px #000,
+    0 0 0 5px #000;
+  position: relative;
+  -webkit-transition: 0.4s;
+  transition: 0.4s;
+}
+.pokeball:before {
+  display: block;
+  content: "";
+  position: relative;
+  z-index: 9;
+  width: 100%;
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  top: 50px;
+  left: 40px;
+  border: 1px solid rgba(0, 0, 0, 0.4);
+  box-shadow: 2px 0 0 0 rgba(0, 0, 0, 0.2), 0 0 0 5px #fff, 0 0 0 10px #000;
+}
+.pokeball:after {
+  display: block;
+  content: "";
+  position: relative;
+  top: -4px;
+  right: -5px;
+  width: 100%;
+  height: 105%;
+  border-radius: 50%;
+  box-shadow: inset -10px 0 0 0 rgba(0, 0, 0, 0.3);
+}
+.pokeball b {
+  position: relative;
+  top: 0px;
+  left: 0;
+  font-family: "Armata", cursive, sans-serif;
+  font-size: 31px;
+  line-height: 52px;
+  color: white;
+  height: 100%;
+  width: 100%;
+  text-align: center;
+  background: #590dae;
+  height: calc(100% + 4px);
+  border-radius: 100%;
+  z-index: 0;
+  box-shadow: inset 0 -72px 0 -37px #fff, inset 0 -76px 0 -35px #000,
+    0 0 0 5px #000;
+}
+.pokeball b:before,
+.pokeball b:after {
+  position: relative;
+  top: 0px;
+  left: 0px;
+  display: block;
+  background: #d420bd;
+  height: 34%;
+  width: 33%;
+  border-radius: 100% 0 32px;
+  border: 5px solid black;
+  border-width: 5px 0 0 5px;
+}
+/* .pokeball b:before {
+  content: "M";
+  text-indent: 33px;
+  line-height: 48px;
+} */
+.pokeball b:after {
+  content: "";
+  left: initial;
+  right: -3px;
+  border-radius: 0 100% 0 32px;
+  border-width: 5px 5px 0 0;
+}
+
+.pokeball:hover,
+.pokeball.hover {
+  cursor: pointer;
+  -webkit-animation: anti-wiggle 1s ease-in-out;
+  animation: anti-wiggle 1s ease-in-out;
+}
+.pokeball:hover:after,
+.pokeball.hover:after {
+  -webkit-animation: wiggle 1s ease-in-out;
+  animation: wiggle 1s ease-in-out;
+}
+.pokeball:focus,
+.pokeball:active {
+  outline: 0;
+}
+
+@keyframes wiggle {
+  20% {
+    -webkit-transform: rotate(14deg);
+    transform: rotate(14deg);
+  }
+  40% {
+    -webkit-transform: rotate(-28deg);
+    transform: rotate(-28deg);
+  }
+  60% {
+    -webkit-transform: rotate(8deg);
+    transform: rotate(8deg);
+  }
+  80% {
+    -webkit-transform: rotate(-4deg);
+    transform: rotate(-4deg);
+  }
+  100% {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+}
+@keyframes anti-wiggle {
+  20% {
+    -webkit-transform: translateX(-4px) rotate(-14deg);
+    transform: translateX(-4px) rotate(-14deg);
+  }
+  40% {
+    -webkit-transform: translateX(8px) rotate(28deg);
+    transform: translateX(8px) rotate(28deg);
+  }
+  60% {
+    -webkit-transform: translateX(-4px) rotate(-8deg);
+    transform: translateX(-4px) rotate(-8deg);
+  }
+  80% {
+    -webkit-transform: translateX(2px) rotate(4deg);
+    transform: translateX(2px) rotate(4deg);
+  }
+  100% {
+    -webkit-transform: translateX(0px) rotate(0deg);
+    transform: translateX(0px) rotate(0deg);
+  }
+}

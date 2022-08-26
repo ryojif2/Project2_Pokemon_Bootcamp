@@ -52,11 +52,11 @@ const Login = (props) => {
     navigate("/");
   };
   return (
-    <div>
+    <div className="login">
       <Typography>
         <p>Sign in with this form to post.</p>
         <Box component="form" onSubmit={handleSubmit} sx={{ mt: 3 }}>
-          <Grid container spacing={2}>
+          <Grid container spacing={2} className="login">
             <Grid item xs={12}>
               <span>Email: </span>
               <TextField
@@ -65,7 +65,7 @@ const Login = (props) => {
                 value={props.emailInputValue}
                 onChange={handleInputChange}
                 autoFocus
-                sx={{ input: { color: "white" } }}
+                sx={{ input: { backgroundColor: "white", opacity: "0.8" } }}
               />
             </Grid>
             <br />
@@ -77,7 +77,7 @@ const Login = (props) => {
                 value={props.passwordInputValue}
                 onChange={handleInputChange}
                 autoFocus
-                sx={{ input: { color: "white" } }}
+                sx={{ input: { backgroundColor: "white", opacity: "0.8" } }}
               />
             </Grid>
           </Grid>

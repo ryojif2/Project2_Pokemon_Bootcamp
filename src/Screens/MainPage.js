@@ -30,10 +30,12 @@ const MainPage = (props) => {
   const [victory, setVictory] = useState(false);
   const [loss, setLoss] = useState(false);
 
+  const { pokemonSelection, setPokemonSelection, loggedInUser } = props;
+
   //After initial rendering, get a snapshot of the current user stats from the realtime database. Set as the data for userStats state.
   useEffect(() => {
-    if (props.loggedInUser) {
-      const { email } = props.loggedInUser;
+    if (loggedInUser) {
+      const { email } = loggedInUser;
       console.log(email);
       const emailWoSpecialChar = email.replace(/[^a-zA-Z0-9 ]/g, "");
 
@@ -44,9 +46,10 @@ const MainPage = (props) => {
       onValue(userDataRef, (data) => {
         console.log(data.val());
         setUserStats(data.val());
+        props.setUserData(data.val());
       });
     }
-  }, [props.loggedInUser]);
+  }, [loggedInUser]);
 
   console.log(userStats);
 
@@ -60,7 +63,7 @@ const MainPage = (props) => {
   const [playerConfirmedPokemon, setPlayerConfirmedPokemon] = useState({});
   const [computerConfirmedPokemon, setComputerConfirmedPokemon] = useState({});
   //Pokedex portion, generate 9 chosen pokemon from their URL
-  const [pokemonSelection, setPokemonSelection] = useState([]);
+  // const [pokemonSelection, setPokemonSelection] = useState([]);
   useEffect(() => {
     const promises = [];
     promises.push(axios.get("https://pokeapi.co/api/v2/pokemon/1"));
@@ -487,22 +490,20 @@ const MainPage = (props) => {
   const [gameStart, setGameStart] = useState(false);
 
   const startGame = (e) => {
-    setGameStart(true);
+    setGameStart(false);
     e.preventDefault();
   };
 
-  const logout = () => {
-    console.log("logout");
-    props.setLoggedInUser(false);
-    signOut(auth);
-    navigate("/");
+  const exitGame = () => {
+    setGameStart(false);
   };
 
   return (
     <div>
-      {battle !== true ? (
+      {/* {battle !== true ? (
         <UserProfile currUser={userStats} pokemonSelection={pokemonSelection} />
-      ) : null}
+      ) : null} */}
+      {/* <UserProfile currUser={userStats} pokemonSelection={pokemonSelection} /> */}
       <br />
       <br />
       {nextPage !== true ? (
@@ -517,11 +518,17 @@ const MainPage = (props) => {
           element={
             gameStart ? (
               <Pokedex
+                exitGame={exitGame}
                 pokemonSelection={pokemonSelection}
                 onChoosePokemonClick={(e) => handleChoosePokemonClick(e)}
               />
             ) : (
-              <Lobby startGame={startGame} currUser={userStats} />
+              <Lobby
+                startGame={startGame}
+                currUser={userStats}
+                setGameStart={setGameStart}
+                pokemonSelection={pokemonSelection}
+              />
             )
           }
         />
@@ -585,6 +592,8 @@ const MainPage = (props) => {
           }
         />
       </Routes>
+      {/* <button onClick={setGameStart(true)}>gameStart</button>
+      <button onClick={logout}>logout</button> */}
     </div>
   );
 };

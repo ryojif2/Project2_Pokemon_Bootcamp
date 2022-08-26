@@ -5,6 +5,7 @@ import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
+import MenuIcon from "@mui/material/Menu";
 import { useNavigate } from "react-router-dom";
 import { signOut } from "firebase/auth";
 import { auth } from "../DB/firebase";
@@ -18,17 +19,18 @@ const Navbar = (props) => {
     setPasswordInputValue,
     loggedIn,
     setLoggedIn,
-    setUserData,
-    userData,
+    loggedInUser,
+    setLoggedInUser,
+    emailInputValue,
   } = props;
 
   let navigate = useNavigate();
+  var email = emailInputValue;
 
   const logout = () => {
     setPasswordInputValue("");
     setEmailInputValue("");
     setLoggedIn(false);
-    setUserData();
     navigate("/");
     signOut(auth);
   };
@@ -38,11 +40,6 @@ const Navbar = (props) => {
   const handleClick = (event) => {
     setIsShown((current) => !current);
   };
-
-  // const [name, setName] = useState();
-  // if (loggedIn === true) {
-  //   console.log(userData.username);
-  // } else return;
 
   useEffect(() => {
     if (isShown === true) {
@@ -60,18 +57,18 @@ const Navbar = (props) => {
             size="large"
             edge="start"
             aria-label="menu"
+            sx={{ mr: 2 }}
             style={{ background: "#ffff" }}
             onClick={handleClick}
           >
             {isShown && (
               <div>
-                <UserProfile setUserData={setUserData} userData={userData} />
+                <UserProfile />
               </div>
             )}
           </IconButton>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            {/* Hello {email.substr(0, email.indexOf("@"))} */}
-            Hello
+            Hello {email.substr(0, email.indexOf("@"))}
           </Typography>
           {loggedIn === true ? (
             <Button color="inherit" onClick={() => logout()}>

@@ -1,14 +1,18 @@
 import "../App.css";
 import "../battle.css";
 import React from "react";
+import victory from "../Sounds/victory.mp3";
+import battleloss from "../Sounds/battleloss.mp3";
 
 //This is the summary page after each battle.
 const Results = (props) => {
+  console.log(props);
   //Get data of player chosen pokemon that was used for battle. To use the name and image so that can render out.
   const playerChosenPokemon = props.playerConfirmedPokemon;
   const {
     pokemonHP: playerHP,
     pokemonImageFront: playerImageFront,
+    pokemonImage: pokemonImage,
     pokemonName: playerPokemonName,
   } = playerChosenPokemon;
 
@@ -18,7 +22,7 @@ const Results = (props) => {
   const computerChosenPokemon = props.computerConfirmedPokemon;
   const {
     // pokemonHP: computerHP,
-    pokemonImageFront: computerImageFront,
+    pokemonImage: computerImageFront,
     pokemonName: computerPokemonName,
   } = computerChosenPokemon;
 
@@ -45,6 +49,16 @@ const Results = (props) => {
 
   return (
     <div className="App">
+      {props.victory === true ? (
+        <audio autoPlay loop src={victory}>
+          Your browser does not support the audio element.
+        </audio>
+      ) : null}
+      {props.loss === true ? (
+        <audio autoPlay loop src={battleloss}>
+          Your browser does not support the audio element.
+        </audio>
+      ) : null}
       <header>
         <p>Battle Summary</p>
         {movesHistory}
@@ -71,8 +85,8 @@ const Results = (props) => {
           <div key={playerChosenPokemon} name={playerPokemonName}>
             <img
               style={{ height: "25vh" }}
-              src={playerImageFront}
-              alt={playerImageFront}
+              src={pokemonImage}
+              alt={pokemonImage}
               name={playerPokemonName}
             />
             <h4>{PlayerPokeName}</h4>

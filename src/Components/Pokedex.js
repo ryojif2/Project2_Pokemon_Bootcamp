@@ -27,6 +27,7 @@ const Pokedex = (props) => {
 
   return (
     <div>
+      <button onClick={props.exitGame}>Exit Room</button>
       <p>Ready for your next battle?</p>
       <p>Choose your Pokemon below! </p>
       <div className="pokedexMap">{pokemonMap}</div>

@@ -93,6 +93,7 @@ const BattlePage = (props) => {
           {/* <h4>{PokeType}</h4> */}
           <h4>HP: {computerHP}</h4>
         </div>
+        <br />
         <div
           className={
             playerHP > 0 ? (computerHP > 0 ? "playerP" : "winner") : "loser"

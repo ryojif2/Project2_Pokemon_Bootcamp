@@ -1,0 +1,27 @@
+.chat {
+  vertical-align: text-top;
+}
+
+.chat-list {
+  font-size: 0.8em;
+}
+
+.room-header table,
+th,
+td {
+  border: 1px solid;
+  display: block;
+  background-color: blanchedalmond;
+}
+
+.tableBody {
+  display: inline-block;
+}
+
+.notFull {
+  background-color: red;
+}
+
+.full {
+  background-color: green;
+}
