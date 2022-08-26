@@ -74,11 +74,10 @@ useEffect(()=>{
 
   // const q = query(collection(db, "rooms"));
  onSnapshot(collection(firestore,'rooms'), (snapshot) => {
-  console.log(snapshot.docs);
-  snapshot.docs.forEach((doc)=>{console.log(doc.data())})
+
 setRooms(snapshot.docs.map((doc)=>({id:doc.id, data:doc.data()})))
 })
-console.log(rooms);
+
 },[])
 
 
@@ -235,7 +234,7 @@ await setDoc(doc(firestore, "rooms", roomID,'users', props.currUser.username), {
       turn:false
 });
 
-props.startGame(roomID);
+props.startGame(roomID,'pvp');
 
 }
 

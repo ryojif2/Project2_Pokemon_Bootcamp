@@ -74,28 +74,45 @@ console.log("aft on snapshot! userstat", userStats)
 
 const [otherUserStats,setOtherUserStats]=useState({})
 
-//try to get otherPlayer ID and info!
+// try to get otherPlayer ID and info!
 useEffect(()=>{
- if (pvpMode===true && gameType==='pvp') {
+ if (pvpMode===true) {
   const { email } = props.loggedInUser;
       console.log(email);
       const emailWoSpecialChar = email.replace(/[^a-zA-Z0-9 ]/g, "");
+      console.log('roomID',roomID,'useEFFECT SNAPSHOT',gameType,'gameType' )
 const otherUserRef = collection(firestore, "rooms",roomID,'users');
 // Create a query against the collection.
 const q = query(otherUserRef, where("email", "!=", emailWoSpecialChar));
+
 // onSnapshot(q,(snapshot)=>{
 //     console.log({...doc.data(), id:doc.id})
 //   setOtherUserStats(snapshot.docs.map((doc)=>({id:doc.id, ...doc.data()}))) 
 // })
-getDocs(q).then(snapshot=>snapshot.forEach(snapshot=>console.log(snapshot.data())))
 
-console.log("OTHER USER EXIST!!!!");
-      // console.log(otherUserStats,'other user stats')
-//     setOtherPlayerConfirmedPokemon(otherUserStats[0])
-// console.log("SEE IF OTHER USER DATA COME OUT OR NT")
-// console.log("aft on snapshot! OTHER USER STATS!!!", otherUserStats) 
 
-}},[])
+//  onSnapshot(collection(firestore,'rooms',roomID,'users'),where('username','!=',userStats[0].username), (snapshot) => {
+//   console.log(snapshot.docs);
+//   snapshot.docs.forEach((doc)=>{console.log(doc.data())})
+// })
+
+onSnapshot(q, {includeMetaDataChanges:true },(querySnapshot) => {
+  const otherUserData = [];
+  querySnapshot.forEach((doc) => {
+      otherUserData.push(doc.data());
+  })
+console.log(otherUserData,'otheruserData')
+setOtherPlayerConfirmedPokemon(otherUserData[0])
+}); 
+
+// getDocs(q).then(snapshot=>snapshot.forEach(snapshot=>console.log(snapshot.data())))
+// if (otherPlayerConfirmedPokemon!=={})
+// {console.log("OTHER USER EXIST!!!! other player pokemon state", otherPlayerConfirmedPokemon);
+// //check if confirmed for both
+if (userStats[0].confirmed && otherPlayerConfirmedPokemon.confirmed){
+  setBothConfirmed(true)}
+
+}},[pvpMode,gameType,playerConfirmedPokemon])
 
   useEffect(() => {
     const promises = [];
@@ -280,7 +297,7 @@ console.log("OTHER USER EXIST!!!!");
     // if userStats[0].confirmed && otherUserStats[0].confirmed , {setBothConfirmed}
     }
 
-      
+      const [playerConfirmed,setPlayerConfirmed]=useState()
   const handleConfirmPokemon = async (confirmedPokemon) => {
     console.log(roomID,'roomID',userStats[0].username,'username')
     console.log(confirmedPokemon);
@@ -293,6 +310,7 @@ console.log('before select pokemon!!!')
 await pushUserToFireStore(confirmedPokemon);
  const roomRef= doc(firestore,'users',userStats[0].email)
 await updateDoc(roomRef, {usedPokemon:arrayUnion(confirmedPokemon.pokemonName)}) 
+setPlayerConfirmed(true);
 navigate("battlepage");
     console.log("battle!");
   };
@@ -495,42 +513,44 @@ console.log(computerConfirmedPokemon,'computer cfm pokemon on SNAPSHOT!')
 }},[playerTurn,computerTurn])
 
 
-//FOR PVP MODE, GET OTHER USER STATE
-// useEffect(()=>{
+// FOR PVP MODE, GET OTHER USER STATE
+useEffect(()=>{
+  // const q = query(collection(db, "rooms"));
+  if(roomID && bothConfirmed && pvpMode===true){
+    // query(collection(db,'rooms'/roomID)) get the data of users array,
+    // if user[0] == currUser ID , otherPlayer==user[1]
 
-//   // const q = query(collection(db, "rooms"));
-//   if(roomID && bothConfirmed && pvpMode===true){
-//     // query(collection(db,'rooms'/roomID)) get the data of users array,
-//     // if user[0] == currUser ID , otherPlayer==user[1]
+if (playerTurn) { onSnapshot(doc(firestore, 'rooms', roomID ,'users',otherUserStats[0].username),(doc) => {
+  console.log("OTHER PLAYER SNAPSHOT", doc.data());
 
-// if (playerTurn) { onSnapshot(doc(firestore, 'rooms', roomID ,'users',otherUserStats[0].username),(doc) => {
-//   console.log("OTHER PLAYER SNAPSHOT", doc.data());
+// setRooms(snapshot.docs.map((doc)=>({id:doc.id, data:doc.data()})))
+ setOtherPlayerConfirmedPokemon(prevState=>{
+  return {...prevState,
+         pokemonHP:doc.data().pokemonHP,
+        turn:doc.data().turn};
+})})}
 
-// // setRooms(snapshot.docs.map((doc)=>({id:doc.id, data:doc.data()})))
-//  setOtherPlayerConfirmedPokemon(prevState=>{
-//   return {...prevState,
-//          pokemonHP:doc.data().pokemonHP,
-//         turn:doc.data().turn};
-// })})}
-
-// else if (otherPlayerTurn) {onSnapshot(doc(firestore, 'rooms', roomID ,'users',userStats[0].username),(doc) => {
-//   console.log("PLAYER SNAPSHOT",doc.data());
-// setPlayerConfirmedPokemon(prevState=>{
-//   return {...prevState,
-//          pokemonHP:doc.data().pokemonHP,
-//         turn:doc.data().turn };
-// })
-// })}
-// console.log(playerConfirmedPokemon,'player cfm pokemon on SNAPSHOT!')
-// console.log(computerConfirmedPokemon,'computer cfm pokemon on SNAPSHOT!')
-// }},[playerTurn,computerTurn])
+else if (otherPlayerTurn) {onSnapshot(doc(firestore, 'rooms', roomID ,'users',userStats[0].username),(doc) => {
+  console.log("PLAYER SNAPSHOT",doc.data());
+setPlayerConfirmedPokemon(prevState=>{
+  return {...prevState,
+         pokemonHP:doc.data().pokemonHP,
+        turn:doc.data().turn };
+})
+})}
+console.log(playerConfirmedPokemon,'player cfm pokemon on SNAPSHOT!')
+console.log(computerConfirmedPokemon,'computer cfm pokemon on SNAPSHOT!')
+}},[playerTurn,computerTurn])
 
   const handleSummary = () => {
     navigate("results");
+    
   };
 
   const handleNewBattle = async () => {
     navigate("/");
+    setPvpMode(false);
+    setPveMode(false);
     setBothConfirmed(false);
       // setGameStart(false)
       await deleteDoc(doc(firestore, "rooms", roomID));
@@ -602,6 +622,7 @@ if (chosenGameType==='pve'){
           path="/battlepage"
           element={
             <BattlePage
+            //pass down loggedInUser here
               playerConfirmedPokemon={playerConfirmedPokemon}
               computerConfirmedPokemon={pveMode ? computerConfirmedPokemon : otherPlayerConfirmedPokemon}
               onAttack={() => handleAttack()}
@@ -611,7 +632,9 @@ if (chosenGameType==='pve'){
               onSummary={() => handleSummary()}
               bothConfirmed={bothConfirmed}
               gameType={gameType}
-              otherPlayerConfirmedPokemon={otherUserStats[0]}
+              roomID={roomID}
+              userStats={userStats[0]}
+              playerConfirmed={playerConfirmed}
             />
           }
         />
