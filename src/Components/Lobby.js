@@ -121,6 +121,7 @@ await setDoc(doc(firestore, "rooms", roomName,'users', props.currUser.username),
       gamesWon: props.currUser.gamesWon,
       usedPokemon: props.currUser.usedPokemon,
       confirmed:false,
+      turn:true
 });
 // await setDoc(doc(firestore, "rooms", props.currUser.username), {...props.currUser});
 props.startGame(roomName,gameType);
@@ -196,7 +197,6 @@ props.startGame(roomName,gameType);
 
   // const q = query(collection(db, "rooms"));
  onSnapshot(collection(firestore,'lobbytexts'), (snapshot) => {
-  snapshot.docs.forEach((doc)=>{console.log(doc.data())})
 setChats(snapshot.docs.map((doc)=>({id:doc.id, data:doc.data()})))
 })
 },[])
@@ -231,7 +231,8 @@ await setDoc(doc(firestore, "rooms", roomID,'users', props.currUser.username), {
       gamesPlayed: props.currUser.gamesPlayed,
       gamesWon: props.currUser.gamesWon,
       usedPokemon: props.currUser.usedPokemon,
-      confirmed:false
+      confirmed:false,
+      turn:false
 });
 
 props.startGame(roomID);

@@ -27,14 +27,14 @@ const BattlePage = (props) => {
   const CPokeName = computerPokemonName.toUpperCase();
 
 
-  // const otherPlayerChosenPokemon = props.otherPlayerConfirmedPokemon;
-  // const {
-  //   pokemonHP:  otherPlayerHP,
-  //   pokemonImageFront:  otherPlayerImageFront,
-  //   pokemonName:  otherPlayerPokemonName,
-  // } =  otherPlayerChosenPokemon;
+  const otherPlayerChosenPokemon = props.otherPlayerConfirmedPokemon;
+  const {
+    pokemonHP:  otherPlayerHP,
+    pokemonImageFront:  otherPlayerImageFront,
+    pokemonName:  otherPlayerPokemonName,
+  } =  otherPlayerChosenPokemon;
 
-  // const  otherPlayerPokeName =  otherPlayerPokemonName.toUpperCase();
+  const  otherPlayerPokeName =  otherPlayerPokemonName.toUpperCase();
  
 
   return (
@@ -44,7 +44,8 @@ const BattlePage = (props) => {
   <h1>Opponent </h1>
   { props.bothConfirmed ? 
 
-  <div>
+ ( props.computerConfirmedPokemon && props.gameType==='pve'?
+ ( <div>
     <h1>COMPUTER</h1>
     <img
       style={{ height: "25vh" }}
@@ -55,7 +56,22 @@ const BattlePage = (props) => {
     <h4>{CPokeName}</h4>
     {/* <h4>{PokeType}</h4> */}
     <h4>HP: {computerHP}</h4>
-  </div> : <p>Waiting for opponent player 2....</p>}
+  </div>) : 
+ ( <div>
+    <h1>OTHER PLAYER</h1>
+    <img
+      style={{ height: "25vh" }}
+      src={otherPlayerImageFront}
+      alt={otherPlayerImageFront}
+      name={otherPlayerPokemonName}
+    />
+    <h4>{otherPlayerPokeName}</h4>
+    {/* <h4>{PokeType}</h4> */}
+    <h4>HP: {otherPlayerHP}</h4>
+  </div>))
+  
+  
+  : <p>Waiting for opponent player 2....</p>}
   <div> 
           {props.historyMoves.length >= 1 ? (
             <p>
