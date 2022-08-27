@@ -38,7 +38,8 @@ const UserProfile = (props) => {
 
   return (
     <div>
-      {props.currUser[0]!=null && Object.keys(props.currUser[0]).length !== 0 ? (
+      {props.currUser[0] != null &&
+      Object.keys(props.currUser[0]).length !== 0 ? (
         <div>
           <p>Welcome back user {props.currUser[0].username}!</p>
           <p>Games Played: {props.currUser[0].gamesPlayed}</p>

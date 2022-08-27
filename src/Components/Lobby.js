@@ -91,13 +91,8 @@ const Lobby = (props) => {
   useEffect(() => {
     // const q = query(collection(db, "rooms"));
     onSnapshot(collection(firestore, "rooms"), (snapshot) => {
-      console.log(snapshot.docs);
-      snapshot.docs.forEach((doc) => {
-        console.log(doc.data());
-      });
       setRooms(snapshot.docs.map((doc) => ({ id: doc.id, data: doc.data() })));
     });
-    console.log(rooms);
   }, []);
 
   //  props.startGame(e)}}>Enter room</button></li></span>))
@@ -258,7 +253,7 @@ const Lobby = (props) => {
       }
     );
 
-    props.startGame(roomID);
+    props.startGame(roomID, "pvp");
   };
 
   return (

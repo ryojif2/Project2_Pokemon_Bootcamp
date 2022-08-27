@@ -66,12 +66,12 @@
 //       <p>Moves: {PokeMoves}</p>
 //     </div>
 //     <div>
-//       {props.bothPlayerConfirmed ? 
-      
-//       : 
-      
+//       {props.bothPlayerConfirmed ?
+
+//       :
+
 //       } <h1>Waiting for player2 to choose....</h1>
-      
+
 //       </div>
 //     </div>
 //   );

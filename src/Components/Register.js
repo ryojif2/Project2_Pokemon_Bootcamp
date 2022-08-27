@@ -12,10 +12,17 @@ import Grid from "@mui/material/Grid";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
-import { database , firestore } from "../DB/firebase";
+import { database, firestore } from "../DB/firebase";
 import { ref as dbRef, set, getDatabase, child } from "firebase/database";
-import { collection, query, where, onSnapshot,getDocs,addDoc } from "firebase/firestore";
-import { doc, setDoc,updateDoc} from "firebase/firestore"; 
+import {
+  collection,
+  query,
+  where,
+  onSnapshot,
+  getDocs,
+  addDoc,
+} from "firebase/firestore";
+import { doc, setDoc, updateDoc } from "firebase/firestore";
 
 //Define userStats folder in realtime database.
 const USERSTATS_FOLDER_NAME = "users";
@@ -51,21 +58,15 @@ const Register = (props) => {
     //   usedPokemon: [],
     //   mostUsed: "",
     // });
-await setDoc(doc(firestore, "users", emailWoSpecialChar), {
-  email: emailWoSpecialChar,
+    await setDoc(doc(firestore, "users", emailWoSpecialChar), {
+      email: emailWoSpecialChar,
       username: username,
       gamesPlayed: 0,
       gamesWon: 0,
       usedPokemon: [],
       mostUsed: "",
-});
-
+    });
   };
-
-
-
-
-
 
   const handleSubmit = (event) => {
     event.preventDefault();

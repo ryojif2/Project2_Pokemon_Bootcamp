@@ -87,33 +87,45 @@ const MainPage = (props) => {
 
   const [otherUserStats, setOtherUserStats] = useState({});
 
-  //try to get otherPlayer ID and info!
+  // try to get otherPlayer ID and info!
   useEffect(() => {
-    if (pvpMode === true && gameType === "pvp") {
-      // console.log("this useEffect is running");
+    if (pvpMode === true) {
       const { email } = props.loggedInUser;
       console.log(email);
       const emailWoSpecialChar = email.replace(/[^a-zA-Z0-9 ]/g, "");
+      console.log("roomID", roomID, "useEFFECT SNAPSHOT", gameType, "gameType");
       const otherUserRef = collection(firestore, "rooms", roomID, "users");
       // Create a query against the collection.
       const q = query(otherUserRef, where("email", "!=", emailWoSpecialChar));
-      onSnapshot(q, (snapshot) => {
-        console.log({ ...doc.data(), id: doc.id });
-        setOtherUserStats(
-          snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
-        );
-      });
-      // getDocs(q).then((snapshot) =>
-      //   snapshot.forEach((snapshot) => console.log(snapshot.data()))
-      // );
 
-      console.log("OTHER USER EXIST!!!!");
-      // console.log(otherUserStats,'other user stats')
-      //     setOtherPlayerConfirmedPokemon(otherUserStats[0])
-      // console.log("SEE IF OTHER USER DATA COME OUT OR NT")
-      // console.log("aft on snapshot! OTHER USER STATS!!!", otherUserStats)
+      // onSnapshot(q,(snapshot)=>{
+      //     console.log({...doc.data(), id:doc.id})
+      //   setOtherUserStats(snapshot.docs.map((doc)=>({id:doc.id, ...doc.data()})))
+      // })
+
+      //  onSnapshot(collection(firestore,'rooms',roomID,'users'),where('username','!=',userStats[0].username), (snapshot) => {
+      //   console.log(snapshot.docs);
+      //   snapshot.docs.forEach((doc)=>{console.log(doc.data())})
+      // })
+
+      onSnapshot(q, { includeMetaDataChanges: true }, (querySnapshot) => {
+        const otherUserData = [];
+        querySnapshot.forEach((doc) => {
+          otherUserData.push(doc.data());
+        });
+        console.log(otherUserData, "otheruserData");
+        setOtherPlayerConfirmedPokemon(otherUserData[0]);
+      });
+
+      // getDocs(q).then(snapshot=>snapshot.forEach(snapshot=>console.log(snapshot.data())))
+      // if (otherPlayerConfirmedPokemon!=={})
+      // {console.log("OTHER USER EXIST!!!! other player pokemon state", otherPlayerConfirmedPokemon);
+      // //check if confirmed for both
+      // if (userStats[0].confirmed && otherPlayerConfirmedPokemon.confirmed) {
+      //   setBothConfirmed(true);
+      // }
     }
-  }, []);
+  }, [pvpMode, gameType, playerConfirmedPokemon]);
 
   useEffect(() => {
     const promises = [];
@@ -212,6 +224,7 @@ const MainPage = (props) => {
     }
     const computerPokemon = pokemonSelection[Math.floor(Math.random() * 8 + 1)];
     setComputerConfirmedPokemon(computerPokemon);
+    console.log(computerPokemon);
     getComputerArray(computerPokemon.pokemonMovesURL);
   };
 
@@ -292,12 +305,17 @@ const MainPage = (props) => {
     await updateDoc(userRef, {
       pokemonName: playerPokemonData.pokemonName,
       pokemonHP: playerPokemonData.pokemonHP,
-      pokemonAttacks: playerArray,
+      pokemonType: playerPokemonData.pokemonType,
+      pokemonImageFront: playerPokemonData.pokemonImageFront,
+      //playerArray not needed cos we are manipulating attacks within internal state.
+      // pokemonAttacks: playerArray,
       confirmed: true,
     });
+
     // if userStats[0].confirmed && otherUserStats[0].confirmed , {setBothConfirmed}
   };
 
+  const [playerConfirmed, setPlayerConfirmed] = useState();
   const handleConfirmPokemon = async (confirmedPokemon) => {
     console.log(roomID, "roomID", userStats[0].username, "username");
     console.log(confirmedPokemon);
@@ -313,6 +331,12 @@ const MainPage = (props) => {
     await updateDoc(roomRef, {
       usedPokemon: arrayUnion(confirmedPokemon.pokemonName),
     });
+    setPlayerConfirmed(true);
+    console.log(otherUserStats);
+    // if (pvpMode === true) {
+    //   //and i am the 2nd player, then set playerTurn to false.
+
+    // }
     navigate("battlepage");
     console.log("battle!");
   };
@@ -398,12 +422,14 @@ const MainPage = (props) => {
       }
     }
     if (pvpMode === true) {
+      console.log(otherUserStats);
+      console.log(userStats);
       const otherPlayerRef = doc(
         firestore,
         "rooms",
         roomID,
         "users",
-        otherUserStats[0].username
+        otherUserStats.username
       );
       const playerRef = doc(
         firestore,
@@ -413,6 +439,9 @@ const MainPage = (props) => {
         userStats[0].username
       );
       const userRef = doc(firestore, "users", userStats[0].email);
+
+      //To Mon 270822: This line below i thought maybe create ref for room so that we can put the recent moves into the room instead of to the individual user.
+      const roomRef = doc(firestore, "rooms", roomID);
 
       if (playerTurn) {
         //set other player turn false IN DB
@@ -446,9 +475,16 @@ const MainPage = (props) => {
         setPlayerTurn(false);
         await updateDoc(playerRef, {
           turn: false,
+          // movesMade: arrayUnion(pastMoves),
+          // recentMove: arrayUnion(recentMoves),
+        });
+
+        //To Mon 270822: This arrayunion throwing me error "Function arrayUnion() called with invalid data. Nested arrays are not supported "
+        await updateDoc(roomRef, {
           movesMade: arrayUnion(pastMoves),
           recentMove: arrayUnion(recentMoves),
         });
+
         //If other pokemon's hp is 0 with User's pokemon attack, battle ends. Update stats of user into the database.
         if (newOtherPlayerHP > 0) {
           console.log("wait fr other player move");
@@ -564,35 +600,60 @@ const MainPage = (props) => {
     }
   }, [playerTurn, computerTurn]);
 
-  //FOR PVP MODE, GET OTHER USER STATE
-  // useEffect(()=>{
+  // FOR PVP MODE, GET OTHER USER STATE
+  useEffect(() => {
+    console.log(bothConfirmed);
+    // const q = query(collection(db, "rooms"));
+    if (roomID && bothConfirmed && pvpMode === true) {
+      // query(collection(db,'rooms'/roomID)) get the data of users array,
+      // if user[0] == currUser ID , otherPlayer==user[1]
 
-  //   // const q = query(collection(db, "rooms"));
-  //   if(roomID && bothConfirmed && pvpMode===true){
-  //     // query(collection(db,'rooms'/roomID)) get the data of users array,
-  //     // if user[0] == currUser ID , otherPlayer==user[1]
+      if (playerTurn) {
+        onSnapshot(
+          doc(firestore, "rooms", roomID, "users", otherUserStats.username),
+          { includeMetaDataChanges: true },
+          (doc) => {
+            console.log("OTHER PLAYER SNAPSHOT", doc.data());
 
-  // if (playerTurn) { onSnapshot(doc(firestore, 'rooms', roomID ,'users',otherUserStats[0].username),(doc) => {
-  //   console.log("OTHER PLAYER SNAPSHOT", doc.data());
+            // setRooms(snapshot.docs.map((doc)=>({id:doc.id, data:doc.data()})))
+            setOtherPlayerConfirmedPokemon((prevState) => {
+              return {
+                ...prevState,
+                pokemonHP: doc.data().pokemonHP,
+                turn: doc.data().turn,
+              };
+            });
+            // setPlayerTurn(!doc.data().turn);
+          }
+        );
+      } else if (otherPlayerTurn) {
+        console.log("otherplayer turn runs update on my pokemonhp.");
+        onSnapshot(
+          doc(firestore, "rooms", roomID, "users", userStats[0].username),
+          { includeMetaDataChanges: true },
+          (doc) => {
+            console.log("PLAYER SNAPSHOT", doc.data());
+            setPlayerConfirmedPokemon((prevState) => {
+              return {
+                ...prevState,
+                pokemonHP: doc.data().pokemonHP,
+                turn: doc.data().turn,
+              };
+            });
+            setPlayerTurn(doc.data().turn);
+          }
+        );
+      }
 
-  // // setRooms(snapshot.docs.map((doc)=>({id:doc.id, data:doc.data()})))
-  //  setOtherPlayerConfirmedPokemon(prevState=>{
-  //   return {...prevState,
-  //          pokemonHP:doc.data().pokemonHP,
-  //         turn:doc.data().turn};
-  // })})}
+      console.log(playerConfirmedPokemon, "player cfm pokemon on SNAPSHOT!");
+      console.log(
+        otherPlayerConfirmedPokemon,
+        "computer cfm pokemon on SNAPSHOT!"
+      );
+    }
 
-  // else if (otherPlayerTurn) {onSnapshot(doc(firestore, 'rooms', roomID ,'users',userStats[0].username),(doc) => {
-  //   console.log("PLAYER SNAPSHOT",doc.data());
-  // setPlayerConfirmedPokemon(prevState=>{
-  //   return {...prevState,
-  //          pokemonHP:doc.data().pokemonHP,
-  //         turn:doc.data().turn };
-  // })
-  // })}
-  // console.log(playerConfirmedPokemon,'player cfm pokemon on SNAPSHOT!')
-  // console.log(computerConfirmedPokemon,'computer cfm pokemon on SNAPSHOT!')
-  // }},[playerTurn,computerTurn])
+    // }
+  }, [playerTurn, otherPlayerTurn]);
 
   const handleSummary = () => {
     navigate("results");
@@ -600,6 +661,8 @@ const MainPage = (props) => {
 
   const handleNewBattle = async () => {
     navigate("/");
+    setPvpMode(false);
+    setPveMode(false);
     setBothConfirmed(false);
     // setGameStart(false)
     await deleteDoc(doc(firestore, "rooms", roomID));
@@ -675,18 +738,25 @@ const MainPage = (props) => {
           path="/battlepage"
           element={
             <BattlePage
+              //pass down loggedInUser here
               playerConfirmedPokemon={playerConfirmedPokemon}
               computerConfirmedPokemon={
                 pveMode ? computerConfirmedPokemon : otherPlayerConfirmedPokemon
               }
               onAttack={() => handleAttack()}
               isPlayerTurn={playerTurn}
+              setPlayerTurn={setPlayerTurn}
+              setOtherPlayerTurn={setOtherPlayerTurn}
               isComputerTurn={computerTurn}
               historyMoves={recentMoves}
               onSummary={() => handleSummary()}
               bothConfirmed={bothConfirmed}
+              setBothConfirmed={setBothConfirmed}
               gameType={gameType}
-              otherPlayerConfirmedPokemon={otherUserStats[0]}
+              roomID={roomID}
+              userStats={userStats[0]}
+              playerConfirmed={playerConfirmed}
+              setOtherUserStats={setOtherUserStats}
             />
           }
         />
