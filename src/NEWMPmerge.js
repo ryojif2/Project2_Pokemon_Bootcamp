@@ -271,7 +271,13 @@ const MainPage = (props) => {
   };
 
   useEffect(() => {
-
+    // const userRef=doc(firestore,'rooms',roomID,'users')
+    //   const q = query(userRef,where('confirmed'=='true'))
+    //   onSnapshot(q,(querySnapshot)=>{querySnapshot.forEach(doc=>console.log('snap', doc.data()))})
+    //reference to DB
+    //reference to users[i] array - sam
+    // reference to 'rooms/roomID/users/users[i]'
+    //where confirmed == true
     if (
       Object.keys(computerConfirmedPokemon).length !== 0 &&
       computerArray.length > 3 &&
@@ -366,10 +372,14 @@ const MainPage = (props) => {
         //ref player attack damage
         const playerAttack =
           playerArray[Math.floor(Math.random() * playerArray.length)];
-       await updateDoc(roomRef,{
-          pastMoves:arrayUnion(playerAttack),
-          displayMsg:`${userStats[0].username}'s ${playerConfirmedPokemon.pokemonName} dealt a damage of ${playerAttack}`
-        })
+        //Add the player attack damage to history of moves array state.
+        if (pastMoves === []) {
+          setPastMoves([playerAttack]);
+        } else {
+          setPastMoves((prevState) => [...prevState, playerAttack]);
+        }
+        //Add the player attack damage to recent moves array state.
+        setRecentMoves([playerAttack]);
 
         //Calculate the hp of computer after player attack.
         let newComputerHP = 0;
@@ -459,6 +469,8 @@ const MainPage = (props) => {
 
         await updateDoc(playerRef, {
           turn: false,
+          // movesMade: arrayUnion(pastMoves),
+          // recentMove: arrayUnion(recentMoves),
         });
 
        await updateDoc(roomRef, {
@@ -738,7 +750,6 @@ const roomRef=doc(firestore,'rooms',roomID)
               roomID={roomID}
               userStats={userStats[0]}
               playerConfirmed={playerConfirmed}
-              setPlayerConfirmedPokemon={setPlayerConfirmedPokemon}
             
             />
           }

@@ -111,7 +111,8 @@ setRooms(snapshot.docs.map((doc)=>({id:doc.id, data:doc.data()})))
   userCount:1,
   createdBy:props.currUser.username,
    type:'pvp',
-      users:[props.currUser.username]
+      users:[props.currUser.username],
+      historyMoves:[]
 });
 await setDoc(doc(firestore, "rooms", roomName,'users', props.currUser.username), {
   email:props.currUser.email,
@@ -120,7 +121,7 @@ await setDoc(doc(firestore, "rooms", roomName,'users', props.currUser.username),
       gamesWon: props.currUser.gamesWon,
       usedPokemon: props.currUser.usedPokemon,
       confirmed:false,
-      turn:true
+      turn:true,
 });
 // await setDoc(doc(firestore, "rooms", props.currUser.username), {...props.currUser});
 props.startGame(roomName,gameType);
@@ -143,7 +144,8 @@ const roomName=`PVE of ${props.currUser.username}`
   userCount:2,
   createdBy:props.currUser.username,
   type:'pve',
-  users:props.currUser.username});
+  users:props.currUser.username,
+historyMoves:[]});
 
 
 await setDoc(doc(firestore, "rooms", roomName,'users', props.currUser.username), {
