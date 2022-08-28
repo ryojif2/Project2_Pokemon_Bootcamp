@@ -1,23 +1,68 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Button from "@mui/material/Button";
-import Modal from "@mui/material/Modal";
 import IconButton from "@mui/material/IconButton";
 import "../App.css";
+import { styled } from "@mui/material/styles";
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import DialogActions from "@mui/material/DialogActions";
+import Typography from "@mui/material/Typography";
+import PropTypes from "prop-types";
 
-// import Dialog from "@mui/material/Dialog";
+const BootstrapDialog = styled(Dialog)(({ theme }) => ({
+  "& .MuiDialogContent-root": {
+    padding: theme.spacing(2),
+  },
+  "& .MuiDialogActions-root": {
+    padding: theme.spacing(1),
+  },
+}));
+
+const BootstrapDialogTitle = (props) => {
+  const { children, onClose, ...other } = props;
+
+  return (
+    <DialogTitle sx={{ m: 0, p: 2 }} {...other}>
+      {children}
+      {onClose ? (
+        <IconButton
+          aria-label="close"
+          onClick={onClose}
+          sx={{
+            position: "absolute",
+            color: (theme) => theme.palette.grey[500],
+          }}
+        ></IconButton>
+      ) : null}
+    </DialogTitle>
+  );
+};
+
+BootstrapDialogTitle.propTypes = {
+  children: PropTypes.node,
+  onClose: PropTypes.func.isRequired,
+};
 
 const UserProfile = (props) => {
+  const [open, setOpen] = React.useState(false);
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+  const handleClose = () => {
+    setOpen(false);
+  };
+
   //initiate states for user specific win rate & most used pokemon.
   const [winRate, setWinRate] = useState();
   const [mostUsedPokemonImage, setMostUsedPokemonImage] = useState("");
-  // console.log(props.pokemonSelection);
-  // console.log(props.mostUsedPokemonImage);
 
   // To only load user profile after all the components load, and after props.userData loads (i.e. userStats state in Mainpage.js)
   useEffect(() => {
-    if (props.userData.length !== 0) {
-      const { gamesPlayed, gamesWon, mostUsed } = props.userData;
+    if (props.userData[0]) {
+      const { gamesPlayed, gamesWon, mostUsed } = props.userData[0];
       setWinRate(((gamesWon / gamesPlayed) * 100).toFixed(2));
 
       if (mostUsed !== "") {
@@ -32,68 +77,70 @@ const UserProfile = (props) => {
           .then((data) => setMostUsedPokemonImage(data));
       }
     } else return;
-  }, [props.userData]);
-
-  //Below commented code will bug out when User returns to main page to choose pokemon to start new battle. This is because pokemonSelection state is reset and reloaded when we navigate. Results in undefined values.
-  // const mostUsedPokemonObject = props.pokemonSelection.find(
-  //   (pokemon) => pokemon.pokemonName == mostUsed
-  // );
-  // console.log(mostUsedPokemonObject);
-  // setMostUsedPokemonImage(mostUsedPokemonObject.pokemonImageFront);
-
-  // console.log(mostUsedPokemonImage);
-
-  const [open, setOpen] = React.useState(true);
-  // const handleOpen = () => {
-  //   setOpen(true);
-  // };
-  const handleClose = () => {
-    setOpen(false);
-  };
+  }, [props.userData[0]]);
 
   return (
     <div>
-      {/* <IconButton
-        size="large"
-        edge="start"
-        aria-label="menu"
-        sx={{ mr: 2 }}
-        style={{ background: "#ffff" }}
-        onClick={handleOpen}
-        showLabels
+      <Button
+        variant="outlined"
+        onClick={() => {
+          handleClickOpen();
+        }}
       >
-        Hi
-      </IconButton> */}
-      <Modal open={open} onClose={handleClose}>
-        {props.userData != null ? (
-          <div>
-            <p>Welcome back user {props.userData.username}!</p>
-            <p>Games Played: {props.userData.gamesPlayed}</p>
-            <p>Games Won: {props.userData.gamesWon}</p>
-            {props.userData.gamesPlayed === 0 ? (
-              <p>Win Rate: NA </p>
-            ) : (
-              <p>Win Rate: {winRate}%</p>
-            )}
-            {props.userData.mostUsed !== "" ? (
+        UserStats
+      </Button>
+
+      <BootstrapDialog
+        onClose={handleClose}
+        aria-labelledby="customized-dialog-title"
+        open={open}
+      >
+        <BootstrapDialogTitle
+          id="customized-dialog-title"
+          onClose={handleClose}
+          color="primary"
+        >
+          <Typography variant="h4" color="primary" mt={4}>
+            User Stats{" "}
+          </Typography>
+        </BootstrapDialogTitle>
+        <DialogContent dividers>
+          {/* {listItems} */}
+          <Typography>
+            {props.userData != null ? (
               <div>
-                <p>
-                  Most used Pokemon: {props.userData.mostUsed.toUpperCase()}{" "}
-                </p>
-                <img
-                  style={{ height: "20vh" }}
-                  src={mostUsedPokemonImage}
-                  alt={mostUsedPokemonImage}
-                />
+                <p>Welcome back user {props.userData[0].username}!</p>
+                <p>Games Played: {props.userData[0].gamesPlayed}</p>
+                <p>Games Won: {props.userData[0].gamesWon}</p>
+                {props.userData[0].gamesPlayed === 0 ? (
+                  <p>Win Rate: NA </p>
+                ) : (
+                  <p>Win Rate: {winRate}%</p>
+                )}
+                {props.userData[0].mostUsed !== "" ? (
+                  <div>
+                    <p>Most used Pokemon: {props.userData[0].mostUsed} </p>
+                    <img
+                      style={{ height: "20vh" }}
+                      src={mostUsedPokemonImage}
+                      alt={mostUsedPokemonImage}
+                    />
+                  </div>
+                ) : (
+                  <p>Most used Pokemon: NA</p>
+                )}
               </div>
             ) : (
-              <p>Most used Pokemon: NA</p>
+              <p>Welcome back user!</p>
             )}
-          </div>
-        ) : (
-          <p>Welcome back user!</p>
-        )}
-      </Modal>
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button autoFocus onClick={handleClose}>
+            Close
+          </Button>
+        </DialogActions>
+      </BootstrapDialog>
     </div>
   );
 };

@@ -5,70 +5,73 @@ import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
-import MenuIcon from "@mui/material/Menu";
 import { useNavigate } from "react-router-dom";
 import { signOut } from "firebase/auth";
-import { auth } from "../DB/firebase";
+import { auth } from "../src/DB/firebase";
 import "../pokeball.css";
-import UserProfile from "../Components/UserProfile";
+import UserProfile from "../src/Components/UserProfile";
 
 const Navbar = (props) => {
-  console.log(props);
   const {
     setEmailInputValue,
     setPasswordInputValue,
     loggedIn,
     setLoggedIn,
-    loggedInUser,
-    setLoggedInUser,
-    emailInputValue,
+    setUserData,
+    userData,
   } = props;
 
   let navigate = useNavigate();
-  var email = emailInputValue;
 
   const logout = () => {
     setPasswordInputValue("");
     setEmailInputValue("");
     setLoggedIn(false);
+    setUserData();
     navigate("/");
     signOut(auth);
   };
 
-  const [isShown, setIsShown] = useState(false);
+  //uncomment
 
-  const handleClick = (event) => {
-    setIsShown((current) => !current);
-  };
+  // const [isShown, setIsShown] = useState(false);
 
-  useEffect(() => {
-    if (isShown === true) {
-      setTimeout(() => {
-        setIsShown(false);
-      }, 5000);
-    }
-  }, [isShown]);
+  // const handleClick = (event) => {
+  //   setIsShown((current) => !current);
+  // };
+
+  //uncomment
+
+  // useEffect(() => {
+  //   if (isShown === true) {
+  //     setTimeout(() => {
+  //       setIsShown(false);
+  //     }, 5000);
+  //   }
+  // }, [isShown]);
 
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static" style={{ background: "2C849C" }}>
         <Toolbar>
-          <IconButton
-            size="large"
-            edge="start"
-            aria-label="menu"
-            sx={{ mr: 2 }}
-            style={{ background: "#ffff" }}
-            onClick={handleClick}
-          >
-            {isShown && (
-              <div>
-                <UserProfile />
-              </div>
-            )}
-          </IconButton>
+          {loggedIn === true ? (
+            <IconButton
+              size="large"
+              edge="start"
+              aria-label="menu"
+              style={{ background: "#ffff" }}
+            >
+              <UserProfile setUserData={setUserData} userData={userData} />
+              {/* {isShown && (
+                <div>
+                  <UserProfile setUserData={setUserData} userData={userData} />
+                </div>
+              )} */}
+            </IconButton>
+          ) : null}
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            Hello {email.substr(0, email.indexOf("@"))}
+            {/* Hello {email.substr(0, email.indexOf("@"))} */}
+            {/* {loggedIn !== true ? "Hello" : `Hello ${userData[0].username}`} */}
           </Typography>
           {loggedIn === true ? (
             <Button color="inherit" onClick={() => logout()}>

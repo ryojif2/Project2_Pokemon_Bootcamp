@@ -13,8 +13,19 @@ import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import "../App.css";
-import { database } from "../DB/firebase";
-import { ref as dbRef, set, child } from "firebase/database";
+import { ref as dbRef, set, child, getDatabase } from "firebase/database";
+import { database, firestore } from "../DB/firebase";
+import {
+  collection,
+  query,
+  where,
+  onSnapshot,
+  getDocs,
+  addDoc,
+  doc,
+  setDoc,
+  updateDoc,
+} from "firebase/firestore";
 
 //Define userStats folder in realtime database.
 const USERSTATS_FOLDER_NAME = "users";
@@ -42,12 +53,20 @@ const Register = (props) => {
   //User stats for each user are created upon account registration.
   //Set email as ID in the database for each user, instead of the default randomly generated ID. This is so that we can identify which user folder to update whenever the stats change during game or after game.
   //Initiate the user stats in database.
-  const pushUserData = (email, username) => {
+  const pushUserData = async (email, username) => {
     const emailWoSpecialChar = email.replace(/[^a-zA-Z0-9 ]/g, "");
-    const userDataRef = dbRef(database, USERSTATS_FOLDER_NAME);
-    const newUserDataRef = child(userDataRef, emailWoSpecialChar);
+    // const userDataRef = dbRef(database, USERSTATS_FOLDER_NAME);
+    // const newUserDataRef = child(userDataRef, emailWoSpecialChar);
 
-    set(newUserDataRef, {
+    // set(newUserDataRef, {
+    //   email: emailWoSpecialChar,
+    //   username: username,
+    //   gamesPlayed: 0,
+    //   gamesWon: 0,
+    //   usedPokemon: [],
+    //   mostUsed: "",
+    // });
+    await setDoc(doc(firestore, "users", emailWoSpecialChar), {
       email: emailWoSpecialChar,
       username: username,
       gamesPlayed: 0,

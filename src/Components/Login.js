@@ -54,7 +54,7 @@ const Login = (props) => {
   return (
     <div className="login">
       <Typography>
-        <p>Sign in with this form to post.</p>
+        <span>Sign in with this form to post.</span>
         <Box component="form" onSubmit={handleSubmit} sx={{ mt: 3 }}>
           <Grid container spacing={2} className="login">
             <Grid item xs={12}>

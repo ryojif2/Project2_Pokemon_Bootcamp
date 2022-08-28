@@ -147,13 +147,14 @@ const App = () => {
       ) : null}
       <Typography>
         <header className="App-header">
-          <img
-            src="https://www.freepnglogos.com/uploads/pokemon-logo-png-0.png"
-            alt="Pokemon"
-            height="400px"
-            width="400px"
-            className="pokemonImg"
-          />
+          {loggedIn === true ? null : (
+            <img
+              src="https://www.freepnglogos.com/uploads/pokemon-logo-png-0.png"
+              alt="Pokemon"
+              height="250px"
+              className="pokemonImg"
+            />
+          )}
           <Routes>
             <Route
               path="/"

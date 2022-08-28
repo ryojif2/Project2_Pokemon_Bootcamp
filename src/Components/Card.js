@@ -14,7 +14,7 @@ const PokeCard = ({ id, image, name, type, HP, onChoosePokemonClick }) => {
       </div>
       <img src={image} alt={name} />
       <div className="detail-wrapper">
-        <h3>{name}</h3>
+        <small>{name}</small>
         <small>Type: {type[0].props.children}</small>
         <br />
         <small>HP: {HP}</small>

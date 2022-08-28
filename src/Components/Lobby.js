@@ -1,7 +1,6 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import "../App.css";
 import "../Components/lobby.css";
-import { useState, useEffect } from "react";
 import { database, firestore } from "../DB/firebase";
 import {
   collection,
@@ -10,14 +9,13 @@ import {
   onSnapshot,
   getDocs,
   addDoc,
-} from "firebase/firestore";
-import {
   doc,
   setDoc,
   updateDoc,
   increment,
   arrayUnion,
   FieldValue,
+  documentId,
 } from "firebase/firestore";
 import {
   onChildAdded,
@@ -31,27 +29,18 @@ import {
 } from "firebase/database";
 import { ListItem, Typography } from "@mui/material";
 import Button from "@mui/material/Button";
+import IconButton from "@mui/material/IconButton";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell, { tableCellClasses } from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
 
 const Lobby = (props) => {
   const ROOMS_LIST = "roomsList";
   const CHAT_LIST = "chatList";
   const [rooms, setRooms] = useState([]);
-
-  //   useEffect(()=>{
-
-  //     const roomListRef = dbRef(database, ROOMS_LIST);
-  //     // onChildAdded will return data for every child at the reference and every subsequent new child
-  //     onChildAdded(roomListRef, (data) => {
-  //       // Add the subsequent child to local component state, initialising a new array to trigger re-render
-  //      setRooms([...rooms, { key: data.key, val: data.val()}]);
-  //      console.log("rooms", rooms)
-  //      console.log('data.val()',data.val())
-  //  onValue(roomListRef,(data)=> console.log(data.val()))
-  //   })},[])
-
-  // const roomsListMap = () => {
-  //   if(rooms!==null)
-  //  { return
 
   const roomsListMap = rooms.map((item, i) => (
     <li key={i}>
@@ -92,23 +81,31 @@ const Lobby = (props) => {
   useEffect(() => {
     // const q = query(collection(db, "rooms"));
     onSnapshot(collection(firestore, "rooms"), (snapshot) => {
-      console.log(snapshot.docs);
+      // console.log(snapshot.docs);
       snapshot.docs.forEach((doc) => {
-        console.log(doc.data());
+        // console.log(doc.data());
       });
       setRooms(snapshot.docs.map((doc) => ({ id: doc.id, data: doc.data() })));
     });
-    console.log(rooms);
+    // console.log(rooms);
   }, []);
 
-  //  props.startGame(e)}}>Enter room</Button></li></span>))
+  //  props.startGame(e)}}>Enter room</button></li></span>))
 
   // useEffect(()=>{
   // firestore.collection('messages').onSnapshot
   // },[])
 
   const [roomName, setRoomName] = useState("");
-  const createRoom = async (e) => {
+  const createPvpRoom = async (e) => {
+    const gameType = "pvp";
+
+    // if( room name exist ) { room alrdy exist pick another name}
+    // navigate to /room
+    // pass in the user info
+    // display both players
+    // if 2/2 nobody can enter
+
     e.preventDefault();
     const date = new Date().toLocaleString();
     //    const roomListRef = dbRef(database, ROOMS_LIST);
@@ -120,9 +117,23 @@ const Lobby = (props) => {
       date: date.toString(),
       userCount: 1,
       createdBy: props.currUser.username,
-      users: props.currUser.username,
+      type: "pvp",
+      users: [props.currUser.username],
     });
-
+    await setDoc(
+      doc(firestore, "rooms", roomName, "users", props.currUser.username),
+      {
+        email: props.currUser.email,
+        username: props.currUser.username,
+        gamesPlayed: props.currUser.gamesPlayed,
+        gamesWon: props.currUser.gamesWon,
+        usedPokemon: props.currUser.usedPokemon,
+        confirmed: false,
+        turn: true,
+      }
+    );
+    // await setDoc(doc(firestore, "rooms", props.currUser.username), {...props.currUser});
+    props.startGame(roomName, gameType);
     // await roomRef.set({
     //   date:date.toString(),
     //   userCount:1,
@@ -130,6 +141,33 @@ const Lobby = (props) => {
     //   users:[props.currUser.username]
     // })
     setRoomName("");
+  };
+
+  const createPveRoom = async (e) => {
+    const gameType = "pve";
+    const roomName = `PVE of ${props.currUser.username}`;
+    e.preventDefault();
+    const date = new Date().toLocaleString();
+    await setDoc(doc(firestore, "rooms", roomName), {
+      date: date.toString(),
+      userCount: 2,
+      createdBy: props.currUser.username,
+      type: "pve",
+      users: props.currUser.username,
+    });
+
+    await setDoc(
+      doc(firestore, "rooms", roomName, "users", props.currUser.username),
+      {
+        email: props.currUser.email,
+        username: props.currUser.username,
+        gamesPlayed: props.currUser.gamesPlayed,
+        gamesWon: props.currUser.gamesWon,
+        usedPokemon: props.currUser.usedPokemon,
+        confirmed: false,
+      }
+    );
+    props.startGame(roomName, gameType);
   };
 
   //   useEffect(()=>{
@@ -157,7 +195,8 @@ const Lobby = (props) => {
     await addDoc(collection(firestore, "lobbytexts"), {
       date: date.toString(),
       text: inputText,
-      createdBy: [props.currUser.username],
+      createdBy: props.currUser.username,
+      user: [props.currUser.username],
     });
     setInputText("");
   };
@@ -166,7 +205,7 @@ const Lobby = (props) => {
     // const q = query(collection(db, "rooms"));
     onSnapshot(collection(firestore, "lobbytexts"), (snapshot) => {
       snapshot.docs.forEach((doc) => {
-        console.log(doc.data());
+        // console.log(doc.data());
       });
       setChats(snapshot.docs.map((doc) => ({ id: doc.id, data: doc.data() })));
     });
@@ -195,17 +234,30 @@ const Lobby = (props) => {
     e.preventDefault();
     const roomRef = doc(firestore, "rooms", roomID);
     await updateDoc(roomRef, {
-      userCount: 2,
+      userCount: increment(1),
       users: arrayUnion(props.currUser.username),
     });
-    props.setGameStart(true);
-  };
+    //all data r objects/ collections r arrayss
+    await setDoc(
+      doc(firestore, "rooms", roomID, "users", props.currUser.username),
+      {
+        email: props.currUser.email,
+        username: props.currUser.username,
+        gamesPlayed: props.currUser.gamesPlayed,
+        gamesWon: props.currUser.gamesWon,
+        usedPokemon: props.currUser.usedPokemon,
+        confirmed: false,
+        turn: false,
+      }
+    );
 
+    props.startGame(roomID);
+  };
   return (
     <div className="lobby">
       <Typography>
         <table className="rooms">
-          <thead>
+          <TableHead>
             <tr>
               <th className="roomheader">Rooms:</th>
             </tr>
@@ -216,55 +268,67 @@ const Lobby = (props) => {
                 onChange={(e) => setRoomName(e.target.value)}
                 placeholder="room name?"
               />
-              <Button onClick={createRoom}>Create Room</Button>
+              <br />
+              <Button onClick={createPvpRoom}>Create PvP Room</Button>
+              <Button onClick={createPveRoom}>Enter PvE Room</Button>
             </th>
-          </thead>
+          </TableHead>
           <tbody className="tableBody">
             {rooms.map((room, i) => (
-              <td
-                key={room.id}
-                className={room.data.userCount < 2 ? "notFull" : "full"}
-              >
-                <thead>
-                  {room.data.date}: {room.id} by {room.data.createdBy}.
-                  UserCount:
-                  {room.data.userCount}
+              <tr key={room.id}>
+                <td>
+                  Room:{room.id}
+                  <br />
+                  Created by: {room.data.createdBy} on {room.data.date}. <br />
                   <Button
                     onClick={(e) => enterRoom(e, room.id)}
                     variant="contained"
+                    disabled={room.data.userCount === 2}
                   >
                     Enter Room
                   </Button>
-                </thead>
-              </td>
+                  <br />
+                  UserCount:
+                  {room.data.userCount}
+                  {"   "}
+                  <IconButton
+                    size="small"
+                    edge="start"
+                    aria-label="menu"
+                    style={
+                      room.data.userCount < 2
+                        ? { background: "green" }
+                        : { background: "red" }
+                    }
+                  ></IconButton>
+                </td>
+              </tr>
             ))}
           </tbody>
         </table>
-        <br />
-
         <table className="chat">
-          <thead>
-            <tr>
-              <th>Chat:</th>
-            </tr>
-          </thead>
-          <th>
-            <input
-              type="text"
-              value={inputText}
-              placeholder="say something!"
-              onChange={(e) => setInputText(e.target.value)}
-            />
-            <Button onClick={submitText}>Send Msg</Button>
-          </th>
-          <tbody>
+          <TableHead>
+            <TableRow>
+              <TableCell>Chat:</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>
+                <input
+                  type="text"
+                  value={inputText}
+                  placeholder="say something!"
+                  onChange={(e) => setInputText(e.target.value)}
+                />
+                <Button onClick={submitText}>Send Msg</Button>
+              </TableCell>
+            </TableRow>
+          </TableHead>
+          <tbody className="chatBody">
             <td>
               {chats.map((chat) => (
-                <thead>
-                  <tr key={chat.id}>
-                    {chat.data.date}: {chat.data.text} by {chat.data.createdBy}
-                  </tr>
-                </thead>
+                <tr key={chat.id}>
+                  {chat.data.date}: {chat.data.text} by {chat.data.createdBy}
+                </tr>
               ))}
             </td>
           </tbody>

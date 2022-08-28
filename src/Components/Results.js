@@ -1,8 +1,10 @@
 import "../App.css";
 import "../battle.css";
-import React from "react";
+import React, { useRef } from "react";
 import victory from "../Sounds/victory.mp3";
 import battleloss from "../Sounds/battleloss.mp3";
+// import "./fireworks.css";
+import Button from "@mui/material/Button";
 
 //This is the summary page after each battle.
 const Results = (props) => {
@@ -93,13 +95,19 @@ const Results = (props) => {
             {/* <h4>{PokeType}</h4> */}
           </div>
         </div>
-        <button
+        <Button
           onClick={() => {
             props.onNewBattle();
           }}
+          style={{
+            borderRadius: 10,
+            backgroundColor: "white",
+            padding: "10px 15px",
+            fontSize: "10px",
+          }}
         >
           New Battle
-        </button>
+        </Button>
       </header>
     </div>
   );
