@@ -124,6 +124,7 @@ const Lobby = (props) => {
       createdBy: props.currUser.username,
       type: "pvp",
       users: [props.currUser.username],
+      historyMoves: [],
     });
     await setDoc(
       doc(firestore, "rooms", roomName, "users", props.currUser.username),
@@ -159,6 +160,7 @@ const Lobby = (props) => {
       createdBy: props.currUser.username,
       type: "pve",
       users: props.currUser.username,
+      historyMoves: [],
     });
 
     await setDoc(

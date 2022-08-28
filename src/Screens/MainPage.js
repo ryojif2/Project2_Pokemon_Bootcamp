@@ -85,8 +85,6 @@ const MainPage = (props) => {
     }
   }, [props.loggedInUser]);
 
-  const [otherUserStats, setOtherUserStats] = useState({});
-
   // try to get otherPlayer ID and info!
   useEffect(() => {
     if (pvpMode === true) {
@@ -271,13 +269,6 @@ const MainPage = (props) => {
   };
 
   useEffect(() => {
-    // const userRef=doc(firestore,'rooms',roomID,'users')
-    //   const q = query(userRef,where('confirmed'=='true'))
-    //   onSnapshot(q,(querySnapshot)=>{querySnapshot.forEach(doc=>console.log('snap', doc.data()))})
-    //reference to DB
-    //reference to users[i] array - sam
-    // reference to 'rooms/roomID/users/users[i]'
-    //where confirmed == true
     if (
       Object.keys(computerConfirmedPokemon).length !== 0 &&
       computerArray.length > 3 &&
@@ -332,7 +323,7 @@ const MainPage = (props) => {
       usedPokemon: arrayUnion(confirmedPokemon.pokemonName),
     });
     setPlayerConfirmed(true);
-    console.log(otherUserStats);
+    console.log(otherPlayerConfirmedPokemon);
     // if (pvpMode === true) {
     //   //and i am the 2nd player, then set playerTurn to false.
 
@@ -372,14 +363,10 @@ const MainPage = (props) => {
         //ref player attack damage
         const playerAttack =
           playerArray[Math.floor(Math.random() * playerArray.length)];
-        //Add the player attack damage to history of moves array state.
-        if (pastMoves === []) {
-          setPastMoves([playerAttack]);
-        } else {
-          setPastMoves((prevState) => [...prevState, playerAttack]);
-        }
-        //Add the player attack damage to recent moves array state.
-        setRecentMoves([playerAttack]);
+        await updateDoc(roomRef, {
+          pastMoves: arrayUnion(playerAttack),
+          displayMsg: `${userStats[0].username}'s ${playerConfirmedPokemon.pokemonName} dealt a damage of ${playerAttack}`,
+        });
 
         //Calculate the hp of computer after player attack.
         let newComputerHP = 0;
@@ -422,14 +409,14 @@ const MainPage = (props) => {
       }
     }
     if (pvpMode === true) {
-      console.log(otherUserStats);
+      console.log(otherPlayerConfirmedPokemon);
       console.log(userStats);
       const otherPlayerRef = doc(
         firestore,
         "rooms",
         roomID,
         "users",
-        otherUserStats.username
+        otherPlayerConfirmedPokemon.username
       );
       const playerRef = doc(
         firestore,
@@ -449,13 +436,6 @@ const MainPage = (props) => {
         // calculate my attack damage and other player new HP
         const playerAttack =
           playerArray[Math.floor(Math.random() * playerArray.length)];
-        if (pastMoves === []) {
-          setPastMoves([playerAttack]);
-        } else {
-          setPastMoves((prevState) => [...prevState, playerAttack]);
-        }
-        //Add the player attack damage to recent moves array state.
-        setRecentMoves([playerAttack]);
         //Calculate the hp of computer after player attack.
         let newOtherPlayerHP = 0;
         //if player attack is more than computer HP
@@ -473,16 +453,14 @@ const MainPage = (props) => {
         });
         //Set playerTurn state to false.
         setPlayerTurn(false);
+
         await updateDoc(playerRef, {
           turn: false,
-          // movesMade: arrayUnion(pastMoves),
-          // recentMove: arrayUnion(recentMoves),
         });
 
-        //To Mon 270822: This arrayunion throwing me error "Function arrayUnion() called with invalid data. Nested arrays are not supported "
         await updateDoc(roomRef, {
-          movesMade: arrayUnion(pastMoves),
-          recentMove: arrayUnion(recentMoves),
+          pastMoves: arrayUnion(playerAttack),
+          displayMsg: `${userStats[0].username}'s ${playerConfirmedPokemon.pokemonName} dealt a damage of ${playerAttack}`,
         });
 
         //If other pokemon's hp is 0 with User's pokemon attack, battle ends. Update stats of user into the database.
@@ -526,11 +504,11 @@ const MainPage = (props) => {
       computerArray[Math.floor(Math.random() * computerArray.length)];
 
     let newPlayerHP = 0;
-
-    //Add the computer attack damage to history of moves array state.
-    //Add the computer attack damage to recent moves array state.
-    setPastMoves((prevState) => [...prevState, computerAttack]);
-    setRecentMoves((prevState) => [...prevState, computerAttack]);
+    const roomRef = doc(firestore, "rooms", roomID);
+    await updateDoc(roomRef, {
+      pastMoves: arrayUnion(computerAttack),
+      displayMsg: `Computer's ${computerConfirmedPokemon.pokemonName} dealt a damage of ${computerAttack}`,
+    });
 
     //Calculate player's pokemon HP after computer attack.
     if (computerAttack - playerConfirmedPokemon.pokemonHP >= 0) {
@@ -539,14 +517,14 @@ const MainPage = (props) => {
       newPlayerHP = playerConfirmedPokemon.pokemonHP - computerAttack;
     }
 
-    const roomRef = doc(
+    const playerRef = doc(
       firestore,
       "rooms",
       roomID,
       "users",
       userStats[0].username
     );
-    await updateDoc(roomRef, { pokemonHP: newPlayerHP });
+    await updateDoc(playerRef, { pokemonHP: newPlayerHP });
     //If User pokemon's hp is not 0 with computer's pokemon attack, set playerTurn state to true. Allow's player to click attack again.
     //If User pokemon's hp is 0 with computer's pokemon attack, battle ends. Update stats of user into the realtime database.
     if (newPlayerHP > 0) {
@@ -610,7 +588,13 @@ const MainPage = (props) => {
 
       if (playerTurn) {
         onSnapshot(
-          doc(firestore, "rooms", roomID, "users", otherUserStats.username),
+          doc(
+            firestore,
+            "rooms",
+            roomID,
+            "users",
+            otherPlayerConfirmedPokemon.username
+          ),
           { includeMetaDataChanges: true },
           (doc) => {
             console.log("OTHER PLAYER SNAPSHOT", doc.data());
@@ -756,7 +740,7 @@ const MainPage = (props) => {
               roomID={roomID}
               userStats={userStats[0]}
               playerConfirmed={playerConfirmed}
-              setOtherUserStats={setOtherUserStats}
+              setPlayerConfirmedPokemon={setPlayerConfirmedPokemon}
             />
           }
         />

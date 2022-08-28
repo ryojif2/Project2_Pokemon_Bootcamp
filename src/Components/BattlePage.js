@@ -20,6 +20,7 @@ import { chainPropTypes } from "@mui/utils";
 const BattlePage = (props) => {
   const [gameConfirmed, setGameConfirmed] = useState(false);
   const [computerChosenPokemon, setComputerConfirmedPokemon] = useState();
+  const [movesDisplay, setMovesDisplay] = useState("Make a move!");
   //   const [pvpMode,setPvpMode]=useState()
   //   const [userData,setUserData]=useState()
   //   //try to get otherPlayer ID and info!
@@ -28,11 +29,11 @@ const BattlePage = (props) => {
   // if (props.userStats){
   //   setUserData(props.userStats)
   // }
-  console.log(props.playerConfirmedPokemon);
-  console.log(props.isPlayerTurn);
-  console.log(props.userStats);
-  console.log(props.computerConfirmedPokemon);
-  console.log(props.historyMoves);
+  // console.log(props.playerConfirmedPokemon);
+  // console.log(props.isPlayerTurn);
+  // console.log(props.userStats);
+  // console.log(props.computerConfirmedPokemon);
+  // console.log(props.historyMoves);
 
   useEffect(() => {
     if (props.gameType === "pvp") {
@@ -71,12 +72,38 @@ const BattlePage = (props) => {
       props.setBothConfirmed(true);
       console.log("both confirmed true USEEFFECT BATTLEPAGE");
     }
-
-    if (props.computerConfirmedPokemon) {
-      console.log(props.computerConfirmedPokemon);
-      props.setOtherUserStats(props.computerConfirmedPokemon);
-    }
   }, [props.computerConfirmedPokemon, props.playerConfirmed]);
+
+  useEffect(() => {
+    const roomRef = doc(firestore, "rooms", props.roomID);
+    //room ref displaymsg
+    onSnapshot(roomRef, (docSnap) => {
+      if (docSnap.exists()) {
+        console.log("display Msg", docSnap.data().displayMsg);
+        setMovesDisplay(docSnap.data().displayMsg);
+      }
+    });
+    //other user ref health and turn
+
+    const userRef = doc(
+      firestore,
+      "rooms",
+      props.roomID,
+      "users",
+      props.userStats.username
+    );
+    onSnapshot(userRef, (userSnap) => {
+      console.log(userSnap, "useEffect listen for user turn?!");
+      props.setPlayerTurn(userSnap.data().turn);
+      props.setPlayerConfirmedPokemon((prevState) => {
+        return {
+          ...prevState,
+          pokemonHP: userSnap.data().pokemonHP,
+          turn: userSnap.data().turn,
+        };
+      });
+    });
+  }, [props.playerTurn, props.otherPlayerTurn]);
 
   // useEffect(()=>{
 
@@ -167,7 +194,7 @@ const BattlePage = (props) => {
       <header className="App-header">
         <p>Battle page</p>
         <h1>Opponent </h1>
-        {gameConfirmed ? (
+        {gameConfirmed || props.bothConfirmed ? (
           <div>
             {/* <h1>opponent</h1> */}
             <img
@@ -197,13 +224,22 @@ const BattlePage = (props) => {
               Enemy {computerPokemonName} has hit your {playerPokemonName} for{" "}
               {props.historyMoves[1]} damage!{" "}
             </p>
+          ) : null} */}
+
+        {movesDisplay}
+
+        <div>
+          {props.playerConfirmedPokemon &&
+          props.isPlayerTurn &&
+          playerHP > 0 ? (
+            <div>Make a move and attack!</div>
           ) : null}
-          {props.isPlayerTurn && playerHP > 0 ? (
-            <p>Make a move and attack!</p>
+
+          {props.computerConfirmedPokemon.pokemonHP <= 0 ? (
+            <p>You have won the battle!</p>
           ) : null}
-          {computerHP <= 0 ? <p>You have won the battle!</p> : null}
           {playerHP <= 0 ? <p>You have lost the battle!</p> : null}
-        </div> */}
+        </div>
         <h1>Player (YOU) </h1>
         <div key={playerChosenPokemon} name={playerPokemonName}>
           <img
@@ -221,17 +257,23 @@ const BattlePage = (props) => {
           >
             Attack
           </button> */}
+        </div>
+        <div>
           <button
-            disabled={!props.isPlayerTurn}
-            onClick={() => props.onAttack(props)}
+            disabled={
+              !props.isPlayerTurn ||
+              playerHP <= 0 ||
+              props.computerConfirmedPokemon.pokemonHP <= 0
+            }
+            onClick={() => props.onAttack()}
           >
             Attack
           </button>
-          {/* {(playerHP <= 0 || computerHP <= 0)? (
+          {playerHP <= 0 || props.computerConfirmedPokemon.pokemonHP <= 0 ? (
             <button onClick={() => props.onSummary()}>
               Proceed to Summary
             </button>
-          ) : null} */}
+          ) : null}
         </div>
       </header>
     </div>
