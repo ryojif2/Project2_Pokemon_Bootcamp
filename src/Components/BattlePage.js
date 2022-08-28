@@ -85,24 +85,26 @@ const BattlePage = (props) => {
     });
     //other user ref health and turn
 
-    const userRef = doc(
-      firestore,
-      "rooms",
-      props.roomID,
-      "users",
-      props.userStats.username
-    );
-    onSnapshot(userRef, (userSnap) => {
-      console.log(userSnap, "useEffect listen for user turn?!");
-      props.setPlayerTurn(userSnap.data().turn);
-      props.setPlayerConfirmedPokemon((prevState) => {
-        return {
-          ...prevState,
-          pokemonHP: userSnap.data().pokemonHP,
-          turn: userSnap.data().turn,
-        };
+    if (props.gameType === "pve") {
+      const userRef = doc(
+        firestore,
+        "rooms",
+        props.roomID,
+        "users",
+        props.userStats.username
+      );
+      onSnapshot(userRef, (userSnap) => {
+        console.log(userSnap, "useEffect listen for user turn?!");
+        props.setPlayerTurn(userSnap.data().turn);
+        props.setPlayerConfirmedPokemon((prevState) => {
+          return {
+            ...prevState,
+            pokemonHP: userSnap.data().pokemonHP,
+            turn: userSnap.data().turn,
+          };
+        });
       });
-    });
+    }
   }, [props.playerTurn, props.otherPlayerTurn]);
 
   // useEffect(()=>{

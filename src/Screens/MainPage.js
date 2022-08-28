@@ -280,7 +280,7 @@ const MainPage = (props) => {
       );
       pushComputerPokemonData(computerConfirmedPokemon, computerArray);
     }
-  }, [computerConfirmedPokemon, computerArray]);
+  }, [computerArray]);
 
   const pushUserToFireStore = async (playerPokemonData) => {
     const userRef = doc(
@@ -363,6 +363,7 @@ const MainPage = (props) => {
         //ref player attack damage
         const playerAttack =
           playerArray[Math.floor(Math.random() * playerArray.length)];
+        const roomRef = doc(firestore, "rooms", roomID);
         await updateDoc(roomRef, {
           pastMoves: arrayUnion(playerAttack),
           displayMsg: `${userStats[0].username}'s ${playerConfirmedPokemon.pokemonName} dealt a damage of ${playerAttack}`,
@@ -376,13 +377,12 @@ const MainPage = (props) => {
         } else {
           newComputerHP = computerConfirmedPokemon.pokemonHP - playerAttack;
         }
-
+        console.log(newComputerHP, "newcompHP");
         // //Update the database with computer pokemon's new hp.
-        const roomRef = doc(firestore, "rooms", roomID, "users", "computer");
-        await updateDoc(roomRef, { pokemonHP: newComputerHP });
+        const compRef = doc(firestore, "rooms", roomID, "users", "computer");
+        await updateDoc(compRef, { pokemonHP: newComputerHP, turn: true });
         //Set playerTurn state to false.
         setPlayerTurn(false);
-
         //If computer pokemon's hp is not 0 with User's pokemon attack, go to computer turn & execute computer turn function.
         //If computer pokemon's hp is 0 with User's pokemon attack, battle ends. Update stats of user into the realtime database.
         if (newComputerHP > 0) {
@@ -426,7 +426,11 @@ const MainPage = (props) => {
         userStats[0].username
       );
       const userRef = doc(firestore, "users", userStats[0].email);
-
+      const otherUserRef = doc(
+        firestore,
+        "users",
+        otherPlayerConfirmedPokemon.email
+      );
       //To Mon 270822: This line below i thought maybe create ref for room so that we can put the recent moves into the room instead of to the individual user.
       const roomRef = doc(firestore, "rooms", roomID);
 
@@ -477,10 +481,19 @@ const MainPage = (props) => {
           } else {
             mostUsedPokemon = "NA";
           }
+
+          let otherPlayerMostUsedPokemon = findMostUsed(
+            otherPlayerConfirmedPokemon.usedPokemon
+          );
           await updateDoc(userRef, {
             gamesPlayed: userStats[0].gamesPlayed + 1,
             gamesWon: userStats[0].gamesWon + 1,
             mostUsed: mostUsedPokemon,
+          });
+          await updateDoc(otherUserRef, {
+            gamesPlayed: otherPlayerConfirmedPokemon.gamesPlayed + 1,
+            gamesWon: otherPlayerConfirmedPokemon.gamesWon + 1,
+            mostUsed: otherPlayerMostUsedPokemon,
           });
         }
       }
@@ -635,8 +648,6 @@ const MainPage = (props) => {
         "computer cfm pokemon on SNAPSHOT!"
       );
     }
-
-    // }
   }, [playerTurn, otherPlayerTurn]);
 
   const handleSummary = () => {
@@ -752,8 +763,8 @@ const MainPage = (props) => {
               computerConfirmedPokemon={
                 pveMode ? computerConfirmedPokemon : otherPlayerConfirmedPokemon
               }
-              historyMoves={pastMoves}
               onNewBattle={handleNewBattle}
+              roomID={roomID}
             />
           }
         />
