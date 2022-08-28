@@ -100,7 +100,7 @@ const App = () => {
   const createAccountOrSignInButton = (
     <div>
       <button className="buttonR" onClick={() => buttonPress()}>
-        <Link to="/register" className="buttonText" TransitionComponent="Grow">
+        <Link to="/register" className="buttonText">
           Create account
         </Link>
       </button>
@@ -136,7 +136,7 @@ const App = () => {
         userData={userData}
       />
       {loggedIn !== true ? (
-        <div class="charizard">
+        <div className="charizard">
           <img src={charizard} />
         </div>
       ) : null}

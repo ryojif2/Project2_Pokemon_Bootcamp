@@ -44,6 +44,7 @@ const Navbar = (props) => {
               style={{ background: "#ffff" }}
             >
               <UserProfile setUserData={setUserData} userData={userData} />
+              {/* {console.log(userData)} */}
             </IconButton>
           ) : null}
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
