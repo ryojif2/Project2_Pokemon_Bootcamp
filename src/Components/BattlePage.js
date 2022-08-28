@@ -44,7 +44,10 @@ const BattlePage = (props) => {
           if (props.userStats.username !== docSnap.data().users[0]) {
             props.setPlayerTurn(false);
             props.setOtherPlayerTurn(true);
-          }}});}}, []);
+          }}});}
+
+        
+        }, []);
 
   // if(props.userStats.username === )
   //if i am the 2nd player, set isPlayerTurn to false. if computerConfirmedpokemon.username ==
@@ -82,6 +85,7 @@ useEffect(()=>{
   setMovesDisplay(docSnap.data().displayMsg)}})
 //other user ref health and turn
 
+if (props.gameType==='pve'){
 const userRef=doc(firestore,'rooms',props.roomID,'users',props.userStats.username)
 onSnapshot(userRef, (userSnap)=>{
   console.log(userSnap,'useEffect listen for user turn?!')
@@ -93,7 +97,7 @@ props.setPlayerConfirmedPokemon((prevState) => {
                 turn: userSnap.data().turn,
               };
             });
-})
+})}
 },[props.playerTurn,props.otherPlayerTurn])
 
   // useEffect(()=>{
