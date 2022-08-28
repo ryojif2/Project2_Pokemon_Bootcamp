@@ -50,15 +50,17 @@ const Results = (props) => {
     if (i % 2 === 0) {
       return (
         <p>
-          Your {playerPokemonName} hit enemy {computerPokemonName} for
-          {pastMoves[i]} damage!
+          Your {playerPokemonName} hit enemy {computerPokemonName} with{" "}
+          {pastMoves[i].name}for
+          {pastMoves[i].power} damage!
         </p>
       );
     } else {
       return (
         <p>
-          Enemy {computerPokemonName} hit your {playerPokemonName} for
-          {pastMoves[i]} damage!
+          Enemy {computerPokemonName} hit your {playerPokemonName} with{" "}
+          {pastMoves[i].name}for
+          {pastMoves[i].power} damage!
         </p>
       );
     }

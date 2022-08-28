@@ -85,6 +85,7 @@ const MainPage = (props) => {
     }
   }, [props.loggedInUser]);
 
+  const [otherPlayerExist, setOtherPlayerExist] = useState();
   // try to get otherPlayer ID and info!
   useEffect(() => {
     if (pvpMode === true) {
@@ -113,6 +114,11 @@ const MainPage = (props) => {
         });
         console.log(otherUserData, "otheruserData");
         setOtherPlayerConfirmedPokemon(otherUserData[0]);
+        if (otherUserData.length > 0) {
+          setOtherPlayerExist(true);
+        } else {
+          console.log("other userdont exist");
+        }
       });
 
       // getDocs(q).then(snapshot=>snapshot.forEach(snapshot=>console.log(snapshot.data())))
@@ -220,7 +226,11 @@ const MainPage = (props) => {
         pokemonSelection.splice(i, 1);
       }
     }
-    const computerPokemon = pokemonSelection[Math.floor(Math.random() * 8 + 1)];
+    // const computerPokemon = pokemonSelection[Math.floor(Math.random() * 8 + 1)];
+    const computerPokemon =
+      pokemonSelection[
+        Math.floor(Math.random() * (pokemonSelection.length - 1) + 1)
+      ];
     setComputerConfirmedPokemon(computerPokemon);
     console.log(computerPokemon);
     getComputerArray(computerPokemon.pokemonMovesURL);
@@ -238,12 +248,18 @@ const MainPage = (props) => {
     Promise.all(promise2)
       .then((results) => {
         const powerMoves = results.map((data) => {
-          let { power } = data.data;
+          let { name, power } = data.data;
           if (power == null) {
             power = 1;
           }
           console.log(power);
-          return power;
+          // return power;
+          const movesWithPower = {
+            name: name,
+            power: power,
+          };
+
+          return movesWithPower;
         });
         console.log(powerMoves);
         return powerMoves;
@@ -353,7 +369,7 @@ const MainPage = (props) => {
   };
 
   //When User clicks attack in battle page. Playerturn state is already true.
-  const handleAttack = async () => {
+  const handleAttack = async (e) => {
     console.log("handle attack is running");
     if (pveMode === true) {
       if (playerTurn) {
@@ -361,12 +377,14 @@ const MainPage = (props) => {
         // Set the computerturn state to false.
         setComputerTurn(false);
         //ref player attack damage
-        const playerAttack =
-          playerArray[Math.floor(Math.random() * playerArray.length)];
+        const playerAttack = Math.ceil(e.target.value);
+        const playerMove = e.target.name;
+        // const playerAttack =
+        //   playerArray[Math.floor(Math.random() * playerArray.length)];
         const roomRef = doc(firestore, "rooms", roomID);
         await updateDoc(roomRef, {
-          pastMoves: arrayUnion(playerAttack),
-          displayMsg: `${userStats[0].username}'s ${playerConfirmedPokemon.pokemonName} dealt a damage of ${playerAttack}`,
+          pastMoves: arrayUnion({ name: playerMove, power: playerAttack }),
+          displayMsg: `${userStats[0].username}'s ${playerConfirmedPokemon.pokemonName} dealt a damage of ${playerAttack} with ${playerMove}`,
         });
 
         //Calculate the hp of computer after player attack.
@@ -438,8 +456,10 @@ const MainPage = (props) => {
         //set other player turn false IN DB
         await updateDoc(otherPlayerRef, { turn: false });
         // calculate my attack damage and other player new HP
-        const playerAttack =
-          playerArray[Math.floor(Math.random() * playerArray.length)];
+        const playerAttack = Math.ceil(e.target.value);
+        const playerMove = e.target.name;
+        // const playerAttack =
+        //   playerArray[Math.floor(Math.random() * playerArray.length)];
         //Calculate the hp of computer after player attack.
         let newOtherPlayerHP = 0;
         //if player attack is more than computer HP
@@ -463,8 +483,8 @@ const MainPage = (props) => {
         });
 
         await updateDoc(roomRef, {
-          pastMoves: arrayUnion(playerAttack),
-          displayMsg: `${userStats[0].username}'s ${playerConfirmedPokemon.pokemonName} dealt a damage of ${playerAttack}`,
+          pastMoves: arrayUnion({ name: playerMove, power: playerAttack }),
+          displayMsg: `${userStats[0].username}'s ${playerConfirmedPokemon.pokemonName} dealt a damage of ${playerAttack} with ${playerMove}`,
         });
 
         //If other pokemon's hp is 0 with User's pokemon attack, battle ends. Update stats of user into the database.
@@ -513,14 +533,16 @@ const MainPage = (props) => {
     console.log(computerTurn);
 
     //ref computer attack dmg.
-    const computerAttack =
+    const computerAttackObject =
       computerArray[Math.floor(Math.random() * computerArray.length)];
+    const computerAttack = Math.ceil(computerAttackObject.power);
+    const computerMove = computerAttackObject.name;
 
     let newPlayerHP = 0;
     const roomRef = doc(firestore, "rooms", roomID);
     await updateDoc(roomRef, {
-      pastMoves: arrayUnion(computerAttack),
-      displayMsg: `Computer's ${computerConfirmedPokemon.pokemonName} dealt a damage of ${computerAttack}`,
+      pastMoves: arrayUnion({ name: computerMove, power: computerAttack }),
+      displayMsg: `Computer's ${computerConfirmedPokemon.pokemonName} dealt a damage of ${computerAttack} with ${computerMove}`,
     });
 
     //Calculate player's pokemon HP after computer attack.
@@ -726,6 +748,10 @@ const MainPage = (props) => {
               setPlayerArray={(playerAttackArray) =>
                 setPlayerArray(playerAttackArray)
               }
+              computerConfirmedPokemon={
+                pveMode ? computerConfirmedPokemon : otherPlayerConfirmedPokemon
+              }
+              otherPlayerExist={otherPlayerExist}
             />
           }
         />
@@ -735,10 +761,11 @@ const MainPage = (props) => {
             <BattlePage
               //pass down loggedInUser here
               playerConfirmedPokemon={playerConfirmedPokemon}
+              playerArray={playerArray}
               computerConfirmedPokemon={
                 pveMode ? computerConfirmedPokemon : otherPlayerConfirmedPokemon
               }
-              onAttack={() => handleAttack()}
+              onAttack={(e) => handleAttack(e)}
               isPlayerTurn={playerTurn}
               setPlayerTurn={setPlayerTurn}
               setOtherPlayerTurn={setOtherPlayerTurn}

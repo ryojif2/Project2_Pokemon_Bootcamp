@@ -34,9 +34,19 @@ const SelectPoke = (props) => {
       console.log(power);
       let modifiedPower = 1;
       if (power === null) {
-        playerAttackArray.push(modifiedPower);
+        const movesWithPower = {
+          name: name,
+          power: modifiedPower,
+        };
+        playerAttackArray.push(movesWithPower);
+        // playerAttackArray.push(modifiedPower);
       } else {
-        playerAttackArray.push(power);
+        const movesWithPower = {
+          name: name,
+          power: power,
+        };
+        playerAttackArray.push(movesWithPower);
+        // playerAttackArray.push(power);
       }
       return playerAttackArray;
     });
@@ -52,6 +62,11 @@ const SelectPoke = (props) => {
   return (
     //repeating pokedex ?
     <div key={chosenPokemon} name={pokemonName}>
+      {props.otherPlayerExist ? (
+        <p>Player 2 is in the room</p>
+      ) : (
+        <p>Wait for player 2 to enter before confirm...</p>
+      )}
       <img
         style={{ height: "30vh" }}
         src={pokemonImageFront}
@@ -66,10 +81,10 @@ const SelectPoke = (props) => {
         Back to Main Pokedex
       </button>
       <button
+        disabled={!props.otherPlayerExist}
         onClick={() => {
           props.setPlayerArray(playerAttackArray);
-
-          props.onConfirmPokemon(chosenPokemon);
+          props.onConfirmPokemon(chosenPokemon, playerAttackArray);
         }}
       >
         Confirm

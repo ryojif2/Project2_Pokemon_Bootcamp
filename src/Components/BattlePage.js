@@ -85,26 +85,26 @@ const BattlePage = (props) => {
     });
     //other user ref health and turn
 
-    if (props.gameType === "pve") {
-      const userRef = doc(
-        firestore,
-        "rooms",
-        props.roomID,
-        "users",
-        props.userStats.username
-      );
-      onSnapshot(userRef, (userSnap) => {
-        console.log(userSnap, "useEffect listen for user turn?!");
-        props.setPlayerTurn(userSnap.data().turn);
-        props.setPlayerConfirmedPokemon((prevState) => {
-          return {
-            ...prevState,
-            pokemonHP: userSnap.data().pokemonHP,
-            turn: userSnap.data().turn,
-          };
-        });
+    // if (props.gameType === "pve") {
+    const userRef = doc(
+      firestore,
+      "rooms",
+      props.roomID,
+      "users",
+      props.userStats.username
+    );
+    onSnapshot(userRef, (userSnap) => {
+      console.log(userSnap, "useEffect listen for user turn?!");
+      props.setPlayerTurn(userSnap.data().turn);
+      props.setPlayerConfirmedPokemon((prevState) => {
+        return {
+          ...prevState,
+          pokemonHP: userSnap.data().pokemonHP,
+          turn: userSnap.data().turn,
+        };
       });
-    }
+    });
+    // }
   }, [props.playerTurn, props.otherPlayerTurn]);
 
   // useEffect(()=>{
@@ -191,6 +191,24 @@ const BattlePage = (props) => {
 
   // const  otherPlayerPokeName =  otherPlayerPokemonName.toUpperCase();
 
+  const attackButtons = props.playerArray.map((attack) => {
+    return (
+      <button
+        disabled={
+          !props.isPlayerTurn ||
+          playerHP <= 0 ||
+          props.computerConfirmedPokemon.pokemonHP <= 0
+        }
+        onClick={(e) => props.onAttack(e)}
+        value={attack.power}
+        id={attack.name}
+        name={attack.name}
+      >
+        {attack.name}
+      </button>
+    );
+  });
+
   return (
     <div className="App">
       <header className="App-header">
@@ -261,7 +279,7 @@ const BattlePage = (props) => {
           </button> */}
         </div>
         <div>
-          <button
+          {/* <button
             disabled={
               !props.isPlayerTurn ||
               playerHP <= 0 ||
@@ -270,7 +288,9 @@ const BattlePage = (props) => {
             onClick={() => props.onAttack()}
           >
             Attack
-          </button>
+          </button> */}
+
+          {attackButtons}
           {playerHP <= 0 || props.computerConfirmedPokemon.pokemonHP <= 0 ? (
             <button onClick={() => props.onSummary()}>
               Proceed to Summary
