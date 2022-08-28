@@ -5,6 +5,7 @@ import victory from "../Sounds/victory.mp3";
 import button from "../Sounds/button.mp3";
 import Battle from "../Sounds/Battle.mp3";
 import battleloss from "../Sounds/battleloss.mp3";
+import Button from "@mui/material/Button";
 
 const BattlePage = (props) => {
   const playerChosenPokemon = props.playerConfirmedPokemon;
@@ -54,7 +55,7 @@ const BattlePage = (props) => {
   });
 
   return (
-    <div className="App">
+    <div className={props.victory === true ? "fireworks" : null}>
       {props.battle === true ? (
         <audio loop autoPlay src={Battle}>
           Your browser does not support the audio element.
@@ -76,23 +77,29 @@ const BattlePage = (props) => {
         </audio>
       ) : null}
       <header className="battlePage">
-        <h1>Battle page</h1>
-        <div
-          className={
-            computerHP > 0 ? (playerHP > 0 ? "computerP" : "winner") : "loser"
-          }
-        >
-          <h1>Computer</h1>
-          <img
-            style={{ height: "25vh" }}
-            src={computerImageFront}
-            alt={computerImageFront}
-            name={computerPokemonName}
-          />
-          <h4>{CPokeName}</h4>
-          {/* <h4>{PokeType}</h4> */}
-          <h4>HP: {computerHP}</h4>
-        </div>
+        <h1>Opponent</h1>
+        {props.bothConfirmed ? (
+          <div
+            className={
+              computerHP > 0 ? (playerHP > 0 ? "computerP" : "winner") : "loser"
+            }
+          >
+            <h1>Computer</h1>
+            <img
+              style={{ height: "25vh" }}
+              src={computerImageFront}
+              alt={computerImageFront}
+              name={computerPokemonName}
+            />
+            <h4>{CPokeName}</h4>
+            {/* <h4>{PokeType}</h4> */}
+            <h4>HP: {computerHP}</h4>
+          </div>
+        ) : (
+          <p>Waiting for opponent player 2....</p>
+        )}
+
+        <br />
         <div
           className={
             playerHP > 0 ? (computerHP > 0 ? "playerP" : "winner") : "loser"
@@ -108,42 +115,20 @@ const BattlePage = (props) => {
             />
             <h4>{PlayerPokeName}</h4>
             {/* <h4>{PokeType}</h4> */}
-            {/* <h4>HP: {playerHP}</h4> */}
-            <button onClick={() => attackCry()} disabled={!props.isPlayerTurn}>
+            <Button onClick={() => attackCry()} disabled={!props.isPlayerTurn}>
               Attack
-            </button>
+            </Button>
             <h4>HP: {playerHP}</h4>
           </div>
         </div>
         <div>
           {playerHP <= 0 || computerHP <= 0 ? (
-            <button onClick={() => props.onSummary()}>
+            <Button onClick={() => props.onSummary()}>
               Proceed to Summary
-            </button>
+            </Button>
           ) : null}
         </div>
         <br />
-        <div className={computerHP <= 0 ? "winner" : "loser"}>
-          {props.historyMoves.length >= 1 ? (
-            <p>
-              {" "}
-              Your {playerPokemonName} has hit enemy {computerPokemonName} for{" "}
-              {props.historyMoves[0]} damage!{" "}
-            </p>
-          ) : null}
-          {props.historyMoves.length === 2 ? (
-            <p>
-              {" "}
-              Enemy {computerPokemonName} has hit your {playerPokemonName} for{" "}
-              {props.historyMoves[1]} damage!{" "}
-            </p>
-          ) : null}
-          {props.isPlayerTurn && playerHP > 0 ? (
-            <p>Make a move and attack!</p>
-          ) : null}
-          {computerHP <= 0 ? <p>You have won the battle!</p> : null}
-          {playerHP <= 0 ? <p>You have lost the battle!</p> : null}
-        </div>
       </header>
     </div>
   );

@@ -7,9 +7,9 @@ import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
 import { useNavigate } from "react-router-dom";
 import { signOut } from "firebase/auth";
-import { auth } from "../DB/firebase";
+import { auth } from "../src/DB/firebase";
 import "../pokeball.css";
-import UserProfile from "../Components/UserProfile";
+import UserProfile from "../src/Components/UserProfile";
 
 const Navbar = (props) => {
   const {
@@ -32,6 +32,24 @@ const Navbar = (props) => {
     signOut(auth);
   };
 
+  //uncomment
+
+  // const [isShown, setIsShown] = useState(false);
+
+  // const handleClick = (event) => {
+  //   setIsShown((current) => !current);
+  // };
+
+  //uncomment
+
+  // useEffect(() => {
+  //   if (isShown === true) {
+  //     setTimeout(() => {
+  //       setIsShown(false);
+  //     }, 5000);
+  //   }
+  // }, [isShown]);
+
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static" style={{ background: "2C849C" }}>
@@ -44,6 +62,11 @@ const Navbar = (props) => {
               style={{ background: "#ffff" }}
             >
               <UserProfile setUserData={setUserData} userData={userData} />
+              {/* {isShown && (
+                <div>
+                  <UserProfile setUserData={setUserData} userData={userData} />
+                </div>
+              )} */}
             </IconButton>
           ) : null}
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>

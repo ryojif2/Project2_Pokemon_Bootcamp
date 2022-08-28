@@ -1,0 +1,26 @@
+.pikachu {
+  position: relative;
+  top: 0px;
+  right: 100px;
+  opacity: 0.8;
+  animation: 10s linear 0s infinite reverse;
+  z-index: 99;
+}
+
+.charizard {
+  position: relative;
+  opacity: 0.8;
+  /* z-index: 120; */
+  animation: fly 5s forwards;
+  animation-delay: 2s;
+  animation-iteration-count: infinite;
+}
+
+@keyframes fly {
+  0% {
+    left: 100%;
+  }
+  100% {
+    left: 0;
+  }
+}

@@ -13,8 +13,19 @@ import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import "../App.css";
-import { database } from "../DB/firebase";
-import { ref as dbRef, set, child } from "firebase/database";
+import { ref as dbRef, set, child, getDatabase } from "firebase/database";
+import { database, firestore } from "../DB/firebase";
+import {
+  collection,
+  query,
+  where,
+  onSnapshot,
+  getDocs,
+  addDoc,
+  doc,
+  setDoc,
+  updateDoc,
+} from "firebase/firestore";
 
 //Define userStats folder in realtime database.
 const USERSTATS_FOLDER_NAME = "users";
@@ -42,12 +53,20 @@ const Register = (props) => {
   //User stats for each user are created upon account registration.
   //Set email as ID in the database for each user, instead of the default randomly generated ID. This is so that we can identify which user folder to update whenever the stats change during game or after game.
   //Initiate the user stats in database.
-  const pushUserData = (email, username) => {
+  const pushUserData = async (email, username) => {
     const emailWoSpecialChar = email.replace(/[^a-zA-Z0-9 ]/g, "");
-    const userDataRef = dbRef(database, USERSTATS_FOLDER_NAME);
-    const newUserDataRef = child(userDataRef, emailWoSpecialChar);
+    // const userDataRef = dbRef(database, USERSTATS_FOLDER_NAME);
+    // const newUserDataRef = child(userDataRef, emailWoSpecialChar);
 
-    set(newUserDataRef, {
+    // set(newUserDataRef, {
+    //   email: emailWoSpecialChar,
+    //   username: username,
+    //   gamesPlayed: 0,
+    //   gamesWon: 0,
+    //   usedPokemon: [],
+    //   mostUsed: "",
+    // });
+    await setDoc(doc(firestore, "users", emailWoSpecialChar), {
       email: emailWoSpecialChar,
       username: username,
       gamesPlayed: 0,
@@ -111,11 +130,16 @@ const Register = (props) => {
   };
 
   return (
-    <div>
+    <div className="register">
       <Typography>
         <h1>Register</h1>
         <Box component="form" sx={{ mt: 3 }} borderColor="primary.main">
-          <Grid container spacing={2}>
+          <Grid
+            container
+            spacing={2}
+            sx={{ input: { backgroundColor: "white", opacity: "0.8" } }}
+            className="register"
+          >
             <Grid item xs={12}>
               <span>Name: </span>
               <TextField
@@ -124,7 +148,7 @@ const Register = (props) => {
                 value={props.username}
                 onChange={handleInputChange}
                 autoFocus
-                sx={{ input: { color: "white" } }}
+                sx={{ input: { backgroundColor: "white", opacity: "0.8" } }}
               />
             </Grid>
             <br />
@@ -136,9 +160,7 @@ const Register = (props) => {
                 value={props.emailInputValue}
                 onChange={handleInputChange}
                 autoFocus
-                sx={{
-                  input: { color: "white" },
-                }}
+                sx={{ input: { backgroundColor: "white", opacity: "0.8" } }}
               />
             </Grid>
             <br />
@@ -150,7 +172,7 @@ const Register = (props) => {
                 value={props.passwordInputValue}
                 onChange={handleInputChange}
                 autoFocus
-                sx={{ input: { color: "white" } }}
+                sx={{ input: { backgroundColor: "white", opacity: "0.8" } }}
               />
             </Grid>
           </Grid>
@@ -163,13 +185,19 @@ const Register = (props) => {
             onClick={handleSubmit}
           />
           <br />
-          <Button variant="link" onClick={toggleNewOrReturningAuth}>
+          <Button
+            variant="link"
+            onClick={toggleNewOrReturningAuth}
+            className="register-buttons"
+          >
             {isNewUser
               ? "Already have an account? Sign in"
               : "If you are a new user, click here to create account"}
           </Button>
         </Box>
-        <Button onClick={() => logout()}>Go back</Button>
+        <Button onClick={() => logout()} className="register">
+          Go back
+        </Button>
       </Typography>
     </div>
   );

@@ -2,6 +2,7 @@ import { onAuthStateChanged, getAuth } from "firebase/auth";
 import React, { useEffect, useState } from "react";
 import { Link, Routes, Route } from "react-router-dom";
 import "./App.css";
+import "./pikachu.css";
 import Register from "./Components/Register";
 import MainPage from "./Screens/MainPage";
 import Login from "./Components/Login";
@@ -12,14 +13,18 @@ import Navbar from "./Components/Navbar";
 import Loginsound from "../src/Sounds/opening.mp3";
 // import button from "../src/Sounds/button.mp3";
 import click from "../src/Sounds/click.mp3";
+import Background from "../src/background.jpg";
+import charizard from "../src/pics/charizard.gif";
 
 const App = () => {
   const [loggedInUser, setLoggedInUser] = useState();
   const [emailInputValue, setEmailInputValue] = useState("");
   const [passwordInputValue, setPasswordInputValue] = useState("");
-  const [loggedIn, setLoggedIn] = useState();
+  const [loggedIn, setLoggedIn] = useState(false);
   const [buttonSound, setButtonSound] = useState(false);
   const [username, setUsername] = useState("");
+  const [userData, setUserData] = useState();
+  const [pokemonSelection, setPokemonSelection] = useState([]);
 
   const auth = getAuth();
 
@@ -71,6 +76,10 @@ const App = () => {
       emailInputValue={emailInputValue}
       username={username}
       setUsername={setUsername}
+      setUserData={setUserData}
+      userData={userData}
+      setPokemonSelection={setPokemonSelection}
+      pokemonSelection={pokemonSelection}
     />
   );
 
@@ -107,6 +116,8 @@ const App = () => {
 
   return (
     <div className="App">
+      <meta name="viewport" content="width=device-width, initial-scale=1" />
+
       {buttonSound === true ? (
         <audio autoPlay src={click}>
           Your browser does not support the audio element.
@@ -121,22 +132,29 @@ const App = () => {
         setEmailInputValue={setEmailInputValue}
         setPasswordInputValue={setPasswordInputValue}
         username={username}
+        setUserData={setUserData}
+        userData={userData}
       />
+      {loggedIn !== true ? (
+        <div class="charizard">
+          <img src={charizard} />
+        </div>
+      ) : null}
       {loggedIn !== true ? (
         <audio loop autoPlay src={Loginsound}>
           Your browser does not support the audio element.
         </audio>
       ) : null}
-
       <Typography>
         <header className="App-header">
-          <img
-            src="https://www.freepnglogos.com/uploads/pokemon-logo-png-0.png"
-            alt="Pokemon"
-            height="400px"
-            width="400px"
-            className="pokemonImg"
-          />
+          {loggedIn === true ? null : (
+            <img
+              src="https://www.freepnglogos.com/uploads/pokemon-logo-png-0.png"
+              alt="Pokemon"
+              height="250px"
+              className="pokemonImg"
+            />
+          )}
           <Routes>
             <Route
               path="/"
@@ -155,7 +173,11 @@ const App = () => {
           {/* <Route path="/selectpokemon" element={<SelectPoke />} />
             <Route path="/battlepage" element={<BattlePage />} /> */}
         </header>
-        <br />
+        {loggedIn !== true ? (
+          <div class="pikachu">
+            <img src="https://www.pkparaiso.com/imagenes/xy/sprites/animados/pikachu-5.gif" />
+          </div>
+        ) : null}
       </Typography>
     </div>
   );

@@ -1,42 +1,59 @@
 .App {
   text-align: center;
+  /* The image used */
+  background-image: url("background.jpg");
+
+  /* Full height */
+  height: 100%;
+  /* Center and scale the image nicely */
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  opacity: "0.8";
+}
+
+.footer {
+  min-height: 200px;
+  background-image: url("background.jpg");
+  background-repeat: repeat-x;
+}
+
+body,
+html {
+  margin: 0;
+  height: 100%;
 }
 
 .App-header {
-  background-color: #0e1f40;
+  /* background-color: #0e1f40; */
   /* background-color: #282c34; */
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  color: white;
-  height: 50%;
+  height: 100%;
+  overflow: hidden;
 }
 
-/* .pokemonImg {
-  -webkit-animation: spin 4s linear infinite;
-  -moz-animation: spin 4s linear infinite;
-  animation: spin 4s linear infinite;
+.register {
+  font-weight: 900;
+  font-size: 150%;
 }
-@-moz-keyframes spin {
-  100% {
-    -moz-transform: rotate(360deg);
-  }
-}
-@-webkit-keyframes spin {
-  100% {
-    -webkit-transform: rotate(360deg);
-  }
-}
-@keyframes spin {
-  100% {
-    -webkit-transform: rotate(360deg);
-    transform: rotate(360deg);
-  }
-} */
 
-.App-link {
-  color: #61dafb;
+.register-buttons {
+  font-weight: 900;
+  font-size: 150%;
+  color: whitesmoke;
+}
+
+.login {
+  font-weight: 900;
+  font-size: 150%;
+}
+
+.pokemonImg {
+  font-size: 0;
+  vertical-align: top;
 }
 
 .buttonR {
@@ -49,6 +66,7 @@
   color: whitesmoke;
   text-decoration: none;
   border-radius: 10px;
+  max-width: 100%;
 }
 
 .buttonR:hover {
@@ -64,6 +82,7 @@
   text-decoration: none;
   color: black;
   border-radius: 10px;
+  max-width: 100%;
 }
 
 .buttonL:hover {
@@ -86,25 +105,47 @@
   border-right: 1px solid;
 }
 
-.battlepage{
-  display:flex
-  
+.battlepage {
+  display: flex;
 }
-.battlearea{
-flex:1
-}
-.chatarea{
-  flex:1
+.battlearea {
+  flex: 1;
 }
 
-.lobby{
-  display:flex;
-justify-content: space-between;
-gap:15vh
+.modal {
+  position: absolute;
+  /* top: 10px;
+  right: 300px;
+  bottom: 0;
+  left: 0; */
+  z-index: 10040;
+  overflow: auto;
+  overflow-y: auto;
 }
-.chat{
-  flex-grow:1
+
+.modal-size {
+  width: 50%;
+  height: 50%;
+  top: 50%;
+  left: 50%;
+  right: auto;
+  bottom: auto;
+
+  transform: translate(-50%, -50%);
 }
-.rooms{
-  flex-grow:1
+
+/* .chatarea {
+  flex: 1;
 }
+
+.lobby {
+  display: flex;
+  justify-content: space-between;
+  gap: 15vh;
+}
+.chat {
+  flex-grow: 1;
+}
+.rooms {
+  flex-grow: 1;
+} */
