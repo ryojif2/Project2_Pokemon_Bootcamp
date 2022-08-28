@@ -48,53 +48,14 @@ const Lobby = (props) => {
       {item.title} by {item.createdBy}. Count:{item.userCount}
     </li>
   ));
-  // }
-  // }
-  //Firebase Collection Reference
   const roomRef = collection(firestore, "rooms");
-
-  // useEffect(() => {
-  //     const getDocuments = async () => {
-  //         const data = await getDocs(roomRef);
-  //         setRooms(data.docs.map((doc) => ({...doc.data(), id: doc.id})));
-  //     };
-
-  //     getDocuments();
-  // }, []);
-
-  // useEffect(() => {
-  //   const inner = async () => {
-  //     const ref = await firestore
-  //       .collection("rooms")
-
-  //     setRooms(
-  //       ref.map((item) => ({
-  //         title: item.id,
-  //       ...item.data()
-  //       }))
-  //     );
-  //   };
-
-  //   inner();
-  // }, []);
 
   useEffect(() => {
     // const q = query(collection(db, "rooms"));
     onSnapshot(collection(firestore, "rooms"), (snapshot) => {
-      // console.log(snapshot.docs);
-      snapshot.docs.forEach((doc) => {
-        // console.log(doc.data());
-      });
       setRooms(snapshot.docs.map((doc) => ({ id: doc.id, data: doc.data() })));
     });
-    // console.log(rooms);
   }, []);
-
-  //  props.startGame(e)}}>Enter room</button></li></span>))
-
-  // useEffect(()=>{
-  // firestore.collection('messages').onSnapshot
-  // },[])
 
   const [roomName, setRoomName] = useState("");
   const createPvpRoom = async (e) => {
@@ -119,6 +80,7 @@ const Lobby = (props) => {
       createdBy: props.currUser.username,
       type: "pvp",
       users: [props.currUser.username],
+      historyMoves: [],
     });
     await setDoc(
       doc(firestore, "rooms", roomName, "users", props.currUser.username),
@@ -154,6 +116,7 @@ const Lobby = (props) => {
       createdBy: props.currUser.username,
       type: "pve",
       users: props.currUser.username,
+      historyMoves: [],
     });
 
     await setDoc(
@@ -169,22 +132,6 @@ const Lobby = (props) => {
     );
     props.startGame(roomName, gameType);
   };
-
-  //   useEffect(()=>{
-
-  //     const chatListRef = dbRef(database, CHAT_LIST);
-  //     // onChildAdded will return data for every child at the reference and every subsequent new child
-  //     onChildAdded(chatListRef , (data) => {
-  //       // Add the subsequent child to local component state, initialising a new array to trigger re-render
-  //      setChats((prevState)=>[...prevState, { key: data.key, val: data.val()}])
-
-  //   })
-
-  //   onValue(chatListRef,(data)=>{
-  //    console.log(data.val())
-  //   })
-
-  // },[])
 
   const [inputText, setInputText] = useState("");
   const [chats, setChats] = useState([]);
@@ -204,31 +151,9 @@ const Lobby = (props) => {
   useEffect(() => {
     // const q = query(collection(db, "rooms"));
     onSnapshot(collection(firestore, "lobbytexts"), (snapshot) => {
-      snapshot.docs.forEach((doc) => {
-        // console.log(doc.data());
-      });
       setChats(snapshot.docs.map((doc) => ({ id: doc.id, data: doc.data() })));
     });
   }, []);
-
-  //   const enterRoom= (e,item,i)=>{
-  //      const roomListRef = dbRef(database, ROOMS_LIST);
-  //     const updates={};
-  // console.log('start game!')
-  // e.preventDefault();
-  //    const newRoom=
-  //     {date: item.val.date, roomTitle:item.val.roomTitle, userCount:2, createdBy:props.currUser.username}
-
-  //       updates[item.key] = newRoom;
-  //     update(roomListRef, updates).then(() => {
-  //     console.log("data updated!");
-  //     });
-  //       //create a new array referencing the state
-  //     const newRoomArray=rooms;
-
-  //     newRoomArray[i].val=newRoom;
-  // setRooms(newRoomArray)
-  //   }
 
   const enterRoom = async (e, roomID) => {
     e.preventDefault();
