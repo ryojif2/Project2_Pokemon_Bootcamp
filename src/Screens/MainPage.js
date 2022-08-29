@@ -962,6 +962,7 @@ const MainPage = (props) => {
               }
               onNewBattle={handleNewBattle}
               roomID={roomID}
+              gameType={gameType}
             />
           }
         />

@@ -58,16 +58,14 @@ const Results = (props) => {
       return (
         <p key={i}>
           Your {playerPokemonName} hit enemy {computerPokemonName} with{" "}
-          {pastMoves[i].name}for
-          {pastMoves[i].power} damage!
+          {pastMoves[i].name} for {pastMoves[i].power} damage!
         </p>
       );
     } else {
       return (
         <p key={i}>
           Enemy {computerPokemonName} hit your {playerPokemonName} with{" "}
-          {pastMoves[i].name}for
-          {pastMoves[i].power} damage!
+          {pastMoves[i].name} for {pastMoves[i].power} damage!
         </p>
       );
     }
@@ -96,7 +94,12 @@ const Results = (props) => {
           )}
         </div>
         <div className={playerHP > 0 ? "loser" : "winner"}>
-          <h1>Computer</h1>
+          <h1>
+            {" "}
+            {props.gameType === "pvp"
+              ? computerChosenPokemon.username
+              : "Computer"}
+          </h1>
           <img
             style={{ height: "25vh" }}
             src={computerImageFront}
