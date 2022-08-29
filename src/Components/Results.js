@@ -1,14 +1,35 @@
 import "../App.css";
 import "../battle.css";
-import React, { useRef } from "react";
 import victory from "../Sounds/victory.mp3";
 import battleloss from "../Sounds/battleloss.mp3";
 // import "./fireworks.css";
 import Button from "@mui/material/Button";
-
+import React, { useState, useEffect, useRef } from "react";
+import {
+  onSnapshot,
+  doc,
+  addDoc,
+  arrayUnion,
+  getDoc,
+  deleteDoc,
+  arrayRemove,
+  increment,
+} from "firebase/firestore";
+import { firestore } from "../DB/firebase";
 //This is the summary page after each battle.
 const Results = (props) => {
-  console.log(props);
+  const [pastMoves, setPastMoves] = useState([]);
+
+  useEffect(() => {
+    const roomRef = doc(firestore, "rooms", props.roomID);
+    //room ref displaymsg
+    onSnapshot(roomRef, (docSnap) => {
+      if (docSnap.exists()) {
+        console.log("past moves", docSnap.data());
+        setPastMoves(docSnap.data().pastMoves);
+      }
+    });
+  }, []);
   //Get data of player chosen pokemon that was used for battle. To use the name and image so that can render out.
   const playerChosenPokemon = props.playerConfirmedPokemon;
   const {
@@ -22,6 +43,7 @@ const Results = (props) => {
 
   //Get data of computer chosen pokemon that was used for battle. To use the name and image so that can render out.
   const computerChosenPokemon = props.computerConfirmedPokemon;
+  console.log(computerChosenPokemon);
   const {
     // pokemonHP: computerHP,
     pokemonImage: computerImageFront,
@@ -31,19 +53,19 @@ const Results = (props) => {
   const CPokeName = computerPokemonName.toUpperCase();
 
   //Takes the state of damages dealt for the entire battle and maps the array. Even index is for player. Odd index is for computer.
-  const movesHistory = props.historyMoves.map((move, i) => {
+  const movesHistory = pastMoves.map((move, i) => {
     if (i % 2 === 0) {
       return (
         <p>
-          Your {playerPokemonName} hit enemy {computerPokemonName} for{" "}
-          {props.historyMoves[i]} damage!
+          Your {playerPokemonName} hit enemy {computerPokemonName} for
+          {pastMoves[i]} damage!
         </p>
       );
     } else {
       return (
         <p>
-          Enemy {computerPokemonName} hit your {playerPokemonName} for{" "}
-          {props.historyMoves[i]} damage!
+          Enemy {computerPokemonName} hit your {playerPokemonName} for
+          {pastMoves[i]} damage!
         </p>
       );
     }
