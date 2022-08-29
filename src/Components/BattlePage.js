@@ -139,21 +139,38 @@ const BattlePage = (props) => {
     }
   });
 
+  var randomColorRgbValues =
+    "rgb(" +
+    Math.floor(Math.random() * 256) +
+    "," +
+    Math.floor(Math.random() * 256) +
+    "," +
+    Math.floor(Math.random() * 256) +
+    ")";
+
   const attackButtons = props.playerArray.map((attack) => {
     return (
-      <button
-        disabled={
-          !props.isPlayerTurn ||
-          playerHP <= 0 ||
-          props.computerConfirmedPokemon.pokemonHP <= 0
-        }
-        onClick={(e) => props.onAttack(e)}
-        value={attack.power}
-        id={attack.name}
-        name={attack.name}
-      >
-        {attack.name}
-      </button>
+      <div className="attackButtons">
+        <Button
+          disabled={
+            !props.isPlayerTurn ||
+            playerHP <= 0 ||
+            props.computerConfirmedPokemon.pokemonHP <= 0
+          }
+          onClick={(e) => props.onAttack(e)}
+          value={attack.power}
+          id={attack.name}
+          name={attack.name}
+          style={{
+            backgroundColor: `${randomColorRgbValues}`,
+            color: "black",
+            opacity: "80%",
+          }}
+          size="small"
+        >
+          {attack.name}
+        </Button>
+      </div>
     );
   });
 
@@ -180,7 +197,11 @@ const BattlePage = (props) => {
         </audio>
       ) : null}
       <header className="battlePage">
-        <h1>Opponent</h1>
+        <h1>
+          {props.gameType === "pvp"
+            ? props.computerConfirmedPokemon.username
+            : "Computer"}
+        </h1>
         {gameConfirmed || props.bothConfirmed ? (
           <div
             className={
@@ -214,8 +235,7 @@ const BattlePage = (props) => {
               : "loser"
           }
         >
-          {movesDisplay}
-
+          <div className="moves">{movesDisplay}</div>
           <div>
             {props.playerConfirmedPokemon &&
             props.isPlayerTurn &&
