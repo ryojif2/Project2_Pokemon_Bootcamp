@@ -52,6 +52,8 @@ const MainPage = (props) => {
   const [roomID, setRoomID] = useState("");
   const [playerArray, setPlayerArray] = useState([]);
   const [computerArray, setComputerArray] = useState([]);
+  const [playerStrongType, setPlayerStrongType] = useState([]);
+  const [playerWeakType, setPlayerWeakType] = useState([]);
   const [playerConfirmedPokemon, setPlayerConfirmedPokemon] = useState({});
   const [computerConfirmedPokemon, setComputerConfirmedPokemon] = useState({});
   //Pokedex portion, generate 9 chosen pokemon from their URL
@@ -95,6 +97,10 @@ const MainPage = (props) => {
     }
   }, [props.loggedInUser]);
 
+  // <<<<<<< HEAD why will dont have this one.
+  const [otherPlayerExist, setOtherPlayerExist] = useState();
+  // =======
+  // >>>>>>> main
   // try to get otherPlayer ID and info!
   useEffect(() => {
     if (pvpMode === true) {
@@ -113,6 +119,11 @@ const MainPage = (props) => {
         });
         console.log(otherUserData, "otheruserData");
         setOtherPlayerConfirmedPokemon(otherUserData[0]);
+        if (otherUserData.length > 0) {
+          setOtherPlayerExist(true);
+        } else {
+          console.log("other userdont exist");
+        }
       });
     }
   }, [pvpMode, gameType, playerConfirmedPokemon]);
@@ -140,6 +151,7 @@ const MainPage = (props) => {
         );
         //extracting the data out according to structure
         const pokemonType = types.map((element) => element.type.name);
+        const pokemonTypeURL = types.map((element) => element.type.url);
         const pokemonImageBack = sprites.back_default;
         const pokemonImageFront = sprites.front_default;
         const pokemonImage = sprites.other.dream_world.front_default;
@@ -151,6 +163,7 @@ const MainPage = (props) => {
           pokemonName: name,
           pokemonHP: pokemonHP,
           pokemonType: pokemonType,
+          pokemonTypeURL: pokemonTypeURL,
           pokemonMoves: pokemonMoves,
           pokemonMovesURL: pokemonMovesURL,
           pokemonImageBack: pokemonImageBack,
@@ -213,7 +226,11 @@ const MainPage = (props) => {
         pokemonSelection.splice(i, 1);
       }
     }
-    const computerPokemon = pokemonSelection[Math.floor(Math.random() * 8 + 1)];
+    // const computerPokemon = pokemonSelection[Math.floor(Math.random() * 8 + 1)];
+    const computerPokemon =
+      pokemonSelection[
+        Math.floor(Math.random() * (pokemonSelection.length - 1) + 1)
+      ];
     setComputerConfirmedPokemon(computerPokemon);
     console.log(computerPokemon);
     getComputerArray(computerPokemon.pokemonMovesURL);
@@ -231,12 +248,18 @@ const MainPage = (props) => {
     Promise.all(promise2)
       .then((results) => {
         const powerMoves = results.map((data) => {
-          let { power } = data.data;
+          let { name, power } = data.data;
           if (power == null) {
             power = 1;
           }
           console.log(power);
-          return power;
+          // return power;
+          const movesWithPower = {
+            name: name,
+            power: power,
+          };
+
+          return movesWithPower;
         });
         console.log(powerMoves);
         return powerMoves;
@@ -262,7 +285,6 @@ const MainPage = (props) => {
   };
 
   useEffect(() => {
-    //removed Objects.key(computerConfirmedPokemon)
     if (
       Object.keys(computerConfirmedPokemon).length !== 0 &&
       computerArray.length > 3 &&
@@ -291,9 +313,7 @@ const MainPage = (props) => {
       pokemonName: playerPokemonData.pokemonName,
       pokemonHP: playerPokemonData.pokemonHP,
       pokemonType: playerPokemonData.pokemonType,
-      pokemonImageFront: playerPokemonData.pokemonImage,
-      //playerArray not needed cos we are manipulating attacks within internal state.
-      // pokemonAttacks: playerArray,
+      pokemonImage: playerPokemonData.pokemonImage,
       confirmed: true,
     });
 
@@ -320,6 +340,7 @@ const MainPage = (props) => {
     setNextPage(true);
     setPlayerConfirmed(true);
     console.log(otherPlayerConfirmedPokemon);
+
     navigate("battlepage");
     console.log("battle!");
   };
@@ -344,25 +365,84 @@ const MainPage = (props) => {
     return mostUsedPokemon;
   };
 
+  const [isPlayerStrong, setIsPlayerStrong] = useState(false);
+  const [isComputerStrong, setIsComputerStrong] = useState(false);
+  const [isOtherPlayerStrong, setIsOtherPlayerStrong] = useState(false);
   //When User clicks attack in battle page. Playerturn state is already true.
-  const handleAttack = async () => {
+  const handleAttack = async (e) => {
     console.log("handle attack is running");
     if (pveMode === true) {
       if (playerTurn) {
         console.log("playerturn now");
         // Set the computerturn state to false.
         setComputerTurn(false);
+        let critMultiplier = 1;
+        if (
+          computerConfirmedPokemon.pokemonType.length === 2 &&
+          (playerStrongType.indexOf(computerConfirmedPokemon.pokemonType[0]) !==
+            -1 ||
+            playerStrongType.indexOf(
+              computerConfirmedPokemon.pokemonType[1]
+            ) !== -1)
+        ) {
+          critMultiplier = 1.5;
+        } else if (
+          computerConfirmedPokemon.pokemonType.length === 1 &&
+          playerStrongType.indexOf(computerConfirmedPokemon.pokemonType[0]) !==
+            -1
+        ) {
+          critMultiplier = 1.5;
+        } else if (
+          computerConfirmedPokemon.pokemonType.length === 2 &&
+          (playerWeakType.indexOf(computerConfirmedPokemon.pokemonType[0]) !==
+            -1 ||
+            playerWeakType.indexOf(computerConfirmedPokemon.pokemonType[1]) !==
+              -1)
+        ) {
+          critMultiplier = 0.5;
+        } else if (
+          computerConfirmedPokemon.pokemonType.length === 1 &&
+          playerWeakType.indexOf(computerConfirmedPokemon.pokemonType[0]) !== -1
+        ) {
+          critMultiplier = 0.5;
+        } else {
+          critMultiplier = 1;
+        }
+
+        if (critMultiplier === 1.5) {
+          setIsPlayerStrong(true);
+          setIsComputerStrong(false);
+        }
+        if (critMultiplier === 0.5) {
+          setIsPlayerStrong(false);
+          setIsComputerStrong(true);
+        }
+
         //ref player attack damage
-        const playerAttack =
-          playerArray[Math.floor(Math.random() * playerArray.length)];
-        console.log(playerAttack);
-
+        const playerAttack = Math.ceil(e.target.value * critMultiplier);
+        const playerMove = e.target.name;
+        // const playerAttack =
+        //   playerArray[Math.floor(Math.random() * playerArray.length)];
         const roomRef = doc(firestore, "rooms", roomID);
-        await updateDoc(roomRef, {
-          pastMoves: arrayUnion(playerAttack),
-          displayMsg: `${userStats[0].username}'s ${playerConfirmedPokemon.pokemonName} dealt a damage of ${playerAttack}`,
-        });
-
+        if (isPlayerStrong === true) {
+          await updateDoc(roomRef, {
+            pastMoves: arrayUnion({
+              name: playerMove,
+              power: playerAttack,
+            }),
+            displayMsg: `${userStats[0].username}'s ${playerConfirmedPokemon.pokemonName} dealt a damage of ${playerAttack} with ${playerMove}. It's super effective!!!`,
+          });
+        } else if (isComputerStrong === true) {
+          await updateDoc(roomRef, {
+            pastMoves: arrayUnion({ name: playerMove, power: playerAttack }),
+            displayMsg: `${userStats[0].username}'s ${playerConfirmedPokemon.pokemonName} dealt a damage of ${playerAttack} with ${playerMove}. It's not very effective...`,
+          });
+        } else {
+          await updateDoc(roomRef, {
+            pastMoves: arrayUnion({ name: playerMove, power: playerAttack }),
+            displayMsg: `${userStats[0].username}'s ${playerConfirmedPokemon.pokemonName} dealt a damage of ${playerAttack} with ${playerMove}.`,
+          });
+        }
         //Calculate the hp of computer after player attack.
         let newComputerHP = 0;
         //if player attack is more than computer HP
@@ -383,12 +463,16 @@ const MainPage = (props) => {
           handleComputerAttack();
         } else {
           console.log("computer pokemon is dead");
-        }
-        let mostUsedPokemon;
-        if (userStats[0].usedPokemon && userStats[0].usedPokemon.length !== 0) {
-          mostUsedPokemon = findMostUsed(userStats[0].usedPokemon);
-        } else {
-          mostUsedPokemon = "NA";
+
+          let mostUsedPokemon;
+          if (
+            userStats[0].usedPokemon &&
+            userStats[0].usedPokemon.length !== 0
+          ) {
+            mostUsedPokemon = findMostUsed(userStats[0].usedPokemon);
+          } else {
+            mostUsedPokemon = "NA";
+          }
 
           const userRef = doc(firestore, "users", userStats[0].email);
           await updateDoc(userRef, {
@@ -399,7 +483,6 @@ const MainPage = (props) => {
         }
       }
     }
-
     if (pvpMode === true) {
       console.log(otherPlayerConfirmedPokemon);
       console.log(userStats);
@@ -425,14 +508,60 @@ const MainPage = (props) => {
       );
       //To Mon 270822: This line below i thought maybe create ref for room so that we can put the recent moves into the room instead of to the individual user.
       const roomRef = doc(firestore, "rooms", roomID);
+      let critMultiplier = 1;
+      if (
+        otherPlayerConfirmedPokemon.pokemonType.length === 2 &&
+        (playerStrongType.indexOf(
+          otherPlayerConfirmedPokemon.pokemonType[0]
+        ) !== -1 ||
+          playerStrongType.indexOf(
+            otherPlayerConfirmedPokemon.pokemonType[1]
+          ) !== -1)
+      ) {
+        critMultiplier = 1.5;
+      } else if (
+        otherPlayerConfirmedPokemon.pokemonType.length === 1 &&
+        playerStrongType.indexOf(otherPlayerConfirmedPokemon.pokemonType[0]) !==
+          -1
+      ) {
+        critMultiplier = 1.5;
+      } else if (
+        otherPlayerConfirmedPokemon.pokemonType.length === 2 &&
+        (playerWeakType.indexOf(otherPlayerConfirmedPokemon.pokemonType[0]) !==
+          -1 ||
+          playerWeakType.indexOf(otherPlayerConfirmedPokemon.pokemonType[1]) !==
+            -1)
+      ) {
+        critMultiplier = 0.5;
+      } else if (
+        otherPlayerConfirmedPokemon.pokemonType.length === 1 &&
+        playerWeakType.indexOf(otherPlayerConfirmedPokemon.pokemonType[0]) !==
+          -1
+      ) {
+        critMultiplier = 0.5;
+      } else {
+        critMultiplier = 1;
+      }
+
+      if (critMultiplier === 1.5) {
+        setIsPlayerStrong(true);
+        setIsOtherPlayerStrong(false);
+      }
+      if (critMultiplier === 0.5) {
+        setIsPlayerStrong(false);
+        setIsOtherPlayerStrong(true);
+      }
 
       if (playerTurn) {
         //set other player turn false IN DB
         await updateDoc(otherPlayerRef, { turn: false });
         // calculate my attack damage and other player new HP
-        const playerAttack =
-          playerArray[Math.floor(Math.random() * playerArray.length)];
-        console.log(playerAttack);
+
+        const playerAttack = Math.ceil(e.target.value * critMultiplier);
+        const playerMove = e.target.name;
+        // const playerAttack =
+        //   playerArray[Math.floor(Math.random() * playerArray.length)];
+
         //Calculate the hp of computer after player attack.
         let newOtherPlayerHP = 0;
         //if player attack is more than computer HP
@@ -455,11 +584,22 @@ const MainPage = (props) => {
           turn: false,
         });
 
-        await updateDoc(roomRef, {
-          pastMoves: arrayUnion(playerAttack),
-          displayMsg: `${userStats[0].username}'s ${playerConfirmedPokemon.pokemonName} dealt a damage of ${playerAttack}`,
-        });
-
+        if (isPlayerStrong === true) {
+          await updateDoc(roomRef, {
+            pastMoves: arrayUnion({ name: playerMove, power: playerAttack }),
+            displayMsg: `${userStats[0].username}'s ${playerConfirmedPokemon.pokemonName} dealt a damage of ${playerAttack} with ${playerMove}. It's super effective!!!`,
+          });
+        } else if (isOtherPlayerStrong === true) {
+          await updateDoc(roomRef, {
+            pastMoves: arrayUnion({ name: playerMove, power: playerAttack }),
+            displayMsg: `${userStats[0].username}'s ${playerConfirmedPokemon.pokemonName} dealt a damage of ${playerAttack} with ${playerMove}. It's not so effective...`,
+          });
+        } else {
+          await updateDoc(roomRef, {
+            pastMoves: arrayUnion({ name: playerMove, power: playerAttack }),
+            displayMsg: `${userStats[0].username}'s ${playerConfirmedPokemon.pokemonName} dealt a damage of ${playerAttack} with ${playerMove}`,
+          });
+        }
         //If other pokemon's hp is 0 with User's pokemon attack, battle ends. Update stats of user into the database.
         if (newOtherPlayerHP > 0) {
           console.log("wait fr other player move");
@@ -505,17 +645,63 @@ const MainPage = (props) => {
     console.log(computerConfirmedPokemon);
     console.log(computerTurn);
 
+    let critMultiplier = 1;
+    if (
+      computerConfirmedPokemon.pokemonType.length === 2 &&
+      (playerStrongType.indexOf(computerConfirmedPokemon.pokemonType[0]) !==
+        -1 ||
+        playerStrongType.indexOf(computerConfirmedPokemon.pokemonType[1]) !==
+          -1)
+    ) {
+      critMultiplier = 0.5;
+    } else if (
+      computerConfirmedPokemon.pokemonType.length === 1 &&
+      playerStrongType.indexOf(computerConfirmedPokemon.pokemonType[0]) !== -1
+    ) {
+      critMultiplier = 0.5;
+    } else if (
+      computerConfirmedPokemon.pokemonType.length === 2 &&
+      (playerWeakType.indexOf(computerConfirmedPokemon.pokemonType[0]) !== -1 ||
+        playerWeakType.indexOf(computerConfirmedPokemon.pokemonType[1]) !== -1)
+    ) {
+      critMultiplier = 1.5;
+    } else if (
+      computerConfirmedPokemon.pokemonType.length === 1 &&
+      playerWeakType.indexOf(computerConfirmedPokemon.pokemonType[0]) !== -1
+    ) {
+      critMultiplier = 1.5;
+    } else {
+      critMultiplier = 1;
+    }
+
     //ref computer attack dmg.
-    const computerAttack =
+    const computerAttackObject =
       computerArray[Math.floor(Math.random() * computerArray.length)];
+    const computerAttack = Math.ceil(
+      computerAttackObject.power * critMultiplier
+    );
+    const computerMove = computerAttackObject.name;
 
     let newPlayerHP = 0;
 
     const roomRef = doc(firestore, "rooms", roomID);
-    await updateDoc(roomRef, {
-      pastMoves: arrayUnion(computerAttack),
-      displayMsg: `Computer's ${computerConfirmedPokemon.pokemonName} dealt a damage of ${computerAttack}`,
-    });
+
+    if (isComputerStrong === true) {
+      await updateDoc(roomRef, {
+        pastMoves: arrayUnion({ name: computerMove, power: computerAttack }),
+        displayMsg: `Computer's ${computerConfirmedPokemon.pokemonName} dealt a damage of ${computerAttack} with ${computerMove}. It's super effective!!!`,
+      });
+    } else if (isPlayerStrong === true) {
+      await updateDoc(roomRef, {
+        pastMoves: arrayUnion({ name: computerMove, power: computerAttack }),
+        displayMsg: `Computer's ${computerConfirmedPokemon.pokemonName} dealt a damage of ${computerAttack} with ${computerMove}. It's not so effective...`,
+      });
+    } else {
+      await updateDoc(roomRef, {
+        pastMoves: arrayUnion({ name: computerMove, power: computerAttack }),
+        displayMsg: `Computer's ${computerConfirmedPokemon.pokemonName} dealt a damage of ${computerAttack} with ${computerMove}.`,
+      });
+    }
 
     //Calculate player's pokemon HP after computer attack.
     if (computerAttack - playerConfirmedPokemon.pokemonHP >= 0) {
@@ -722,6 +908,15 @@ const MainPage = (props) => {
               setPlayerArray={(playerAttackArray) =>
                 setPlayerArray(playerAttackArray)
               }
+              computerConfirmedPokemon={
+                pveMode ? computerConfirmedPokemon : otherPlayerConfirmedPokemon
+              }
+              otherPlayerExist={otherPlayerExist}
+              setPlayerStrongType={(strongType) =>
+                setPlayerStrongType(strongType)
+              }
+              setPlayerWeakType={(weakType) => setPlayerWeakType(weakType)}
+              gameType={gameType}
               nextPage={nextPage}
               setNextPage={setNextPage}
             />
@@ -733,10 +928,11 @@ const MainPage = (props) => {
             <BattlePage
               //pass down loggedInUser here
               playerConfirmedPokemon={playerConfirmedPokemon}
+              playerArray={playerArray}
               computerConfirmedPokemon={
                 pveMode ? computerConfirmedPokemon : otherPlayerConfirmedPokemon
               }
-              onAttack={() => handleAttack()}
+              onAttack={(e) => handleAttack(e)}
               isPlayerTurn={playerTurn}
               setPlayerTurn={setPlayerTurn}
               setOtherPlayerTurn={setOtherPlayerTurn}
@@ -757,6 +953,8 @@ const MainPage = (props) => {
               userStats={userStats[0]}
               playerConfirmed={playerConfirmed}
               setPlayerConfirmedPokemon={setPlayerConfirmedPokemon}
+              isComputerStrong={isComputerStrong}
+              isPlayerStrong={isPlayerStrong}
             />
           }
         />

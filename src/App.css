@@ -135,6 +135,7 @@ html {
 }
 
 /* .chatarea {
+>>>>>>> main
   flex: 1;
 }
 
@@ -142,6 +143,15 @@ html {
   display: flex;
   justify-content: space-between;
   gap: 15vh;
+<<<<<<< HEAD
+}
+.chat {
+  flex-grow: 1;
+}
+.rooms {
+  flex-grow: 1;
+}
+=======
 }
 .chat {
   flex-grow: 1;

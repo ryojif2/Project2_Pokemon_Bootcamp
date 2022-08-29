@@ -9,13 +9,13 @@ import {
   onSnapshot,
   getDocs,
   addDoc,
+  documentId,
   doc,
   setDoc,
   updateDoc,
   increment,
   arrayUnion,
   FieldValue,
-  documentId,
 } from "firebase/firestore";
 import {
   onChildAdded,
@@ -48,6 +48,7 @@ const Lobby = (props) => {
       {item.title} by {item.createdBy}. Count:{item.userCount}
     </li>
   ));
+
   const roomRef = collection(firestore, "rooms");
 
   useEffect(() => {
@@ -109,6 +110,7 @@ const Lobby = (props) => {
   const createPveRoom = async (e) => {
     const gameType = "pve";
     const roomName = `PVE of ${props.currUser.username}`;
+
     e.preventDefault();
     const date = new Date().toLocaleString();
     await setDoc(doc(firestore, "rooms", roomName), {
@@ -180,6 +182,7 @@ const Lobby = (props) => {
 
     props.startGame(roomID, "pvp");
   };
+
   return (
     <div className="lobby">
       <Typography>

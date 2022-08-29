@@ -4,6 +4,7 @@ import { getDatabase } from "firebase/database";
 import { getStorage } from "firebase/storage";
 import { getAuth } from "firebase/auth";
 // import { initializeApp, applicationDefault, cert } from 'firebase/app';
+
 import { getFirestore } from "firebase/firestore";
 
 // Your web app's Firebase configuration

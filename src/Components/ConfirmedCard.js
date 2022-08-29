@@ -12,6 +12,12 @@ const ConfirmedCard = ({
   onConfirmPokemon,
   chosenPokemon,
   playerAttackArray,
+  setPlayerStrongType,
+  setPlayerWeakType,
+  gameType,
+  otherPlayerExist,
+  strongType,
+  weakType,
 }) => {
   const style = type[0].props.children + " thumb-container";
   console.log(Moves[0].props.children);
@@ -36,10 +42,13 @@ const ConfirmedCard = ({
         Back to Main Pokedex
       </Button>
       <Button
+        disabled={gameType === "pvp" && !otherPlayerExist}
         onClick={() => {
           setPlayerArray(playerAttackArray);
 
           onConfirmPokemon(chosenPokemon);
+          setPlayerStrongType(strongType);
+          setPlayerWeakType(weakType);
         }}
       >
         Confirm

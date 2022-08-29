@@ -22,6 +22,7 @@ import {
   updateDoc,
   doc,
 } from "firebase/firestore";
+
 import { firestore } from "../DB/firebase";
 import { chainPropTypes } from "@mui/utils";
 
@@ -77,26 +78,27 @@ const BattlePage = (props) => {
       }
     });
     //other user ref health and turn
-    if (props.gameType === "pve") {
-      const userRef = doc(
-        firestore,
-        "rooms",
-        props.roomID,
-        "users",
-        props.userStats.username
-      );
-      onSnapshot(userRef, (userSnap) => {
-        console.log(userSnap, "useEffect listen for user turn?!");
-        props.setPlayerTurn(userSnap.data().turn);
-        props.setPlayerConfirmedPokemon((prevState) => {
-          return {
-            ...prevState,
-            pokemonHP: userSnap.data().pokemonHP,
-            turn: userSnap.data().turn,
-          };
-        });
+
+    // if (props.gameType === "pve") {
+    const userRef = doc(
+      firestore,
+      "rooms",
+      props.roomID,
+      "users",
+      props.userStats.username
+    );
+    onSnapshot(userRef, (userSnap) => {
+      console.log(userSnap, "useEffect listen for user turn?!");
+      props.setPlayerTurn(userSnap.data().turn);
+      props.setPlayerConfirmedPokemon((prevState) => {
+        return {
+          ...prevState,
+          pokemonHP: userSnap.data().pokemonHP,
+          turn: userSnap.data().turn,
+        };
       });
-    }
+    });
+    // }
   }, [props.playerTurn, props.otherPlayerTurn]);
 
   //maybe need IF STATEMENT here
@@ -137,6 +139,24 @@ const BattlePage = (props) => {
     }
   });
 
+  const attackButtons = props.playerArray.map((attack) => {
+    return (
+      <button
+        disabled={
+          !props.isPlayerTurn ||
+          playerHP <= 0 ||
+          props.computerConfirmedPokemon.pokemonHP <= 0
+        }
+        onClick={(e) => props.onAttack(e)}
+        value={attack.power}
+        id={attack.name}
+        name={attack.name}
+      >
+        {attack.name}
+      </button>
+    );
+  });
+
   return (
     <div className={props.victory === true ? "fireworks" : null}>
       {props.battle === true ? (
@@ -173,8 +193,8 @@ const BattlePage = (props) => {
           >
             <img
               style={{ height: "25vh" }}
-              src={props.computerConfirmedPokemon.pokemonImageFront}
-              alt={props.computerConfirmedPokemon.pokemonImageFront}
+              src={props.computerConfirmedPokemon.pokemonImage}
+              alt={props.computerConfirmedPokemon.pokemonImage}
               name={props.computerConfirmedPokemon.pokemonName}
             />
             <h4>{props.computerConfirmedPokemon.pokemonName}</h4>
@@ -184,7 +204,6 @@ const BattlePage = (props) => {
         ) : (
           <p>Waiting for opponent player 2....</p>
         )}
-
         <br />
         <div
           className={
@@ -220,16 +239,7 @@ const BattlePage = (props) => {
             />
             <h4>{playerPokemonName}</h4>
             <h4>{playerPokemonType}</h4>
-            <Button
-              onClick={() => attackCry()}
-              disabled={
-                !props.isPlayerTurn ||
-                playerHP <= 0 ||
-                props.computerConfirmedPokemon.pokemonHP <= 0
-              }
-            >
-              Attack
-            </Button>
+            {attackButtons}
             <h4>HP: {playerHP}</h4>
           </div>
         </div>
@@ -240,6 +250,7 @@ const BattlePage = (props) => {
             </Button>
           ) : null}
         </div>
+
         <br />
       </header>
     </div>
