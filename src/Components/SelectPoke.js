@@ -1,26 +1,21 @@
 import React from "react";
 import axios from "axios";
-import { signOut } from "firebase/auth";
-import { auth } from "../DB/firebase";
-import Button from "@mui/material/Button";
-import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
 import "../App.css";
+import ConfirmedCard from "./ConfirmedCard";
 
 const SelectPoke = (props) => {
-  let navigate = useNavigate();
-
-  //  useEffect(()=>{
+  const { onReselectPokemon, setPlayerArray, onConfirmPokemon } = props;
   const chosenPokemon = props.selectedPokemon;
   const {
     pokemonHP,
-    pokemonImageFront,
     pokemonMoves,
     pokemonMovesURL,
     pokemonName,
     pokemonType,
     pokemonTypeURL,
+    pokemonImage,
   } = chosenPokemon;
+
   const PokeName = pokemonName.toUpperCase();
   const PokeType = pokemonType.map((type) => <h5>{type}</h5>);
   const PokeMoves = pokemonMoves.map((move) => <h5>{move}</h5>);
@@ -88,16 +83,9 @@ const SelectPoke = (props) => {
   });
   console.log(weakType);
 
-  const logout = () => {
-    console.log("logout");
-    signOut(auth);
-    navigate("/");
-    console.log(props.loggedInUser);
-  };
-
   console.log(chosenPokemon);
+
   return (
-    //repeating pokedex ?
     <div key={chosenPokemon} name={pokemonName}>
       {props.gameType === "pvp" && props.otherPlayerExist ? (
         <p>Player 2 is in the room</p>
@@ -105,31 +93,25 @@ const SelectPoke = (props) => {
       {props.gameType === "pvp" && !props.otherPlayerExist ? (
         <p>Wait for player 2 to enter before confirm...</p>
       ) : null}
-      <img
-        style={{ height: "30vh" }}
-        src={pokemonImageFront}
-        alt={pokemonImageFront}
-        name={pokemonName}
+
+      <ConfirmedCard
+        name={PokeName}
+        image={pokemonImage}
+        type={PokeType}
+        HP={pokemonHP}
+        Moves={PokeMoves}
+        onReselectPokemon={onReselectPokemon}
+        setPlayerArray={setPlayerArray}
+        onConfirmPokemon={onConfirmPokemon}
+        playerAttackArray={playerAttackArray}
+        chosenPokemon={chosenPokemon}
+        setPlayerStrongType={props.setPlayerStrongType}
+        setPlayerWeakType={props.setPlayerWeakType}
+        gameType={props.gameType}
+        otherPlayerExist={props.otherPlayerExist}
+        strongType={strongType}
+        weakType={weakType}
       />
-      <p>{PokeName}</p>
-      <p>{PokeType}</p>
-      <p>HP: {pokemonHP}</p>
-      <p>Moves: {PokeMoves}</p>
-      <button onClick={(e) => props.onReselectPokemon(e)}>
-        Back to Main Pokedex
-      </button>
-      <button
-        disabled={props.gameType === "pvp" && !props.otherPlayerExist}
-        onClick={() => {
-          props.setPlayerArray(playerAttackArray);
-          props.onConfirmPokemon(chosenPokemon);
-          //set state to store strong and weak types of player pokemon after clicking confirm pokemon
-          props.setPlayerStrongType(strongType);
-          props.setPlayerWeakType(weakType);
-        }}
-      >
-        Confirm
-      </button>
     </div>
   );
 };

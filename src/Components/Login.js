@@ -34,10 +34,12 @@ const Login = (props) => {
       props.emailInputValue,
       props.passwordInputValue
     )
+      .then(props.setLoggedIn(false))
       .then(closeAuthForm)
       .then(navigate("/mainpage"))
+      .then(props.setLoggedIn(true))
       .catch((error) => {
-        alert("You have not registered! Please register");
+        // alert("You have not registered! Please register");
         console.error(error);
         // Return the user a graceful error message
       });
@@ -45,16 +47,16 @@ const Login = (props) => {
 
   const logout = () => {
     console.log("back");
-    props.setLoggedInUser(false);
+    props.setLoggedIn(false);
     signOut(auth);
     navigate("/");
   };
   return (
-    <div>
+    <div className="login">
       <Typography>
-        <p>Sign in with this form to post.</p>
+        <span>Sign in with this form to post.</span>
         <Box component="form" onSubmit={handleSubmit} sx={{ mt: 3 }}>
-          <Grid container spacing={2}>
+          <Grid container spacing={2} className="login">
             <Grid item xs={12}>
               <span>Email: </span>
               <TextField
@@ -63,7 +65,7 @@ const Login = (props) => {
                 value={props.emailInputValue}
                 onChange={handleInputChange}
                 autoFocus
-                sx={{ input: { color: "white" } }}
+                sx={{ input: { backgroundColor: "white", opacity: "0.8" } }}
               />
             </Grid>
             <br />
@@ -75,7 +77,7 @@ const Login = (props) => {
                 value={props.passwordInputValue}
                 onChange={handleInputChange}
                 autoFocus
-                sx={{ input: { color: "white" } }}
+                sx={{ input: { backgroundColor: "white", opacity: "0.8" } }}
               />
             </Grid>
           </Grid>

@@ -1,0 +1,51 @@
+.lobby {
+  width: 100%;
+}
+
+.chat {
+  vertical-align: text-top;
+  background-color: white;
+  opacity: 80%;
+  width: 45%;
+  display: inline-table;
+  overflow: hidden;
+}
+
+.rooms {
+  border: 1px solid;
+  background-color: white;
+  opacity: 80%;
+  width: 45%;
+  display: inline-table;
+  margin-right: 10px;
+}
+
+.notFull {
+  color: red;
+}
+
+.full {
+  background-color: green;
+}
+
+.chat-list {
+  font-size: 0.8em;
+  display: block;
+}
+
+.tableBody {
+  display: inline-block;
+  border: 1px solid;
+}
+
+.tableBody td {
+  border: 1px solid;
+}
+
+.chatBody td,
+tr {
+  border: 1px solid;
+}
+.chatBody {
+  border: 1px solid;
+}

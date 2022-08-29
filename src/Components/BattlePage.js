@@ -1,5 +1,11 @@
 import "../App.css";
-import React, { useState, useEffect } from "react";
+import "../battle.css";
+import React, { useEffect, useState } from "react";
+import victory from "../Sounds/victory.mp3";
+import button from "../Sounds/button.mp3";
+import Battle from "../Sounds/Battle.mp3";
+import battleloss from "../Sounds/battleloss.mp3";
+import Button from "@mui/material/Button";
 import {
   collection,
   query,
@@ -12,28 +18,19 @@ import {
   deleteDoc,
   arrayRemove,
   increment,
+  setDoc,
+  updateDoc,
+  doc,
 } from "firebase/firestore";
-import { doc, setDoc, updateDoc } from "firebase/firestore";
+
 import { firestore } from "../DB/firebase";
 import { chainPropTypes } from "@mui/utils";
 
 const BattlePage = (props) => {
+  console.log(props);
   const [gameConfirmed, setGameConfirmed] = useState(false);
   const [computerChosenPokemon, setComputerConfirmedPokemon] = useState();
   const [movesDisplay, setMovesDisplay] = useState("Make a move!");
-  //   const [pvpMode,setPvpMode]=useState()
-  //   const [userData,setUserData]=useState()
-  //   //try to get otherPlayer ID and info!
-  //   if(props.gameType==='pvp'){
-  //     setPvpMode(true) }
-  // if (props.userStats){
-  //   setUserData(props.userStats)
-  // }
-  // console.log(props.playerConfirmedPokemon);
-  // console.log(props.isPlayerTurn);
-  // console.log(props.userStats);
-  // console.log(props.computerConfirmedPokemon);
-  // console.log(props.historyMoves);
 
   useEffect(() => {
     if (props.gameType === "pvp") {
@@ -49,9 +46,6 @@ const BattlePage = (props) => {
       });
     }
   }, []);
-
-  // if(props.userStats.username === )
-  //if i am the 2nd player, set isPlayerTurn to false. if computerConfirmedpokemon.username ==
 
   useEffect(() => {
     if (
@@ -107,89 +101,43 @@ const BattlePage = (props) => {
     // }
   }, [props.playerTurn, props.otherPlayerTurn]);
 
-  // useEffect(()=>{
-
-  //  if (pvpMode===true && props.gameType==='pvp') {
-  //       console.log('roomID',props.roomID,'useEFFECT SNAPSHOT' )
-  // const otherUserRef = collection(firestore, "rooms",props.roomID,'users');
-  // // Create a query against the collection.
-  // const q = query(otherUserRef, where("username", "!=", userData.username));
-  // // onSnapshot(q,(snapshot)=>{
-  // //     console.log({...doc.data(), id:doc.id})
-  // //   setOtherUserStats(snapshot.docs.map((doc)=>({id:doc.id, ...doc.data()})))
-  // // })
-  //  onSnapshot(collection(firestore,'rooms',props.roomID,'users'),where('username','!=',userData.username), (snapshot) => {
-  //   console.log(snapshot.docs);
-  //   snapshot.docs.forEach((doc)=>{console.log(doc.data())})
-  // })
-
-  // onSnapshot(q, {includeMetaDataChanges:true },(querySnapshot) => {
-  //   const otherUserData = [];
-  //   querySnapshot.forEach((doc) => {
-  //       otherUserData.push(doc.data());
-  //   })
-  // console.log(otherUserData,'otheruserData')
-  // setComputerConfirmedPokemon(otherUserData)
-  // });
-
-  // getDocs(q).then(snapshot=>snapshot.forEach(snapshot=>console.log(snapshot.data())))
-  // if (otherPlayerConfirmedPokemon!=={})
-  // {console.log("OTHER USER EXIST!!!! other player pokemon state", otherPlayerConfirmedPokemon);
-  // //check if confirmed for both
-  // if (userStats[0].confirmed && otherPlayerConfirmedPokemon.confirmed){
-  //   setBothConfirmed(true)}
-  // }
-  //}},[])
-
   //maybe need IF STATEMENT here
   const playerChosenPokemon = props.playerConfirmedPokemon;
   const {
     pokemonHP: playerHP,
-    pokemonImageFront: playerImageFront,
+    pokemonImage: pokemonImage,
     pokemonName: playerPokemonName,
     pokemonType: playerPokemonType,
   } = playerChosenPokemon;
 
-  // const playerHP=props.playerConfirmedPokemon.pokemonHP;
-  // const pokemonImageFront=props.playerConfirmedPokemon.pokemonHP
-  // const playerHP=props.playerConfirmedPokemon.pokemonHP
+  const [attack, setAttack] = useState(false);
 
-  // const PPokeType = ppokemonType.map((type) => <h5>{type}</h5>);
-  // const PPokeMoves = ppokemonMoves.map((move) => <h5>{move}</h5>);
+  //Audio upon pressing button
+  const attackCry = () => {
+    props.onAttack();
+    setAttack(true);
+    console.log("hit");
+  };
 
-  // if (gameConfirmed && props.computerConfirmedPokemon)
-  //  {
-  // )
+  console.log(props.historyMoves);
 
-  // const PlayerPokeName = playerPokemonName.toUpperCase();
+  useEffect(() => {
+    if (attack !== false) {
+      setTimeout(() => {
+        setAttack(false);
+      }, 1000);
+    }
+  }, [attack]);
 
-  // setComputerConfirmedPokemon(props.computerConfirmedPokemon)
-  //  const computerChosenPokemon = props.computerConfirmedPokemon;
-  // const {
-  //   pokemonHP,
-  //   pokemonImageFront,
-  //   pokemonName
-  // } = computerChosenPokemon;
-
-  // const computerChosenPokemon = props.computerConfirmedPokemon;
-  // const {
-  //   pokemonHP: computerHP,
-  //   pokemonImageFront: computerImageFront,
-  //   pokemonName: computerPokemonName,
-  // } = computerChosenPokemon;
-
-  // const CPokeName = computerPokemonName.toUpperCase();
-
-  // }
-
-  // const otherPlayerChosenPokemon = props.otherPlayerConfirmedPokemon;
-  // const {
-  //   pokemonHP:  otherPlayerHP,
-  //   pokemonImageFront:  otherPlayerImageFront,
-  //   pokemonName:  otherPlayerPokemonName,
-  // } =  otherPlayerChosenPokemon;
-
-  // const  otherPlayerPokeName =  otherPlayerPokemonName.toUpperCase();
+  useEffect(() => {
+    if (props.computerConfirmedPokemon.pokemonHP <= 0) {
+      props.setBattle(false);
+      props.setVictory(true);
+    } else if (playerHP <= 0) {
+      props.setBattle(false);
+      props.setLoss(true);
+    }
+  });
 
   const attackButtons = props.playerArray.map((attack) => {
     return (
@@ -210,17 +158,43 @@ const BattlePage = (props) => {
   });
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <p>Battle page</p>
-        <h1>Opponent </h1>
+    <div className={props.victory === true ? "fireworks" : null}>
+      {props.battle === true ? (
+        <audio loop autoPlay src={Battle}>
+          Your browser does not support the audio element.
+        </audio>
+      ) : null}
+      {attack === true ? (
+        <audio autoPlay src={button}>
+          Your browser does not support the audio element.
+        </audio>
+      ) : null}
+      {props.victory === true ? (
+        <audio autoPlay loop src={victory}>
+          Your browser does not support the audio element.
+        </audio>
+      ) : null}
+      {props.loss === true ? (
+        <audio autoPlay loop src={battleloss}>
+          Your browser does not support the audio element.
+        </audio>
+      ) : null}
+      <header className="battlePage">
+        <h1>Opponent</h1>
         {gameConfirmed || props.bothConfirmed ? (
-          <div>
-            {/* <h1>opponent</h1> */}
+          <div
+            className={
+              props.computerConfirmedPokemon.pokemonHP > 0
+                ? playerHP > 0
+                  ? "computerP"
+                  : "winner"
+                : "loser"
+            }
+          >
             <img
               style={{ height: "25vh" }}
-              src={props.computerConfirmedPokemon.pokemonImageFront}
-              alt={props.computerConfirmedPokemon.pokemonImageFront}
+              src={props.computerConfirmedPokemon.pokemonImage}
+              alt={props.computerConfirmedPokemon.pokemonImage}
               name={props.computerConfirmedPokemon.pokemonName}
             />
             <h4>{props.computerConfirmedPokemon.pokemonName}</h4>
@@ -230,73 +204,54 @@ const BattlePage = (props) => {
         ) : (
           <p>Waiting for opponent player 2....</p>
         )}
+        <br />
+        <div
+          className={
+            playerHP > 0
+              ? props.computerConfirmedPokemon.pokemonHP > 0
+                ? "playerP"
+                : "winner"
+              : "loser"
+          }
+        >
+          {movesDisplay}
 
-        {/* {props.historyMoves.length >= 1 ? (
-            <p>
-              {" "}
-              Your {playerPokemonName} has hit enemy {computerPokemonName} for{" "}
-              {props.historyMoves[0]} damage!{" "}
-            </p>
-          ) : null}
-          {props.historyMoves.length === 2 ? (
-            <p>
-              {" "}
-              Enemy {computerPokemonName} has hit your {playerPokemonName} for{" "}
-              {props.historyMoves[1]} damage!{" "}
-            </p>
-          ) : null} */}
+          <div>
+            {props.playerConfirmedPokemon &&
+            props.isPlayerTurn &&
+            playerHP > 0 ? (
+              <div>Make a move and attack!</div>
+            ) : null}
 
-        {movesDisplay}
+            {props.computerConfirmedPokemon.pokemonHP <= 0 ? (
+              <p>You have won the battle!</p>
+            ) : null}
+            {playerHP <= 0 ? <p>You have lost the battle!</p> : null}
+          </div>
 
-        <div>
-          {props.playerConfirmedPokemon &&
-          props.isPlayerTurn &&
-          playerHP > 0 ? (
-            <div>Make a move and attack!</div>
-          ) : null}
-
-          {props.computerConfirmedPokemon.pokemonHP <= 0 ? (
-            <p>You have won the battle!</p>
-          ) : null}
-          {playerHP <= 0 ? <p>You have lost the battle!</p> : null}
-        </div>
-        <h1>Player (YOU) </h1>
-        <div key={playerChosenPokemon} name={playerPokemonName}>
-          <img
-            style={{ height: "25vh" }}
-            src={playerImageFront}
-            alt={playerImageFront}
-            name={playerPokemonName}
-          />
-          <h4>{playerPokemonName}</h4>
-          <h4>{playerPokemonType}</h4>
-          <h4>HP: {playerHP}</h4>
-          {/* <button
-            disabled={props.computerConfirmedPokemon.turn}
-            onClick={() => props.onAttack(props)}
-          >
-            Attack
-          </button> */}
+          <h1>{props.currUser.username}</h1>
+          <div key={playerChosenPokemon} name={playerPokemonName}>
+            <img
+              style={{ height: "25vh" }}
+              src={pokemonImage}
+              alt={pokemonImage}
+              name={playerPokemonName}
+            />
+            <h4>{playerPokemonName}</h4>
+            <h4>{playerPokemonType}</h4>
+            {attackButtons}
+            <h4>HP: {playerHP}</h4>
+          </div>
         </div>
         <div>
-          {/* <button
-            disabled={
-              !props.isPlayerTurn ||
-              playerHP <= 0 ||
-              props.computerConfirmedPokemon.pokemonHP <= 0
-            }
-            onClick={() => props.onAttack()}
-          >
-            Attack
-          </button> */}
-
-          {attackButtons}
           {playerHP <= 0 || props.computerConfirmedPokemon.pokemonHP <= 0 ? (
-            <button onClick={() => props.onSummary()}>
+            <Button onClick={() => props.onSummary()}>
               Proceed to Summary
-            </button>
+            </Button>
           ) : null}
         </div>
+
+        <br />
       </header>
     </div>
   );

@@ -1,24 +1,22 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { auth } from "../DB/firebase";
 import Button from "@mui/material/Button";
-import { database, firestore } from "../DB/firebase";
+import { database, firestore, auth } from "../DB/firebase";
 import Pokedex from "../Components/Pokedex.js";
 import SelectPoke from "../Components/SelectPoke";
 import BattlePage from "../Components/BattlePage";
 import Results from "../Components/Results";
 import UserProfile from "../Components/UserProfile";
+import { Routes, Route, useNavigate, Outlet } from "react-router-dom";
+import gym from "../Sounds/gym.mp3";
 import {
-  onChildAdded,
   push,
   ref as dbRef,
   set,
   update,
   onChildChanged,
-  child,
   onValue,
 } from "firebase/database";
-import { Routes, Route, Link, useNavigate, Outlet } from "react-router-dom";
 import { signOut } from "firebase/auth";
 import Lobby from "../Components/Lobby";
 import {
@@ -38,7 +36,15 @@ import { doc, setDoc, updateDoc } from "firebase/firestore";
 const USERSTATS_FOLDER_NAME = "users";
 const PLAYER_POKEMON = "playerpokemon";
 const COMPUTER_POKEMON = "computerpokemon";
+
 const MainPage = (props) => {
+  //Initialise state for userStats of each player. This is for userProfile.js.
+  const [userStats, setUserStats] = useState({});
+  const [victory, setVictory] = useState(false);
+  const [loss, setLoss] = useState(false);
+  const [battle, setBattle] = useState(false);
+  //determine if next page is selected
+  const [nextPage, setNextPage] = useState(false);
   const [gameType, setGameType] = useState();
   const [pveMode, setPveMode] = useState(false);
   const [pvpMode, setPvpMode] = useState(false);
@@ -52,8 +58,8 @@ const MainPage = (props) => {
   const [computerConfirmedPokemon, setComputerConfirmedPokemon] = useState({});
   //Pokedex portion, generate 9 chosen pokemon from their URL
   const [pokemonSelection, setPokemonSelection] = useState([]);
+
   //Initialise state for userStats of each player. This is for userProfile.js.
-  const [userStats, setUserStats] = useState({});
   const [bothConfirmed, setBothConfirmed] = useState(false);
   const [playerTurn, setPlayerTurn] = useState();
   const [computerTurn, setComputerTurn] = useState();
@@ -64,6 +70,7 @@ const MainPage = (props) => {
   const [otherPlayerTurn, setOtherPlayerTurn] = useState();
   const [otherPlayerConfirmedPokemon, setOtherPlayerConfirmedPokemon] =
     useState({});
+
   //render userstats here to follow DB updates
   useEffect(() => {
     if (props.loggedInUser) {
@@ -79,6 +86,9 @@ const MainPage = (props) => {
         setUserStats(
           snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
         );
+        props.setUserData(
+          snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
+        );
         snapshot.docs.forEach((doc) => {
           console.log({ ...doc.data(), id: doc.id });
         });
@@ -87,7 +97,10 @@ const MainPage = (props) => {
     }
   }, [props.loggedInUser]);
 
+  // <<<<<<< HEAD why will dont have this one.
   const [otherPlayerExist, setOtherPlayerExist] = useState();
+  // =======
+  // >>>>>>> main
   // try to get otherPlayer ID and info!
   useEffect(() => {
     if (pvpMode === true) {
@@ -98,16 +111,6 @@ const MainPage = (props) => {
       const otherUserRef = collection(firestore, "rooms", roomID, "users");
       // Create a query against the collection.
       const q = query(otherUserRef, where("email", "!=", emailWoSpecialChar));
-
-      // onSnapshot(q,(snapshot)=>{
-      //     console.log({...doc.data(), id:doc.id})
-      //   setOtherUserStats(snapshot.docs.map((doc)=>({id:doc.id, ...doc.data()})))
-      // })
-
-      //  onSnapshot(collection(firestore,'rooms',roomID,'users'),where('username','!=',userStats[0].username), (snapshot) => {
-      //   console.log(snapshot.docs);
-      //   snapshot.docs.forEach((doc)=>{console.log(doc.data())})
-      // })
 
       onSnapshot(q, { includeMetaDataChanges: true }, (querySnapshot) => {
         const otherUserData = [];
@@ -122,14 +125,6 @@ const MainPage = (props) => {
           console.log("other userdont exist");
         }
       });
-
-      // getDocs(q).then(snapshot=>snapshot.forEach(snapshot=>console.log(snapshot.data())))
-      // if (otherPlayerConfirmedPokemon!=={})
-      // {console.log("OTHER USER EXIST!!!! other player pokemon state", otherPlayerConfirmedPokemon);
-      // //check if confirmed for both
-      // if (userStats[0].confirmed && otherPlayerConfirmedPokemon.confirmed) {
-      //   setBothConfirmed(true);
-      // }
     }
   }, [pvpMode, gameType, playerConfirmedPokemon]);
 
@@ -159,6 +154,7 @@ const MainPage = (props) => {
         const pokemonTypeURL = types.map((element) => element.type.url);
         const pokemonImageBack = sprites.back_default;
         const pokemonImageFront = sprites.front_default;
+        const pokemonImage = sprites.other.dream_world.front_default;
         //extracting first 4 moves
         const pokemonMoves = moves.map((move) => move.move.name).slice(0, 4);
         const pokemonMovesURL = moves.map((move) => move.move.url).slice(0, 4);
@@ -172,6 +168,7 @@ const MainPage = (props) => {
           pokemonMovesURL: pokemonMovesURL,
           pokemonImageBack: pokemonImageBack,
           pokemonImageFront: pokemonImageFront,
+          pokemonImage: pokemonImage,
         };
 
         //if 9 chosen pokemon url is unique, is this redundant?
@@ -205,6 +202,7 @@ const MainPage = (props) => {
     console.log(e.target.name, "e.target.name name of pokemon");
     // console.log(pokemon,",data of pokemon")
     console.log("navigate to select pokemon");
+    setNextPage(true);
     navigate("selectpokemon").catch((error) => {
       console.log(error);
     });
@@ -214,11 +212,9 @@ const MainPage = (props) => {
   const handleReselectPokemon = async (e) => {
     console.log("reselect navigate back");
     setCurrPokemon();
+    setNextPage(false);
 
-    // const roomRef= doc(firestore,'rooms',roomID)
-    // await updateDoc(roomRef, {userCount:increment(-1), users:arrayRemove(props.currUser.username)})
-
-    navigate("/").catch((error) => {
+    navigate("/mainpage").catch((error) => {
       console.log(error);
     });
   };
@@ -317,9 +313,7 @@ const MainPage = (props) => {
       pokemonName: playerPokemonData.pokemonName,
       pokemonHP: playerPokemonData.pokemonHP,
       pokemonType: playerPokemonData.pokemonType,
-      pokemonImageFront: playerPokemonData.pokemonImageFront,
-      //playerArray not needed cos we are manipulating attacks within internal state.
-      // pokemonAttacks: playerArray,
+      pokemonImage: playerPokemonData.pokemonImage,
       confirmed: true,
     });
 
@@ -342,12 +336,11 @@ const MainPage = (props) => {
     await updateDoc(roomRef, {
       usedPokemon: arrayUnion(confirmedPokemon.pokemonName),
     });
+    setBattle(true);
+    setNextPage(true);
     setPlayerConfirmed(true);
     console.log(otherPlayerConfirmedPokemon);
-    // if (pvpMode === true) {
-    //   //and i am the 2nd player, then set playerTurn to false.
 
-    // }
     navigate("battlepage");
     console.log("battle!");
   };
@@ -480,6 +473,7 @@ const MainPage = (props) => {
           } else {
             mostUsedPokemon = "NA";
           }
+
           const userRef = doc(firestore, "users", userStats[0].email);
           await updateDoc(userRef, {
             gamesPlayed: userStats[0].gamesPlayed + 1,
@@ -557,6 +551,7 @@ const MainPage = (props) => {
         setIsPlayerStrong(false);
         setIsOtherPlayerStrong(true);
       }
+
       if (playerTurn) {
         //set other player turn false IN DB
         await updateDoc(otherPlayerRef, { turn: false });
@@ -566,6 +561,7 @@ const MainPage = (props) => {
         const playerMove = e.target.name;
         // const playerAttack =
         //   playerArray[Math.floor(Math.random() * playerArray.length)];
+
         //Calculate the hp of computer after player attack.
         let newOtherPlayerHP = 0;
         //if player attack is more than computer HP
@@ -687,6 +683,7 @@ const MainPage = (props) => {
     const computerMove = computerAttackObject.name;
 
     let newPlayerHP = 0;
+
     const roomRef = doc(firestore, "rooms", roomID);
 
     if (isComputerStrong === true) {
@@ -705,6 +702,7 @@ const MainPage = (props) => {
         displayMsg: `Computer's ${computerConfirmedPokemon.pokemonName} dealt a damage of ${computerAttack} with ${computerMove}.`,
       });
     }
+
     //Calculate player's pokemon HP after computer attack.
     if (computerAttack - playerConfirmedPokemon.pokemonHP >= 0) {
       newPlayerHP = 0;
@@ -747,7 +745,6 @@ const MainPage = (props) => {
           doc(firestore, "rooms", roomID, "users", "computer"),
           (doc) => {
             console.log("COMP SNAPSHOT", doc.data());
-
             // setRooms(snapshot.docs.map((doc)=>({id:doc.id, data:doc.data()})))
             setComputerConfirmedPokemon((prevState) => {
               return { ...prevState, pokemonHP: doc.data().pokemonHP };
@@ -837,7 +834,7 @@ const MainPage = (props) => {
   };
 
   const handleNewBattle = async () => {
-    navigate("/");
+    navigate("/mainpage");
     setPvpMode(false);
     setPveMode(false);
     setBothConfirmed(false);
@@ -857,24 +854,22 @@ const MainPage = (props) => {
       setPvpMode(true);
     }
   };
+
   const exitGame = async () => {
     setGameStart(false);
     setRoomID("");
     await deleteDoc(doc(firestore, "rooms", roomID));
   };
 
-  const logout = () => {
-    console.log("logout");
-    props.setLoggedInUser(false);
-    signOut(auth);
-    navigate("/");
-  };
   return (
     <div>
-      {/* <p>{userStats[0].username} : Games won:{userStats[0].gamesWon}</p> */}
-      <UserProfile currUser={userStats} pokemonSelection={pokemonSelection} />
       <br />
       <br />
+      {nextPage !== true ? (
+        <audio loop autoPlay src={gym}>
+          Your browser does not support the audio element.
+        </audio>
+      ) : null}
       <Outlet />
       <Routes>
         <Route
@@ -887,7 +882,12 @@ const MainPage = (props) => {
                 onChoosePokemonClick={(e) => handleChoosePokemonClick(e)}
               />
             ) : (
-              <Lobby startGame={startGame} currUser={userStats[0]} />
+              <Lobby
+                startGame={startGame}
+                currUser={userStats[0]}
+                setGameStart={setGameStart}
+                pokemonSelection={pokemonSelection}
+              />
             )
           }
         />
@@ -917,6 +917,8 @@ const MainPage = (props) => {
               }
               setPlayerWeakType={(weakType) => setPlayerWeakType(weakType)}
               gameType={gameType}
+              nextPage={nextPage}
+              setNextPage={setNextPage}
             />
           }
         />
@@ -937,6 +939,13 @@ const MainPage = (props) => {
               isComputerTurn={computerTurn}
               historyMoves={recentMoves}
               onSummary={() => handleSummary()}
+              battle={battle}
+              setBattle={setBattle}
+              setVictory={setVictory}
+              victory={victory}
+              setLoss={setLoss}
+              loss={loss}
+              currUser={userStats}
               bothConfirmed={bothConfirmed}
               setBothConfirmed={setBothConfirmed}
               gameType={gameType}
@@ -963,7 +972,6 @@ const MainPage = (props) => {
           }
         />
       </Routes>
-      <Button onClick={() => logout()}>Logout</Button>
     </div>
   );
 };
