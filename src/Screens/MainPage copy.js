@@ -200,7 +200,12 @@ const MainPage = (props) => {
     console.log("reselect navigate back");
     setCurrPokemon();
     setNextPage(false);
-
+    // const roomRef = doc(firestore, "rooms", roomID);
+    // await updateDoc(roomRef, {
+    //   userCount: increment(-1),
+    //   users: arrayRemove(props.currUser.username),
+    // });
+    // setRoomID();
     navigate("/mainpage").catch((error) => {
       console.log(error);
     });
@@ -355,8 +360,6 @@ const MainPage = (props) => {
         //ref player attack damage
         const playerAttack =
           playerArray[Math.floor(Math.random() * playerArray.length)];
-        console.log(playerAttack);
-
         const roomRef = doc(firestore, "rooms", roomID);
         await updateDoc(roomRef, {
           pastMoves: arrayUnion(playerAttack),
@@ -383,88 +386,7 @@ const MainPage = (props) => {
           handleComputerAttack();
         } else {
           console.log("computer pokemon is dead");
-        }
-        let mostUsedPokemon;
-        if (userStats[0].usedPokemon && userStats[0].usedPokemon.length !== 0) {
-          mostUsedPokemon = findMostUsed(userStats[0].usedPokemon);
-        } else {
-          mostUsedPokemon = "NA";
 
-          const userRef = doc(firestore, "users", userStats[0].email);
-          await updateDoc(userRef, {
-            gamesPlayed: userStats[0].gamesPlayed + 1,
-            gamesWon: userStats[0].gamesWon + 1,
-            mostUsed: mostUsedPokemon,
-          });
-        }
-      }
-    }
-
-    if (pvpMode === true) {
-      console.log(otherPlayerConfirmedPokemon);
-      console.log(userStats);
-      const otherPlayerRef = doc(
-        firestore,
-        "rooms",
-        roomID,
-        "users",
-        otherPlayerConfirmedPokemon.username
-      );
-      const playerRef = doc(
-        firestore,
-        "rooms",
-        roomID,
-        "users",
-        userStats[0].username
-      );
-      const userRef = doc(firestore, "users", userStats[0].email);
-      const otherUserRef = doc(
-        firestore,
-        "users",
-        otherPlayerConfirmedPokemon.email
-      );
-      //To Mon 270822: This line below i thought maybe create ref for room so that we can put the recent moves into the room instead of to the individual user.
-      const roomRef = doc(firestore, "rooms", roomID);
-
-      if (playerTurn) {
-        //set other player turn false IN DB
-        await updateDoc(otherPlayerRef, { turn: false });
-        // calculate my attack damage and other player new HP
-        const playerAttack =
-          playerArray[Math.floor(Math.random() * playerArray.length)];
-        console.log(playerAttack);
-        //Calculate the hp of computer after player attack.
-        let newOtherPlayerHP = 0;
-        //if player attack is more than computer HP
-        if (playerAttack - otherPlayerConfirmedPokemon.pokemonHP >= 0) {
-          newOtherPlayerHP = 0;
-        } else {
-          newOtherPlayerHP =
-            otherPlayerConfirmedPokemon.pokemonHP - playerAttack;
-        }
-        // //Update the database with computer pokemon's new hp.
-        setOtherPlayerTurn(true);
-        await updateDoc(otherPlayerRef, {
-          pokemonHP: newOtherPlayerHP,
-          turn: true,
-        });
-        //Set playerTurn state to false.
-        setPlayerTurn(false);
-
-        await updateDoc(playerRef, {
-          turn: false,
-        });
-
-        await updateDoc(roomRef, {
-          pastMoves: arrayUnion(playerAttack),
-          displayMsg: `${userStats[0].username}'s ${playerConfirmedPokemon.pokemonName} dealt a damage of ${playerAttack}`,
-        });
-
-        //If other pokemon's hp is 0 with User's pokemon attack, battle ends. Update stats of user into the database.
-        if (newOtherPlayerHP > 0) {
-          console.log("wait fr other player move");
-        } else {
-          console.log("other player pokemon is dead");
           let mostUsedPokemon;
           if (
             userStats[0].usedPokemon &&
@@ -473,21 +395,105 @@ const MainPage = (props) => {
             mostUsedPokemon = findMostUsed(userStats[0].usedPokemon);
           } else {
             mostUsedPokemon = "NA";
-          }
 
-          let otherPlayerMostUsedPokemon = findMostUsed(
-            otherPlayerConfirmedPokemon.usedPokemon
-          );
-          await updateDoc(userRef, {
-            gamesPlayed: userStats[0].gamesPlayed + 1,
-            gamesWon: userStats[0].gamesWon + 1,
-            mostUsed: mostUsedPokemon,
+            const userRef = doc(firestore, "users", userStats[0].email);
+            await updateDoc(userRef, {
+              gamesPlayed: userStats[0].gamesPlayed + 1,
+              gamesWon: userStats[0].gamesWon + 1,
+              mostUsed: mostUsedPokemon,
+            });
+          }
+        }
+      }
+
+      if (pvpMode === true) {
+        console.log(otherPlayerConfirmedPokemon);
+        console.log(userStats);
+        const otherPlayerRef = doc(
+          firestore,
+          "rooms",
+          roomID,
+          "users",
+          otherPlayerConfirmedPokemon.username
+        );
+        const playerRef = doc(
+          firestore,
+          "rooms",
+          roomID,
+          "users",
+          userStats[0].username
+        );
+        const userRef = doc(firestore, "users", userStats[0].email);
+        const otherUserRef = doc(
+          firestore,
+          "users",
+          otherPlayerConfirmedPokemon.email
+        );
+        //To Mon 270822: This line below i thought maybe create ref for room so that we can put the recent moves into the room instead of to the individual user.
+        const roomRef = doc(firestore, "rooms", roomID);
+
+        if (playerTurn) {
+          //set other player turn false IN DB
+          await updateDoc(otherPlayerRef, { turn: false });
+          // calculate my attack damage and other player new HP
+          const playerAttack =
+            playerArray[Math.floor(Math.random() * playerArray.length)];
+          //Calculate the hp of computer after player attack.
+          let newOtherPlayerHP = 0;
+          //if player attack is more than computer HP
+          if (playerAttack - otherPlayerConfirmedPokemon.pokemonHP >= 0) {
+            newOtherPlayerHP = 0;
+          } else {
+            newOtherPlayerHP =
+              otherPlayerConfirmedPokemon.pokemonHP - playerAttack;
+          }
+          // //Update the database with computer pokemon's new hp.
+          setOtherPlayerTurn(true);
+          await updateDoc(otherPlayerRef, {
+            pokemonHP: newOtherPlayerHP,
+            turn: true,
           });
-          await updateDoc(otherUserRef, {
-            gamesPlayed: otherPlayerConfirmedPokemon.gamesPlayed + 1,
-            gamesWon: otherPlayerConfirmedPokemon.gamesWon + 1,
-            mostUsed: otherPlayerMostUsedPokemon,
+          //Set playerTurn state to false.
+          setPlayerTurn(false);
+
+          await updateDoc(playerRef, {
+            turn: false,
           });
+
+          await updateDoc(roomRef, {
+            pastMoves: arrayUnion(playerAttack),
+            displayMsg: `${userStats[0].username}'s ${playerConfirmedPokemon.pokemonName} dealt a damage of ${playerAttack}`,
+          });
+
+          //If other pokemon's hp is 0 with User's pokemon attack, battle ends. Update stats of user into the database.
+          if (newOtherPlayerHP > 0) {
+            console.log("wait fr other player move");
+          } else {
+            console.log("other player pokemon is dead");
+            let mostUsedPokemon;
+            if (
+              userStats[0].usedPokemon &&
+              userStats[0].usedPokemon.length !== 0
+            ) {
+              mostUsedPokemon = findMostUsed(userStats[0].usedPokemon);
+            } else {
+              mostUsedPokemon = "NA";
+            }
+
+            let otherPlayerMostUsedPokemon = findMostUsed(
+              otherPlayerConfirmedPokemon.usedPokemon
+            );
+            await updateDoc(userRef, {
+              gamesPlayed: userStats[0].gamesPlayed + 1,
+              gamesWon: userStats[0].gamesWon + 1,
+              mostUsed: mostUsedPokemon,
+            });
+            await updateDoc(otherUserRef, {
+              gamesPlayed: otherPlayerConfirmedPokemon.gamesPlayed + 1,
+              gamesWon: otherPlayerConfirmedPokemon.gamesWon + 1,
+              mostUsed: otherPlayerMostUsedPokemon,
+            });
+          }
         }
       }
     }

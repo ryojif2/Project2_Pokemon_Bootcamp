@@ -30,7 +30,22 @@ const Navbar = (props) => {
     setUserData();
     navigate("/");
     signOut(auth);
+    setIsShown(false);
   };
+
+  const [isShown, setIsShown] = useState(false);
+
+  const handleClick = (event) => {
+    setIsShown(true);
+  };
+
+  // useEffect(() => {
+  //   if (isShown === true) {
+  //     setTimeout(() => {
+  //       setIsShown(false);
+  //     }, 5000);
+  //   }
+  // }, [isShown]);
 
   return (
     <Box sx={{ flexGrow: 1 }}>
@@ -42,9 +57,13 @@ const Navbar = (props) => {
               edge="start"
               aria-label="menu"
               style={{ background: "#ffff" }}
+              onClick={handleClick}
             >
-              <UserProfile setUserData={setUserData} userData={userData} />
-              {/* {console.log(userData)} */}
+              {isShown && (
+                <div>
+                  <UserProfile setUserData={setUserData} userData={userData} />
+                </div>
+              )}
             </IconButton>
           ) : null}
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>

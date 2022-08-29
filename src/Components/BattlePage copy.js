@@ -26,7 +26,6 @@ import { firestore } from "../DB/firebase";
 import { chainPropTypes } from "@mui/utils";
 
 const BattlePage = (props) => {
-  console.log(props);
   const [gameConfirmed, setGameConfirmed] = useState(false);
   const [computerChosenPokemon, setComputerConfirmedPokemon] = useState();
   const [movesDisplay, setMovesDisplay] = useState("Make a move!");
@@ -119,23 +118,23 @@ const BattlePage = (props) => {
 
   console.log(props.historyMoves);
 
-  useEffect(() => {
-    if (attack !== false) {
-      setTimeout(() => {
-        setAttack(false);
-      }, 1000);
-    }
-  }, [attack]);
+  // useEffect(() => {
+  //   if (attack !== false) {
+  //     setTimeout(() => {
+  //       setAttack(false);
+  //     }, 1000);
+  //   }
+  // }, [attack]);
 
-  useEffect(() => {
-    if (props.computerConfirmedPokemon.pokemonHP <= 0) {
-      props.setBattle(false);
-      props.setVictory(true);
-    } else if (playerHP <= 0) {
-      props.setBattle(false);
-      props.setLoss(true);
-    }
-  });
+  // useEffect(() => {
+  //   if (props.computerConfirmedPokemon.pokemonHP <= 0) {
+  //     props.setBattle(false);
+  //     props.setVictory(true);
+  //   } else if (playerHP <= 0) {
+  //     props.setBattle(false);
+  //     props.setLoss(true);
+  //   }
+  // });
 
   return (
     <div className={props.victory === true ? "fireworks" : null}>
