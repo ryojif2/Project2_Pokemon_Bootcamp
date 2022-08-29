@@ -19,6 +19,7 @@ const SelectPoke = (props) => {
     pokemonMovesURL,
     pokemonName,
     pokemonType,
+    pokemonTypeURL,
   } = chosenPokemon;
   const PokeName = pokemonName.toUpperCase();
   const PokeType = pokemonType.map((type) => <h5>{type}</h5>);
@@ -52,6 +53,41 @@ const SelectPoke = (props) => {
     });
   });
 
+  //initiate array to store selected pokemon's weak types and strong types.
+  const weakType = [];
+  const strongType = [];
+
+  //initiate promise to obtain information on the strong and weak types of the pokemon.
+  const typePromise = [];
+  pokemonTypeURL.map((type) => {
+    typePromise.push(axios.get(type));
+  });
+
+  Promise.all(typePromise).then((results) => {
+    results.map((typeData) => {
+      const { double_damage_from, double_damage_to } =
+        typeData.data.damage_relations;
+
+      const weakToTypes = double_damage_from.map((type) => {
+        const { name } = type;
+
+        return name;
+      });
+      const strongToTypes = double_damage_to.map((type) => {
+        const { name } = type;
+
+        return name;
+      });
+      console.log(weakToTypes);
+      console.log(strongToTypes);
+      weakType.push(...weakToTypes);
+      strongType.push(...strongToTypes);
+      // weakType.push(weakToTypes);
+      // strongType.push(strongToTypes);
+    });
+  });
+  console.log(weakType);
+
   const logout = () => {
     console.log("logout");
     signOut(auth);
@@ -59,14 +95,16 @@ const SelectPoke = (props) => {
     console.log(props.loggedInUser);
   };
 
+  console.log(chosenPokemon);
   return (
     //repeating pokedex ?
     <div key={chosenPokemon} name={pokemonName}>
-      {props.otherPlayerExist ? (
+      {props.gameType === "pvp" && props.otherPlayerExist ? (
         <p>Player 2 is in the room</p>
-      ) : (
+      ) : null}
+      {props.gameType === "pvp" && !props.otherPlayerExist ? (
         <p>Wait for player 2 to enter before confirm...</p>
-      )}
+      ) : null}
       <img
         style={{ height: "30vh" }}
         src={pokemonImageFront}
@@ -81,10 +119,13 @@ const SelectPoke = (props) => {
         Back to Main Pokedex
       </button>
       <button
-        disabled={!props.otherPlayerExist}
+        disabled={props.gameType === "pvp" && !props.otherPlayerExist}
         onClick={() => {
           props.setPlayerArray(playerAttackArray);
-          props.onConfirmPokemon(chosenPokemon, playerAttackArray);
+          props.onConfirmPokemon(chosenPokemon);
+          //set state to store strong and weak types of player pokemon after clicking confirm pokemon
+          props.setPlayerStrongType(strongType);
+          props.setPlayerWeakType(weakType);
         }}
       >
         Confirm

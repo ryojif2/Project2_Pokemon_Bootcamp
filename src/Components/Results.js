@@ -49,7 +49,7 @@ const Results = (props) => {
   const movesHistory = pastMoves.map((move, i) => {
     if (i % 2 === 0) {
       return (
-        <p>
+        <p key={i}>
           Your {playerPokemonName} hit enemy {computerPokemonName} with{" "}
           {pastMoves[i].name}for
           {pastMoves[i].power} damage!
@@ -57,7 +57,7 @@ const Results = (props) => {
       );
     } else {
       return (
-        <p>
+        <p key={i}>
           Enemy {computerPokemonName} hit your {playerPokemonName} with{" "}
           {pastMoves[i].name}for
           {pastMoves[i].power} damage!
