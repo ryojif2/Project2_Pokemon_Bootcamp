@@ -52,13 +52,14 @@ const Lobby = (props) => {
   const roomRef = collection(firestore, "rooms");
 
   useEffect(() => {
-    // const q = query(collection(db, "rooms"));
     onSnapshot(collection(firestore, "rooms"), (snapshot) => {
       setRooms(snapshot.docs.map((doc) => ({ id: doc.id, data: doc.data() })));
     });
   }, []);
 
   const [roomName, setRoomName] = useState("");
+
+  //PVP ROOM CREATION
   const createPvpRoom = async (e) => {
     const gameType = "pvp";
 
@@ -71,11 +72,7 @@ const Lobby = (props) => {
     e.preventDefault();
 
     const date = new Date().toLocaleString();
-    //    const roomListRef = dbRef(database, ROOMS_LIST);
-    //   const newRoomListRef = push(roomListRef);
-    //   set(newRoomListRef, {date: date.toString(), roomTitle:roomName, userCount:0, createdBy:props.currUser.username});
-    // const roomRef=firestore.collection('rooms').doc(roomName);
-    // const roomRef=collection(firestore,'rooms',roomName)
+
     await setDoc(doc(firestore, "rooms", roomName), {
       date: date.toString(),
       userCount: 1,
@@ -96,17 +93,12 @@ const Lobby = (props) => {
         turn: true,
       }
     );
-    // await setDoc(doc(firestore, "rooms", props.currUser.username), {...props.currUser});
     props.startGame(roomName, gameType);
-    // await roomRef.set({
-    //   date:date.toString(),
-    //   userCount:1,
-    //   createdBy:props.currUser.username,
-    //   users:[props.currUser.username]
-    // })
+
     setRoomName("");
   };
 
+  //PVE ROOM CREATION
   const createPveRoom = async (e) => {
     const gameType = "pve";
     const roomName = `PVE of ${props.currUser.username}`;
@@ -140,6 +132,7 @@ const Lobby = (props) => {
   const [inputText, setInputText] = useState("");
   const [chats, setChats] = useState([]);
 
+  //CHAT FUNCTION
   const submitText = async (e) => {
     e.preventDefault();
     const date = new Date().toLocaleString();

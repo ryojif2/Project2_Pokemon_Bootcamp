@@ -97,10 +97,8 @@ const MainPage = (props) => {
     }
   }, [props.loggedInUser]);
 
-  // <<<<<<< HEAD why will dont have this one.
   const [otherPlayerExist, setOtherPlayerExist] = useState();
-  // =======
-  // >>>>>>> main
+
   // try to get otherPlayer ID and info!
   useEffect(() => {
     if (pvpMode === true) {
@@ -128,6 +126,7 @@ const MainPage = (props) => {
     }
   }, [pvpMode, gameType, playerConfirmedPokemon]);
 
+  //OBTAIN ALL 9 POKEMON INFO
   useEffect(() => {
     const promises = [];
     promises.push(axios.get("https://pokeapi.co/api/v2/pokemon/1"));
@@ -171,7 +170,6 @@ const MainPage = (props) => {
           pokemonImage: pokemonImage,
         };
 
-        //if 9 chosen pokemon url is unique, is this redundant?
         //checking to make sure newStats to be placed is not inside already
         const doesntContainObject = (obj, list) => {
           var i;
@@ -192,7 +190,7 @@ const MainPage = (props) => {
         }
       })
     );
-  }, [pokemonSelection]);
+  }, [pokemonSelection, gameType]);
 
   //when pokemon selected
   let navigate = useNavigate();
@@ -270,7 +268,6 @@ const MainPage = (props) => {
     computerPokemonData,
     computerArray
   ) => {
-    // const userRef=doc(firestore,'rooms',roomID,'users',userStats[0].username)
     const computerRef = doc(firestore, "rooms", roomID, "users", "computer");
     if (computerPokemonData && computerArray.length > 3 && pveMode === true) {
       console.log(computerPokemonData, "UPDATE FIRESTORE! computer poke data");
@@ -316,8 +313,6 @@ const MainPage = (props) => {
       pokemonImage: playerPokemonData.pokemonImage,
       confirmed: true,
     });
-
-    // if userStats[0].confirmed && otherUserStats[0].confirmed , {setBothConfirmed}
   };
 
   const [playerConfirmed, setPlayerConfirmed] = useState();
@@ -365,6 +360,7 @@ const MainPage = (props) => {
     return mostUsedPokemon;
   };
 
+  //MULTIPLIER
   const [isPlayerStrong, setIsPlayerStrong] = useState(false);
   const [isComputerStrong, setIsComputerStrong] = useState(false);
   const [isOtherPlayerStrong, setIsOtherPlayerStrong] = useState(false);
@@ -506,7 +502,6 @@ const MainPage = (props) => {
         "users",
         otherPlayerConfirmedPokemon.email
       );
-      //To Mon 270822: This line below i thought maybe create ref for room so that we can put the recent moves into the room instead of to the individual user.
       const roomRef = doc(firestore, "rooms", roomID);
       let critMultiplier = 1;
       if (
@@ -625,7 +620,6 @@ const MainPage = (props) => {
           });
           await updateDoc(otherUserRef, {
             gamesPlayed: otherPlayerConfirmedPokemon.gamesPlayed + 1,
-            gamesWon: otherPlayerConfirmedPokemon.gamesWon + 1,
             mostUsed: otherPlayerMostUsedPokemon,
           });
         }
@@ -775,9 +769,6 @@ const MainPage = (props) => {
     console.log(bothConfirmed);
     // const q = query(collection(db, "rooms"));
     if (roomID && bothConfirmed && pvpMode === true) {
-      // query(collection(db,'rooms'/roomID)) get the data of users array,
-      // if user[0] == currUser ID , otherPlayer==user[1]
-
       if (playerTurn) {
         onSnapshot(
           doc(
@@ -838,9 +829,12 @@ const MainPage = (props) => {
     setPvpMode(false);
     setPveMode(false);
     setBothConfirmed(false);
-    // setGameStart(false)
-    await deleteDoc(doc(firestore, "rooms", roomID));
-    setRoomID("");
+    setGameStart(false);
+    if (gameType === "pvp") {
+      await deleteDoc(doc(firestore, "rooms", roomID));
+      setRoomID("");
+    }
+    setGameType("");
   };
 
   const startGame = (roomID, chosenGameType) => {

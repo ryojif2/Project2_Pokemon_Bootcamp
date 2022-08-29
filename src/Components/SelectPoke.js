@@ -86,32 +86,34 @@ const SelectPoke = (props) => {
   console.log(chosenPokemon);
 
   return (
-    <div key={chosenPokemon} name={pokemonName}>
-      {props.gameType === "pvp" && props.otherPlayerExist ? (
-        <p>Player 2 is in the room</p>
-      ) : null}
-      {props.gameType === "pvp" && !props.otherPlayerExist ? (
-        <p>Wait for player 2 to enter before confirm...</p>
-      ) : null}
+    <div className="select">
+      <div key={chosenPokemon} name={pokemonName}>
+        {props.gameType === "pvp" && props.otherPlayerExist ? (
+          <p>Player 2 is in the room</p>
+        ) : null}
+        {props.gameType === "pvp" && !props.otherPlayerExist ? (
+          <p>Wait for player 2 to enter before confirm...</p>
+        ) : null}
 
-      <ConfirmedCard
-        name={PokeName}
-        image={pokemonImage}
-        type={PokeType}
-        HP={pokemonHP}
-        Moves={PokeMoves}
-        onReselectPokemon={onReselectPokemon}
-        setPlayerArray={setPlayerArray}
-        onConfirmPokemon={onConfirmPokemon}
-        playerAttackArray={playerAttackArray}
-        chosenPokemon={chosenPokemon}
-        setPlayerStrongType={props.setPlayerStrongType}
-        setPlayerWeakType={props.setPlayerWeakType}
-        gameType={props.gameType}
-        otherPlayerExist={props.otherPlayerExist}
-        strongType={strongType}
-        weakType={weakType}
-      />
+        <ConfirmedCard
+          name={PokeName}
+          image={pokemonImage}
+          type={PokeType}
+          HP={pokemonHP}
+          Moves={PokeMoves}
+          onReselectPokemon={onReselectPokemon}
+          setPlayerArray={setPlayerArray}
+          onConfirmPokemon={onConfirmPokemon}
+          playerAttackArray={playerAttackArray}
+          chosenPokemon={chosenPokemon}
+          setPlayerStrongType={props.setPlayerStrongType}
+          setPlayerWeakType={props.setPlayerWeakType}
+          gameType={props.gameType}
+          otherPlayerExist={props.otherPlayerExist}
+          strongType={strongType}
+          weakType={weakType}
+        />
+      </div>
     </div>
   );
 };
