@@ -24,7 +24,6 @@ import {
 } from "firebase/firestore";
 
 import { firestore } from "../DB/firebase";
-import { chainPropTypes } from "@mui/utils";
 
 const BattlePage = (props) => {
   console.log(props);

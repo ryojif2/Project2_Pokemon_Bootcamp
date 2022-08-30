@@ -55,17 +55,7 @@ const Register = (props) => {
   //Initiate the user stats in database.
   const pushUserData = async (email, username) => {
     const emailWoSpecialChar = email.replace(/[^a-zA-Z0-9 ]/g, "");
-    // const userDataRef = dbRef(database, USERSTATS_FOLDER_NAME);
-    // const newUserDataRef = child(userDataRef, emailWoSpecialChar);
 
-    // set(newUserDataRef, {
-    //   email: emailWoSpecialChar,
-    //   username: username,
-    //   gamesPlayed: 0,
-    //   gamesWon: 0,
-    //   usedPokemon: [],
-    //   mostUsed: "",
-    // });
     await setDoc(doc(firestore, "users", emailWoSpecialChar), {
       email: emailWoSpecialChar,
       username: username,
