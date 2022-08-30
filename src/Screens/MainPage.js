@@ -1,23 +1,12 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import Button from "@mui/material/Button";
 import { database, firestore, auth } from "../DB/firebase";
 import Pokedex from "../Components/Pokedex.js";
 import SelectPoke from "../Components/SelectPoke";
 import BattlePage from "../Components/BattlePage";
 import Results from "../Components/Results";
-import UserProfile from "../Components/UserProfile";
 import { Routes, Route, useNavigate, Outlet } from "react-router-dom";
 import gym from "../Sounds/gym.mp3";
-import {
-  push,
-  ref as dbRef,
-  set,
-  update,
-  onChildChanged,
-  onValue,
-} from "firebase/database";
-import { signOut } from "firebase/auth";
 import Lobby from "../Components/Lobby";
 import {
   collection,
@@ -554,8 +543,6 @@ const MainPage = (props) => {
 
         const playerAttack = Math.ceil(e.target.value * critMultiplier);
         const playerMove = e.target.name;
-        // const playerAttack =
-        //   playerArray[Math.floor(Math.random() * playerArray.length)];
 
         //Calculate the hp of computer after player attack.
         let newOtherPlayerHP = 0;

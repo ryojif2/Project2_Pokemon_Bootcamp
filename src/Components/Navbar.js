@@ -39,14 +39,6 @@ const Navbar = (props) => {
     setIsShown(true);
   };
 
-  // useEffect(() => {
-  //   if (isShown === true) {
-  //     setTimeout(() => {
-  //       setIsShown(false);
-  //     }, 5000);
-  //   }
-  // }, [isShown]);
-
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static" style={{ background: "2C849C" }}>
