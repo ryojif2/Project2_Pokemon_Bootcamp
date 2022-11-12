@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
@@ -58,10 +58,11 @@ const Navbar = (props) => {
               )}
             </IconButton>
           ) : null}
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            {/* Hello {email.substr(0, email.indexOf("@"))} */}
-            {/* {loggedIn !== true ? "Hello" : `Hello ${userData[0].username}`} */}
-          </Typography>
+          <Typography
+            variant="h6"
+            component="div"
+            sx={{ flexGrow: 1 }}
+          ></Typography>
           {loggedIn === true ? (
             <Button color="inherit" onClick={() => logout()}>
               Logout

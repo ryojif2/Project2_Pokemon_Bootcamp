@@ -12,9 +12,7 @@
 }
 
 .computerP {
-  /* border: 1px solid black; */
   margin: 10px;
-  /* float: left; */
   overflow: hidden;
 }
 
@@ -38,7 +36,6 @@
 }
 
 .playerP {
-  /* border: 1px solid black; */
   margin: 20px;
   overflow: hidden;
 }

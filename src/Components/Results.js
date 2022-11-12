@@ -2,19 +2,9 @@ import "../App.css";
 import "../battle.css";
 import victory from "../Sounds/victory.mp3";
 import battleloss from "../Sounds/battleloss.mp3";
-// import "./fireworks.css";
 import Button from "@mui/material/Button";
-import React, { useState, useEffect, useRef } from "react";
-import {
-  onSnapshot,
-  doc,
-  addDoc,
-  arrayUnion,
-  getDoc,
-  deleteDoc,
-  arrayRemove,
-  increment,
-} from "firebase/firestore";
+import React, { useState, useEffect } from "react";
+import { onSnapshot, doc } from "firebase/firestore";
 import { firestore } from "../DB/firebase";
 //This is the summary page after each battle.
 const Results = (props) => {
@@ -102,7 +92,6 @@ const Results = (props) => {
             name={computerPokemonName}
           />
           <h4>{CPokeName}</h4>
-          {/* <h4>{PokeType}</h4> */}
         </div>
         <div className={playerHP > 0 ? "winner" : "loser"}>
           <h1>Player (YOU) </h1>
@@ -114,7 +103,6 @@ const Results = (props) => {
               name={playerPokemonName}
             />
             <h4>{PlayerPokeName}</h4>
-            {/* <h4>{PokeType}</h4> */}
           </div>
         </div>
         <Button

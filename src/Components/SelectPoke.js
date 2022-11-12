@@ -71,8 +71,6 @@ const SelectPoke = (props) => {
       });
       weakType.push(...weakToTypes);
       strongType.push(...strongToTypes);
-      // weakType.push(weakToTypes);
-      // strongType.push(strongToTypes);
     });
   });
 

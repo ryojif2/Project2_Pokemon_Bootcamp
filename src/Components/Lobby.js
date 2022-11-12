@@ -1,55 +1,26 @@
 import React, { useState, useEffect } from "react";
 import "../App.css";
 import "../Components/lobby.css";
-import { database, firestore } from "../DB/firebase";
+import { firestore } from "../DB/firebase";
 import {
   collection,
-  query,
-  where,
   onSnapshot,
-  getDocs,
   addDoc,
-  documentId,
   doc,
   setDoc,
   updateDoc,
   increment,
   arrayUnion,
-  FieldValue,
 } from "firebase/firestore";
-import {
-  onChildAdded,
-  push,
-  ref as dbRef,
-  set,
-  update,
-  onChildChanged,
-  child,
-  onValue,
-} from "firebase/database";
-import { ListItem, Typography } from "@mui/material";
+import { Typography } from "@mui/material";
 import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell, { tableCellClasses } from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
+import TableCell from "@mui/material/TableCell";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 
 const Lobby = (props) => {
-  const ROOMS_LIST = "roomsList";
-  const CHAT_LIST = "chatList";
   const [rooms, setRooms] = useState([]);
-
-  const roomsListMap = rooms.map((item, i) => (
-    <li key={i}>
-      {" "}
-      {item.title} by {item.createdBy}. Count:{item.userCount}
-    </li>
-  ));
-
-  const roomRef = collection(firestore, "rooms");
 
   useEffect(() => {
     onSnapshot(collection(firestore, "rooms"), (snapshot) => {
@@ -146,7 +117,6 @@ const Lobby = (props) => {
   };
 
   useEffect(() => {
-    // const q = query(collection(db, "rooms"));
     onSnapshot(collection(firestore, "lobbytexts"), (snapshot) => {
       setChats(snapshot.docs.map((doc) => ({ id: doc.id, data: doc.data() })));
     });

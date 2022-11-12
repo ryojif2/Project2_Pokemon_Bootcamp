@@ -104,7 +104,6 @@ const UserProfile = (props) => {
           </Typography>
         </BootstrapDialogTitle>
         <DialogContent dividers>
-          {/* {listItems} */}
           <Typography>
             {props.userData != null ? (
               <div>

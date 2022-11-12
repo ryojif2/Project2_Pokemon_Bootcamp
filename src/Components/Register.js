@@ -13,22 +13,8 @@ import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import "../App.css";
-import { ref as dbRef, set, child, getDatabase } from "firebase/database";
-import { database, firestore } from "../DB/firebase";
-import {
-  collection,
-  query,
-  where,
-  onSnapshot,
-  getDocs,
-  addDoc,
-  doc,
-  setDoc,
-  updateDoc,
-} from "firebase/firestore";
-
-//Define userStats folder in realtime database.
-const USERSTATS_FOLDER_NAME = "users";
+import { firestore } from "../DB/firebase";
+import { doc, setDoc } from "firebase/firestore";
 
 const Register = (props) => {
   const [isNewUser, setIsNewUser] = useState(true);
@@ -36,7 +22,6 @@ const Register = (props) => {
   const auth = getAuth();
 
   //1. handle inputs
-  // const db = getDatabase();
   const handleInputChange = (event) => {
     if (event.target.name === "username") {
       props.setUsername(event.target.value);
@@ -129,7 +114,6 @@ const Register = (props) => {
             <Grid item xs={12}>
               <span>Name: </span>
               <TextField
-                // placeholder="username"
                 name="username"
                 value={props.username}
                 onChange={handleInputChange}

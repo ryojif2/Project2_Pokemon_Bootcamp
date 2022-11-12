@@ -7,13 +7,9 @@ import Register from "./Components/Register";
 import MainPage from "./Screens/MainPage";
 import Login from "./Components/Login";
 import Typography from "@mui/material/Typography";
-// import Button from "@mui/material/Button";
-// import { auth } from "../src/DB/firebase";
 import Navbar from "./Components/Navbar";
 import Loginsound from "../src/Sounds/opening.mp3";
-// import button from "../src/Sounds/button.mp3";
 import click from "../src/Sounds/click.mp3";
-import Background from "../src/background.jpg";
 import charizard from "../src/pics/charizard.gif";
 
 const App = () => {
@@ -136,7 +132,7 @@ const App = () => {
       />
       {loggedIn !== true ? (
         <div className="charizard">
-          <img src={charizard} />
+          <img alt="charizard" src={charizard} />
         </div>
       ) : null}
       {loggedIn !== true ? (
@@ -155,26 +151,18 @@ const App = () => {
             />
           )}
           <Routes>
-            <Route
-              path="/"
-              element={
-                // loggedInUser ? (
-                //   <Navigate to="/mainpage" />
-                // ) : (
-                createAccountOrSignInButton
-                // )
-              }
-            />
+            <Route path="/" element={createAccountOrSignInButton} />
             <Route path="/register" element={register} />
             <Route path="/login" element={login} />
             <Route path="/mainpage/*" element={mainpage} />
           </Routes>
-          {/* <Route path="/selectpokemon" element={<SelectPoke />} />
-            <Route path="/battlepage" element={<BattlePage />} /> */}
         </header>
         {loggedIn !== true ? (
           <div class="pikachu">
-            <img src="https://www.pkparaiso.com/imagenes/xy/sprites/animados/pikachu-5.gif" />
+            <img
+              alt="pikachu"
+              src="https://www.pkparaiso.com/imagenes/xy/sprites/animados/pikachu-5.gif"
+            />
           </div>
         ) : null}
       </Typography>

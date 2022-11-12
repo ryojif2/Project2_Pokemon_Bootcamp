@@ -214,7 +214,6 @@ const MainPage = (props) => {
           if (power == null) {
             power = 1;
           }
-          // return power;
           const movesWithPower = {
             name: name,
             power: power,
@@ -365,8 +364,7 @@ const MainPage = (props) => {
         //ref player attack damage
         const playerAttack = Math.ceil(e.target.value * critMultiplier);
         const playerMove = e.target.name;
-        // const playerAttack =
-        //   playerArray[Math.floor(Math.random() * playerArray.length)];
+
         const roomRef = doc(firestore, "rooms", roomID);
         if (isPlayerStrong === true) {
           await updateDoc(roomRef, {
@@ -660,7 +658,6 @@ const MainPage = (props) => {
 
   // for PVE MODE! GET COMPUTER STATE
   useEffect(() => {
-    // const q = query(collection(db, "rooms"));
     if (roomID && bothConfirmed && pveMode === true) {
       // query(collection(db,'rooms'/roomID)) get the data of users array,
       // if user[0] == currUser ID , otherPlayer==user[1]
@@ -709,7 +706,6 @@ const MainPage = (props) => {
                 turn: doc.data().turn,
               };
             });
-            // setPlayerTurn(!doc.data().turn);
           }
         );
       } else if (otherPlayerTurn) {

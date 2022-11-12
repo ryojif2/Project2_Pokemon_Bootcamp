@@ -1,8 +1,6 @@
 import React from "react";
 import "../Pokedex.css";
-import fire from "../logos/fire.png";
 import Button from "@mui/material/Button";
-// import Icon from "@mui/material/Icon";
 
 const PokeCard = ({ id, image, name, type, HP, onChoosePokemonClick }) => {
   const style = type[0].props.children + " thumb-container";
