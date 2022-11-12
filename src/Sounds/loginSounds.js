@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React from "react";
 import { Audio } from "expo-av";
 
 export default class LoginSound extends React.Component {
@@ -23,16 +23,4 @@ export default class LoginSound extends React.Component {
   render() {
     return null;
   }
-
-  // login = () => {
-  //   let username = this.state.username;
-
-  //   if (username) {
-  //     this.props.navigation.navigate("TeamSelect", {
-  //       username,
-  //     });
-
-  //     this.backgroundSound.stopAsync();
-  //   }
-  // };
 }

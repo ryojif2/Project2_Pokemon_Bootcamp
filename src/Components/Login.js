@@ -46,7 +46,6 @@ const Login = (props) => {
   };
 
   const logout = () => {
-    console.log("back");
     props.setLoggedIn(false);
     signOut(auth);
     navigate("/");

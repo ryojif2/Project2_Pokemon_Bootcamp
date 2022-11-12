@@ -20,7 +20,6 @@ const ConfirmedCard = ({
   weakType,
 }) => {
   const style = type[0].props.children + " thumb-container";
-  console.log(Moves[0].props.children);
   return (
     <div className={style}>
       <img src={image} alt={name} />

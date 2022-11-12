@@ -34,7 +34,6 @@ const Register = (props) => {
   const [isNewUser, setIsNewUser] = useState(true);
   const navigate = useNavigate();
   const auth = getAuth();
-  const { username } = props;
 
   //1. handle inputs
   // const db = getDatabase();
@@ -46,7 +45,6 @@ const Register = (props) => {
     } else if (event.target.name === "passwordInputValue") {
       props.setPasswordInputValue(event.target.value);
     }
-    console.log(props.emailInputValue);
   };
 
   //2. authenticate user portion
@@ -104,7 +102,6 @@ const Register = (props) => {
           console.error(error);
         });
     }
-    console.log(props.emailInputValue);
   };
 
   //3. toggle
@@ -114,7 +111,6 @@ const Register = (props) => {
 
   //4. if press back will go back to homepage
   const logout = () => {
-    console.log("back");
     signOut(auth);
     navigate("/");
   };

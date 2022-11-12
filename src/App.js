@@ -86,7 +86,6 @@ const App = () => {
   //Audio upon pressing button
   const buttonPress = () => {
     setButtonSound(true);
-    console.log("pew");
   };
 
   useEffect(() => {

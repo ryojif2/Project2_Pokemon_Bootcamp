@@ -26,8 +26,6 @@ const SelectPoke = (props) => {
     axios.get(url).then((response) => {
       let { name, power } = response.data;
 
-      console.log(name);
-      console.log(power);
       let modifiedPower = 1;
       if (power === null) {
         const movesWithPower = {
@@ -35,14 +33,12 @@ const SelectPoke = (props) => {
           power: modifiedPower,
         };
         playerAttackArray.push(movesWithPower);
-        // playerAttackArray.push(modifiedPower);
       } else {
         const movesWithPower = {
           name: name,
           power: power,
         };
         playerAttackArray.push(movesWithPower);
-        // playerAttackArray.push(power);
       }
       return playerAttackArray;
     });
@@ -73,17 +69,12 @@ const SelectPoke = (props) => {
 
         return name;
       });
-      console.log(weakToTypes);
-      console.log(strongToTypes);
       weakType.push(...weakToTypes);
       strongType.push(...strongToTypes);
       // weakType.push(weakToTypes);
       // strongType.push(strongToTypes);
     });
   });
-  console.log(weakType);
-
-  console.log(chosenPokemon);
 
   return (
     <div className="select">

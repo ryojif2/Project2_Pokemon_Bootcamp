@@ -25,7 +25,6 @@ const Results = (props) => {
     //room ref displaymsg
     onSnapshot(roomRef, (docSnap) => {
       if (docSnap.exists()) {
-        console.log("past moves", docSnap.data());
         setPastMoves(docSnap.data().pastMoves);
       }
     });
@@ -43,12 +42,8 @@ const Results = (props) => {
 
   //Get data of computer chosen pokemon that was used for battle. To use the name and image so that can render out.
   const computerChosenPokemon = props.computerConfirmedPokemon;
-  console.log(computerChosenPokemon);
-  const {
-    // pokemonHP: computerHP,
-    pokemonImage: computerImageFront,
-    pokemonName: computerPokemonName,
-  } = computerChosenPokemon;
+  const { pokemonImage: computerImageFront, pokemonName: computerPokemonName } =
+    computerChosenPokemon;
 
   const CPokeName = computerPokemonName.toUpperCase();
 

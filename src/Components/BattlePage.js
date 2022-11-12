@@ -6,29 +6,12 @@ import button from "../Sounds/button.mp3";
 import Battle from "../Sounds/Battle.mp3";
 import battleloss from "../Sounds/battleloss.mp3";
 import Button from "@mui/material/Button";
-import {
-  collection,
-  query,
-  where,
-  onSnapshot,
-  getDocs,
-  addDoc,
-  arrayUnion,
-  getDoc,
-  deleteDoc,
-  arrayRemove,
-  increment,
-  setDoc,
-  updateDoc,
-  doc,
-} from "firebase/firestore";
+import { onSnapshot, getDoc, doc } from "firebase/firestore";
 
 import { firestore } from "../DB/firebase";
 
 const BattlePage = (props) => {
-  console.log(props);
   const [gameConfirmed, setGameConfirmed] = useState(false);
-  const [computerChosenPokemon, setComputerConfirmedPokemon] = useState();
   const [movesDisplay, setMovesDisplay] = useState("Make a move!");
 
   useEffect(() => {
@@ -36,7 +19,6 @@ const BattlePage = (props) => {
       const roomRef = doc(firestore, "rooms", props.roomID);
       getDoc(roomRef).then((docSnap) => {
         if (docSnap.exists()) {
-          console.log(docSnap.data());
           if (props.userStats.username !== docSnap.data().users[0]) {
             props.setPlayerTurn(false);
             props.setOtherPlayerTurn(true);
@@ -54,7 +36,6 @@ const BattlePage = (props) => {
     ) {
       setGameConfirmed(true);
       props.setBothConfirmed(true);
-      console.log("both confirmed true USEEFFECT BATTLEPAGE");
     }
     if (
       props.gameType === "pve" &&
@@ -63,7 +44,6 @@ const BattlePage = (props) => {
     ) {
       setGameConfirmed(true);
       props.setBothConfirmed(true);
-      console.log("both confirmed true USEEFFECT BATTLEPAGE");
     }
   }, [props.computerConfirmedPokemon, props.playerConfirmed]);
 
@@ -72,13 +52,11 @@ const BattlePage = (props) => {
     //room ref displaymsg
     onSnapshot(roomRef, (docSnap) => {
       if (docSnap.exists()) {
-        console.log("display Msg", docSnap.data().displayMsg);
         setMovesDisplay(docSnap.data().displayMsg);
       }
     });
     //other user ref health and turn
 
-    // if (props.gameType === "pve") {
     const userRef = doc(
       firestore,
       "rooms",
@@ -87,7 +65,6 @@ const BattlePage = (props) => {
       props.userStats.username
     );
     onSnapshot(userRef, (userSnap) => {
-      console.log(userSnap, "useEffect listen for user turn?!");
       props.setPlayerTurn(userSnap.data().turn);
       props.setPlayerConfirmedPokemon((prevState) => {
         return {
@@ -97,10 +74,8 @@ const BattlePage = (props) => {
         };
       });
     });
-    // }
   }, [props.playerTurn, props.otherPlayerTurn]);
 
-  //maybe need IF STATEMENT here
   const playerChosenPokemon = props.playerConfirmedPokemon;
   const {
     pokemonHP: playerHP,
@@ -115,10 +90,7 @@ const BattlePage = (props) => {
   const attackCry = () => {
     props.onAttack();
     setAttack(true);
-    console.log("hit");
   };
-
-  console.log(props.historyMoves);
 
   useEffect(() => {
     if (attack !== false) {

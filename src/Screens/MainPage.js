@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { database, firestore, auth } from "../DB/firebase";
+import { firestore } from "../DB/firebase";
 import Pokedex from "../Components/Pokedex.js";
 import SelectPoke from "../Components/SelectPoke";
 import BattlePage from "../Components/BattlePage";
@@ -13,18 +13,10 @@ import {
   query,
   where,
   onSnapshot,
-  getDocs,
-  addDoc,
   arrayUnion,
-  getDoc,
   deleteDoc,
-  arrayRemove,
-  increment,
 } from "firebase/firestore";
 import { doc, setDoc, updateDoc } from "firebase/firestore";
-const USERSTATS_FOLDER_NAME = "users";
-const PLAYER_POKEMON = "playerpokemon";
-const COMPUTER_POKEMON = "computerpokemon";
 
 const MainPage = (props) => {
   //Initialise state for userStats of each player. This is for userProfile.js.
@@ -52,8 +44,6 @@ const MainPage = (props) => {
   const [bothConfirmed, setBothConfirmed] = useState(false);
   const [playerTurn, setPlayerTurn] = useState();
   const [computerTurn, setComputerTurn] = useState();
-  //pastMoves is to record the entire history of the battle.
-  const [pastMoves, setPastMoves] = useState([]);
   //recentMoves is to record only the moves of each turn. Player turn and computer turn. This is to render on the battlepage the 2 attacks that happened.
   const [recentMoves, setRecentMoves] = useState([]);
   const [otherPlayerTurn, setOtherPlayerTurn] = useState();
@@ -64,7 +54,6 @@ const MainPage = (props) => {
   useEffect(() => {
     if (props.loggedInUser) {
       const { email } = props.loggedInUser;
-      console.log(email);
       const emailWoSpecialChar = email.replace(/[^a-zA-Z0-9 ]/g, "");
       const usersRef = collection(firestore, "users");
 
@@ -78,11 +67,7 @@ const MainPage = (props) => {
         props.setUserData(
           snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
         );
-        snapshot.docs.forEach((doc) => {
-          console.log({ ...doc.data(), id: doc.id });
-        });
       });
-      console.log("aft on snapshot! userstat", userStats);
     }
   }, [props.loggedInUser]);
 
@@ -92,9 +77,7 @@ const MainPage = (props) => {
   useEffect(() => {
     if (pvpMode === true) {
       const { email } = props.loggedInUser;
-      console.log(email);
       const emailWoSpecialChar = email.replace(/[^a-zA-Z0-9 ]/g, "");
-      console.log("roomID", roomID, "useEFFECT SNAPSHOT", gameType, "gameType");
       const otherUserRef = collection(firestore, "rooms", roomID, "users");
       // Create a query against the collection.
       const q = query(otherUserRef, where("email", "!=", emailWoSpecialChar));
@@ -104,12 +87,9 @@ const MainPage = (props) => {
         querySnapshot.forEach((doc) => {
           otherUserData.push(doc.data());
         });
-        console.log(otherUserData, "otheruserData");
         setOtherPlayerConfirmedPokemon(otherUserData[0]);
         if (otherUserData.length > 0) {
           setOtherPlayerExist(true);
-        } else {
-          console.log("other userdont exist");
         }
       });
     }
@@ -186,9 +166,6 @@ const MainPage = (props) => {
   const [currPokemon, setCurrPokemon] = useState(0);
   const handleChoosePokemonClick = (e) => {
     setCurrPokemon(e.target.name);
-    console.log(e.target.name, "e.target.name name of pokemon");
-    // console.log(pokemon,",data of pokemon")
-    console.log("navigate to select pokemon");
     setNextPage(true);
     navigate("selectpokemon").catch((error) => {
       console.log(error);
@@ -197,7 +174,6 @@ const MainPage = (props) => {
 
   //user press back to pokedex
   const handleReselectPokemon = async (e) => {
-    console.log("reselect navigate back");
     setCurrPokemon();
     setNextPage(false);
 
@@ -219,7 +195,6 @@ const MainPage = (props) => {
         Math.floor(Math.random() * (pokemonSelection.length - 1) + 1)
       ];
     setComputerConfirmedPokemon(computerPokemon);
-    console.log(computerPokemon);
     getComputerArray(computerPokemon.pokemonMovesURL);
   };
 
@@ -239,7 +214,6 @@ const MainPage = (props) => {
           if (power == null) {
             power = 1;
           }
-          console.log(power);
           // return power;
           const movesWithPower = {
             name: name,
@@ -248,7 +222,6 @@ const MainPage = (props) => {
 
           return movesWithPower;
         });
-        console.log(powerMoves);
         return powerMoves;
       })
       .then((powerMoves) => setComputerArray(powerMoves));
@@ -259,7 +232,6 @@ const MainPage = (props) => {
   ) => {
     const computerRef = doc(firestore, "rooms", roomID, "users", "computer");
     if (computerPokemonData && computerArray.length > 3 && pveMode === true) {
-      console.log(computerPokemonData, "UPDATE FIRESTORE! computer poke data");
       await setDoc(computerRef, {
         pokemonName: computerPokemonData.pokemonName,
         pokemonHP: computerPokemonData.pokemonHP,
@@ -277,9 +249,6 @@ const MainPage = (props) => {
       pveMode === true
     ) {
       //push computer to firestore
-      console.log(
-        "hiiii! player and comp cfm pokemon, check DB if comp updated!"
-      );
       pushComputerPokemonData(computerConfirmedPokemon, computerArray);
     }
   }, [computerArray]);
@@ -293,8 +262,6 @@ const MainPage = (props) => {
       userStats[0].username
     );
 
-    console.log(playerPokemonData, "USER DATA FIRESTORE UPDATED");
-
     await updateDoc(userRef, {
       pokemonName: playerPokemonData.pokemonName,
       pokemonHP: playerPokemonData.pokemonHP,
@@ -306,12 +273,8 @@ const MainPage = (props) => {
 
   const [playerConfirmed, setPlayerConfirmed] = useState();
   const handleConfirmPokemon = async (confirmedPokemon) => {
-    console.log(roomID, "roomID", userStats[0].username, "username");
-    console.log(confirmedPokemon);
     //pass the confirmed pokemons to battlepage through state
     setPlayerConfirmedPokemon(confirmedPokemon);
-    console.log(pveMode, "pveMode", gameType, "gameType");
-    console.log("before select pokemon!!!");
     if (pveMode === true && gameType === "pve") {
       selectComputerPokemon(confirmedPokemon);
     }
@@ -323,10 +286,8 @@ const MainPage = (props) => {
     setBattle(true);
     setNextPage(true);
     setPlayerConfirmed(true);
-    console.log(otherPlayerConfirmedPokemon);
 
     navigate("battlepage");
-    console.log("battle!");
   };
 
   //Helper function for finding the most used pokemon of each user based on usedPokemon array. This is run in useEffect.
@@ -355,10 +316,8 @@ const MainPage = (props) => {
   const [isOtherPlayerStrong, setIsOtherPlayerStrong] = useState(false);
   //When User clicks attack in battle page. Playerturn state is already true.
   const handleAttack = async (e) => {
-    console.log("handle attack is running");
     if (pveMode === true) {
       if (playerTurn) {
-        console.log("playerturn now");
         // Set the computerturn state to false.
         setComputerTurn(false);
         let critMultiplier = 1;
@@ -436,7 +395,6 @@ const MainPage = (props) => {
         } else {
           newComputerHP = computerConfirmedPokemon.pokemonHP - playerAttack;
         }
-        console.log(newComputerHP, "newcompHP");
         // //Update the database with computer pokemon's new hp.
         const compRef = doc(firestore, "rooms", roomID, "users", "computer");
         await updateDoc(compRef, { pokemonHP: newComputerHP, turn: true });
@@ -447,8 +405,6 @@ const MainPage = (props) => {
         if (newComputerHP > 0) {
           handleComputerAttack();
         } else {
-          console.log("computer pokemon is dead");
-
           let mostUsedPokemon;
           if (
             userStats[0].usedPokemon &&
@@ -469,8 +425,6 @@ const MainPage = (props) => {
       }
     }
     if (pvpMode === true) {
-      console.log(otherPlayerConfirmedPokemon);
-      console.log(userStats);
       const otherPlayerRef = doc(
         firestore,
         "rooms",
@@ -583,10 +537,7 @@ const MainPage = (props) => {
           });
         }
         //If other pokemon's hp is 0 with User's pokemon attack, battle ends. Update stats of user into the database.
-        if (newOtherPlayerHP > 0) {
-          console.log("wait fr other player move");
-        } else {
-          console.log("other player pokemon is dead");
+        if (newOtherPlayerHP <= 0) {
           let mostUsedPokemon;
           if (
             userStats[0].usedPokemon &&
@@ -612,9 +563,6 @@ const MainPage = (props) => {
         }
       }
     }
-    if (otherPlayerTurn) {
-      console.log("other player Turn");
-    }
   };
 
   // Computer turn function for battle page. This is executed if computer's hp is not 0 after player's turn.
@@ -622,9 +570,6 @@ const MainPage = (props) => {
     //May be redundant, but set playerTurn's state to false and computerTurn state to true to ensure.
     setPlayerTurn(false);
     setComputerTurn(true);
-    console.log("yes myturn now");
-    console.log(computerConfirmedPokemon);
-    console.log(computerTurn);
 
     let critMultiplier = 1;
     if (
@@ -704,7 +649,6 @@ const MainPage = (props) => {
     if (newPlayerHP > 0) {
       setPlayerTurn(true);
     } else {
-      console.log("player pokemon is dead");
       const mostUsedPokemon = findMostUsed(userStats[0].usedPokemon);
       const userRef = doc(firestore, "users", userStats[0].email);
       await updateDoc(userRef, {
@@ -725,8 +669,6 @@ const MainPage = (props) => {
         onSnapshot(
           doc(firestore, "rooms", roomID, "users", "computer"),
           (doc) => {
-            console.log("COMP SNAPSHOT", doc.data());
-            // setRooms(snapshot.docs.map((doc)=>({id:doc.id, data:doc.data()})))
             setComputerConfirmedPokemon((prevState) => {
               return { ...prevState, pokemonHP: doc.data().pokemonHP };
             });
@@ -736,24 +678,17 @@ const MainPage = (props) => {
         onSnapshot(
           doc(firestore, "rooms", roomID, "users", userStats[0].username),
           (doc) => {
-            console.log("PLAYER SNAPSHOT", doc.data());
             setPlayerConfirmedPokemon((prevState) => {
               return { ...prevState, pokemonHP: doc.data().pokemonHP };
             });
           }
         );
       }
-      console.log(playerConfirmedPokemon, "player cfm pokemon on SNAPSHOT!");
-      console.log(
-        computerConfirmedPokemon,
-        "computer cfm pokemon on SNAPSHOT!"
-      );
     }
   }, [playerTurn, computerTurn]);
 
   // FOR PVP MODE, GET OTHER USER STATE
   useEffect(() => {
-    console.log(bothConfirmed);
     // const q = query(collection(db, "rooms"));
     if (roomID && bothConfirmed && pvpMode === true) {
       if (playerTurn) {
@@ -767,9 +702,6 @@ const MainPage = (props) => {
           ),
           { includeMetaDataChanges: true },
           (doc) => {
-            console.log("OTHER PLAYER SNAPSHOT", doc.data());
-
-            // setRooms(snapshot.docs.map((doc)=>({id:doc.id, data:doc.data()})))
             setOtherPlayerConfirmedPokemon((prevState) => {
               return {
                 ...prevState,
@@ -781,12 +713,10 @@ const MainPage = (props) => {
           }
         );
       } else if (otherPlayerTurn) {
-        console.log("otherplayer turn runs update on my pokemonhp.");
         onSnapshot(
           doc(firestore, "rooms", roomID, "users", userStats[0].username),
           { includeMetaDataChanges: true },
           (doc) => {
-            console.log("PLAYER SNAPSHOT", doc.data());
             setPlayerConfirmedPokemon((prevState) => {
               return {
                 ...prevState,
@@ -798,12 +728,6 @@ const MainPage = (props) => {
           }
         );
       }
-
-      console.log(playerConfirmedPokemon, "player cfm pokemon on SNAPSHOT!");
-      console.log(
-        otherPlayerConfirmedPokemon,
-        "computer cfm pokemon on SNAPSHOT!"
-      );
     }
   }, [playerTurn, otherPlayerTurn]);
 
