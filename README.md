@@ -38,9 +38,8 @@ Use the app at https://project2-pokem-bootcamp.web.app/
 
 
 ## Built with
-
-ReactJS
-Cloud Firestore
-Firebase Authentication
-Axios
-Material UI
+- ReactJS
+- Cloud Firestore
+- Firebase Authentication
+- Axios
+- Material UI
